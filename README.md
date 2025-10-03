@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) project for RDKNovel, a novel reading platform built with modern React patterns and shadcn/ui components.
 
-## Getting Started
+## 🚀 Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- npm, yarn, pnpm, or bun
+- A running Laravel backend API
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Installation
+
+1. **Clone and install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Environment setup:**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edit `.env.local` with your backend API URL:
+   ```bash
+   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   
+   Open [http://localhost:3000](http://localhost:3000) with your browser.
+
+## ✨ Features
+
+- **🔐 Complete Authentication System**
+  - Email/password registration and login
+  - Google OAuth integration
+  - Email verification
+  - JWT token management
+  - Protected routes
+
+- **🎨 Modern UI Components**
+  - shadcn/ui component library
+  - Dark/light theme support
+  - Responsive design
+  - OKLCH color system
+
+- **📡 API Integration**
+  - Type-safe API client
+  - React hooks for data fetching
+  - Error handling
+  - Loading states
+  - Pagination support
+
+## 📁 Project Structure
+
+```
+src/
+├── app/                    # Next.js 15 App Router
+│   ├── auth/              # Authentication pages
+│   │   ├── login/         # Login page
+│   │   ├── register/      # Registration page
+│   │   └── google/callback/ # OAuth callback
+│   ├── layout.tsx         # Root layout with theme provider
+│   └── page.tsx           # Home page
+├── components/            # React components
+│   ├── ui/                # shadcn/ui components
+│   └── navbar.tsx         # Navigation with auth integration
+├── hooks/                 # Custom React hooks
+│   ├── use-auth.ts        # Authentication state management
+│   ├── use-api.ts         # Generic API hooks
+│   └── use-novels.ts      # Novel-specific data hooks
+├── lib/                   # Utilities
+│   ├── api-client.ts      # Centralized API client
+│   ├── env.ts             # Environment validation
+│   └── utils.ts           # Utility functions
+├── services/              # API service layers
+│   ├── auth.ts            # Authentication services
+│   ├── novels.ts          # Novel services
+│   └── reading.ts         # Reading progress services
+└── types/                 # TypeScript interfaces
+    └── api.ts             # API response types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` - Development server with Turbopack
+- `npm run build` - Production build with Turbopack  
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-## Learn More
+### Adding Components
 
-To learn more about Next.js, take a look at the following resources:
+Add shadcn/ui components:
+```bash
+npx shadcn@latest add [component-name]
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Components auto-configure with New York style and CSS variables.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Authentication Flow
 
-## Deploy on Vercel
+1. **User Registration/Login** → JWT token stored
+2. **Protected API Calls** → Token automatically included
+3. **Profile Management** → Real-time sync with backend
+4. **Email Verification** → Handled via backend routes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📚 Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **[API Integration Guide](./API.md)** - Complete API setup and usage
+- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
+
+## 🔗 Backend Integration
+
+This frontend connects to a Laravel backend with Sanctum authentication. Required API routes:
+
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login  
+- `GET /auth/me` - Get user profile
+- `POST /auth/logout` - User logout
+- `GET /auth/google` - Google OAuth
+- `GET /auth/google/callback` - OAuth callback
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+```bash
+# Connect your repo to Vercel
+# Add environment variables in dashboard
+# Deploy automatically on push
+```
+
+### Manual Deployment
+```bash
+npm run build
+npm run start
+```
+
+## 🧪 Tech Stack
+
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS v4** - Styling with OKLCH colors
+- **shadcn/ui** - Component library
+- **Radix UI** - Headless components
+- **Lucide React** - Icons
+- **next-themes** - Theme management
+
+## 📄 License
+
+This project is private and proprietary.
