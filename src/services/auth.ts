@@ -82,6 +82,26 @@ export const authService = {
     await apiClient.put('/auth/change-password', passwordData);
   },
 
+  // Google OAuth
+  async getGoogleAuthRedirectUrl(): Promise<string> {
+    const response = await apiClient.get<{ url: string }>('/auth/google');
+    return response.data.url;
+  },
+
+  async handleGoogleCallback(code: string, state?: string): Promise<AuthResponse> {
+    const params = new URLSearchParams({ code });
+    if (state) params.append('state', state);
+    
+    const response = await apiClient.get<AuthResponse>(`/auth/google/callback?${params.toString()}`);
+    const authData = response.data || response as any;
+    
+    if (authData && authData.token) {
+      apiClient.setAuthToken(authData.token, true);
+    }
+    
+    return authData;
+  },
+
   // Email Verification
   async sendEmailVerification(): Promise<{ message: string }> {
     const response = await apiClient.post<{ message: string }>('/auth/email/verification-notification');

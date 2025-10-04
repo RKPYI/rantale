@@ -1,0 +1,216 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { Github, Twitter, Mail, Heart, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useState, useEffect } from "react";
+
+export function Footer() {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return (
+    <footer className="bg-background border-t mt-auto">
+      <div className="px-4 py-12 md:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Brand Section */}
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+              {!mounted ? (
+                <div className="h-8 w-[120px] bg-muted animate-pulse rounded" />
+              ) : (
+                <Image
+                  src={resolvedTheme === 'dark' ? '/logo-dark.svg' : '/logo-light.svg'}
+                  alt="RANOVEL"
+                  width={120}
+                  height={40}
+                  className="h-8 w-auto"
+                />
+              )}
+            </Link>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Discover and read amazing novels from around the world. Join our community of readers and authors.
+            </p>
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="#">
+                  <Github className="h-4 w-4" />
+                  <span className="sr-only">GitHub</span>
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="#">
+                  <Twitter className="h-4 w-4" />
+                  <span className="sr-only">Twitter</span>
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/contact">
+                  <Mail className="h-4 w-4" />
+                  <span className="sr-only">Contact</span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Browse Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Browse</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link 
+                  href="/search" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  All Novels
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/genres" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Genres
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/top-rated" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Top Rated
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/recently-updated" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Recently Updated
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/completed" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Completed
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Community Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Community</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link 
+                  href="/authors" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Authors
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/reviews" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Reviews
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/discussions" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Discussions
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/guidelines" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Community Guidelines
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Support Section */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Support</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link 
+                  href="/help" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Help Center
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/contact" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/privacy" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/terms" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  href="/api" 
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  API Documentation
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <Separator className="my-8" />
+
+        {/* Bottom Section */}
+        <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+            <span>© 2025 RANOVEL. All rights reserved.</span>
+          </div>
+          
+          <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+            <span>Made with</span>
+            <Heart className="h-4 w-4 text-red-500 fill-current" />
+            <span>for book lovers</span>
+            <BookOpen className="h-4 w-4 ml-1" />
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
