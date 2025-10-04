@@ -18,12 +18,12 @@ export function SectionHeader({
   icon: Icon,
   viewAllText = "View All",
   viewAllHref,
-  className
+  className,
 }: SectionHeaderProps) {
   return (
-    <div className={cn("flex items-center justify-between mb-8", className)}>
-      <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-        {Icon && <Icon className="h-6 w-6 text-primary" />}
+    <div className={cn("mb-8 flex items-center justify-between", className)}>
+      <h2 className="flex items-center gap-2 text-2xl font-bold md:text-3xl">
+        {Icon && <Icon className="text-primary h-6 w-6" />}
         {title}
       </h2>
       {viewAllHref && (

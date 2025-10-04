@@ -24,23 +24,25 @@ export function HeroSection({
   primaryButtonHref = "/search",
   secondaryButtonText = "Browse Genres",
   secondaryButtonHref = "/genres",
-  className
+  className,
 }: HeroSectionProps) {
   return (
-    <section className={cn(
-      "bg-gradient-to-br from-primary/5 via-background to-secondary/5 py-12 lg:py-20",
-      className
-    )}>
+    <section
+      className={cn(
+        "from-primary/5 via-background to-secondary/5 bg-gradient-to-br py-12 lg:py-20",
+        className,
+      )}
+    >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="text-center space-y-6 max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+        <div className="mx-auto max-w-3xl space-y-6 text-center">
+          <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
             {title}
             <span className="text-primary block">{subtitle}</span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-lg md:text-xl">
             {description}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link href={primaryButtonHref}>
               <Button size="lg" className="w-full sm:w-auto">
                 <BookOpen className="mr-2 h-5 w-5" />

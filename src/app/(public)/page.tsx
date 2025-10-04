@@ -3,32 +3,36 @@
 import Link from "next/link";
 import { TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HeroSection, CallToActionSection, SectionHeader } from "@/components/sections";
+import {
+  HeroSection,
+  CallToActionSection,
+  SectionHeader,
+} from "@/components/sections";
 import { NovelGrid, NovelsTabs } from "@/components/novels";
 import { GenreList } from "@/components/genres";
 import { usePopularNovels, useGenres } from "@/hooks/use-novels";
-
-
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
   // Fetch data using hooks
   const { data: popularNovels, loading: popularLoading } = usePopularNovels();
   const { data: genres, loading: genresLoading } = useGenres();
-  
+  const { isAuthenticated } = useAuth();
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Hero Section */}
       <HeroSection />
 
       {/* Featured/Popular Novels */}
       <section className="py-12 lg:py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          <SectionHeader 
+          <SectionHeader
             title="Featured Novels"
             icon={TrendingUp}
             viewAllHref="/top-rated"
           />
-          
+
           <NovelGrid
             novels={popularNovels || []}
             loading={popularLoading}
@@ -40,11 +44,11 @@ export default function Home() {
       </section>
 
       {/* Main Content Tabs */}
-      <section className="py-12 lg:py-16 bg-muted/20">
+      <section className="bg-muted/20 py-12 lg:py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
           <NovelsTabs maxItems={10} />
-          
-          <div className="text-center mt-8">
+
+          <div className="mt-8 text-center">
             <Link href="/search">
               <Button variant="outline" size="lg">
                 Explore More Novels
@@ -57,15 +61,12 @@ export default function Home() {
       {/* Genres Section */}
       <section className="py-12 lg:py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
-                    <GenreList
-            genres={genres || []}
-            loading={genresLoading}
-          />
+          <GenreList genres={genres || []} loading={genresLoading} />
         </div>
       </section>
 
-      {/* Call to Action */}
-      <CallToActionSection />
+      {/* Call to Action - Only show for non-authenticated users */}
+      {!isAuthenticated && <CallToActionSection />}
     </div>
   );
 }

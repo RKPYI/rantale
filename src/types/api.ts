@@ -50,7 +50,7 @@ export interface User {
   email: string;
   email_verified_at: string | null;
   email_verified: boolean;
-  role: number; // 0=user, 1=admin
+  role: number; // 0=user, 1=author, 2=moderator, 3=admin
   provider?: string; // email|google
   provider_id?: string | null;
   avatar: string | null;
@@ -60,6 +60,167 @@ export interface User {
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
+}
+
+// Author Application Types
+export interface AuthorApplication {
+  id: number;
+  user_id: number;
+  pen_name: string | null;
+  bio: string;
+  writing_experience: string;
+  sample_work: string | null;
+  portfolio_url: string | null;
+  status: "pending" | "approved" | "rejected";
+  admin_notes: string | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+  reviewer?: User;
+}
+
+export interface AuthorApplicationRequest {
+  pen_name?: string;
+  bio: string;
+  writing_experience: string;
+  sample_work?: string;
+  portfolio_url?: string;
+}
+
+export interface AuthorApplicationResponse {
+  message: string;
+  application: AuthorApplication;
+}
+
+export interface AuthorApplicationsResponse {
+  applications: PaginatedResponse<AuthorApplication>;
+  stats: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
+}
+
+export interface AuthorApplicationStatusResponse {
+  application?: AuthorApplication;
+  message?: string;
+  can_apply?: boolean;
+  current_role?: number;
+}
+
+export interface AuthorStats {
+  total_novels: number;
+  total_views: number;
+  total_followers: number;
+  monthly_views: number | null;
+  monthly_followers: number | null;
+  average_rating: number | null;
+}
+
+export interface AuthorNovel {
+  id: number;
+  user_id: number;
+  title: string;
+  slug: string;
+  author: string;
+  created_at: string;
+  updated_at: string;
+  description: string;
+  status: "ongoing" | "completed" | "hiatus";
+  cover_image: string | null;
+  total_chapters: number;
+  views: number;
+  likes: number;
+  rating: string;
+  rating_count: number;
+  is_featured: boolean;
+  is_trending: boolean;
+  published_at: string | null;
+  chapters_count: number;
+  views_count: number;
+  rating_avg: string | null;
+  genres: Genre[];
+}
+
+export interface AuthorNovelsResponse {
+  message: string;
+  novels: AuthorNovel[];
+}
+
+// Library System Types
+export interface LibraryEntry {
+  id: number;
+  user_id: number;
+  novel_id: number;
+  status: "want_to_read" | "reading" | "completed" | "dropped" | "on_hold";
+  is_favorite: boolean;
+  added_at: string;
+  status_updated_at: string;
+  created_at: string;
+  updated_at: string;
+  novel: Novel;
+}
+
+export interface LibraryResponse {
+  message: string;
+  library: PaginatedResponse<LibraryEntry>;
+  stats: {
+    total: number;
+    want_to_read: number;
+    reading: number;
+    completed: number;
+    dropped: number;
+    on_hold: number;
+    favorites: number;
+  };
+}
+
+export interface LibraryStatusResponse {
+  in_library: boolean;
+  library_entry?: LibraryEntry;
+  novel_id: number;
+  novel_title: string;
+}
+
+export interface AddToLibraryRequest {
+  novel_id: number;
+  status: "want_to_read" | "reading" | "completed" | "dropped" | "on_hold";
+  is_favorite?: boolean;
+}
+
+export interface UpdateLibraryEntryRequest {
+  status?: "want_to_read" | "reading" | "completed" | "dropped" | "on_hold";
+  is_favorite?: boolean;
+}
+
+// Notification System Types
+export interface Notification {
+  id: number;
+  user_id: number;
+  type:
+    | "new_chapter"
+    | "comment_reply"
+    | "author_status"
+    | "novel_update"
+    | "system";
+  title: string;
+  message: string;
+  data: Record<string, any>;
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationsResponse {
+  notifications: PaginatedResponse<Notification>;
+  stats: {
+    total: number;
+    unread: number;
+    read: number;
+  };
 }
 
 export interface AuthResponse {
@@ -93,7 +254,7 @@ export interface Novel {
   created_at: string;
   updated_at: string;
   description: string;
-  status: 'ongoing' | 'completed' | 'hiatus';
+  status: "ongoing" | "completed" | "hiatus";
   cover_image: string | null;
   total_chapters: number | null;
   views: number | null;
@@ -167,6 +328,8 @@ export interface Comment {
   dislikes: number;
   is_spoiler: boolean;
   is_approved: boolean;
+  /** Timestamp when comment was last edited, null if never edited */
+  edited_at: string | null;
   created_at: string;
   updated_at: string;
   user: User;
@@ -217,11 +380,11 @@ export interface RatingStats {
   average_rating: number;
   total_ratings: number;
   rating_breakdown: {
-    '5': number;
-    '4': number;
-    '3': number;
-    '2': number;
-    '1': number;
+    "5": number;
+    "4": number;
+    "3": number;
+    "2": number;
+    "1": number;
   };
 }
 
@@ -349,17 +512,19 @@ export interface EmailVerificationRequest {
 // Admin Types
 export interface AdminCommentsResponse {
   current_page: number;
-  data: Array<Comment & {
-    user: User;
-    novel: {
-      id: number;
-      title: string;
-    };
-    chapter?: {
-      id: number;
-      title: string;
-    };
-  }>;
+  data: Array<
+    Comment & {
+      user: User;
+      novel: {
+        id: number;
+        title: string;
+      };
+      chapter?: {
+        id: number;
+        title: string;
+      };
+    }
+  >;
   // ... pagination properties
 }
 
@@ -413,9 +578,9 @@ export interface NovelSearchParams {
 
 export interface NovelListParams {
   genre?: string;
-  status?: 'ongoing' | 'completed' | 'hiatus';
-  sort_by?: 'popular' | 'rating' | 'latest' | 'updated' | string;
-  sort_order?: 'asc' | 'desc';
+  status?: "ongoing" | "completed" | "hiatus";
+  sort_by?: "popular" | "rating" | "latest" | "updated" | string;
+  sort_order?: "asc" | "desc";
   page?: number;
   per_page?: number;
 }
@@ -425,7 +590,7 @@ export interface CreateNovelRequest {
   author: string;
   description?: string;
   cover_image?: string;
-  status?: 'ongoing' | 'completed' | 'hiatus';
+  status?: "ongoing" | "completed" | "hiatus";
   genres?: number[];
 }
 
@@ -434,7 +599,7 @@ export interface UpdateNovelRequest {
   author?: string;
   description?: string;
   cover_image?: string;
-  status?: 'ongoing' | 'completed' | 'hiatus';
+  status?: "ongoing" | "completed" | "hiatus";
   genres?: number[];
 }
 
@@ -452,4 +617,134 @@ export interface UpdateChapterRequest {
   content?: string;
   is_free?: boolean;
   published_at?: string;
+}
+
+// Admin Dashboard Types
+export interface AdminDashboardStats {
+  users: {
+    total: number;
+    new_this_month: number;
+    verified: number;
+    active_today: number;
+    by_role: {
+      users: number;
+      authors: number;
+      moderators: number;
+      admins: number;
+    };
+  };
+  content: {
+    novels: number;
+    chapters: number;
+    comments: number;
+    ratings: number;
+    pending_comments: number;
+    novels_this_month: number;
+  };
+  engagement: {
+    total_views: string | number;
+    total_library_entries: number;
+    average_rating: number;
+    top_genres: {
+      name: string;
+      count: number;
+    }[];
+  };
+  author_applications: {
+    pending: number;
+    approved_this_month: number;
+    total_approved: number;
+  };
+}
+
+export interface AdminActivity {
+  id: number;
+  activity_type:
+    | "user_registered"
+    | "novel_created"
+    | "chapter_published"
+    | "comment_posted"
+    | "rating_added"
+    | "application_submitted"
+    | "user_role_changed";
+  created_at: string;
+
+  // For user registration activities
+  name?: string;
+  email?: string;
+  is_admin?: boolean;
+  is_verified?: boolean;
+
+  // For novel creation activities
+  title?: string;
+  author?: string;
+
+  // For comment activities
+  user_id?: number;
+  novel_id?: number;
+  content?: string;
+  user?: {
+    id: number;
+    name: string;
+    is_admin: boolean;
+    is_verified: boolean;
+  };
+  novel?: {
+    id: number;
+    title: string;
+  };
+
+  // For application activities
+  status?: "pending" | "approved" | "rejected";
+}
+
+export interface AdminUsersResponse {
+  message: string;
+  users: PaginatedResponse<User>;
+  stats: {
+    total: number;
+    active: number;
+    inactive: number;
+    unverified: number;
+    by_role: {
+      users: number;
+      authors: number;
+      moderators: number;
+      admins: number;
+    };
+  };
+}
+
+export interface AdminModerationResponse {
+  message: string;
+  moderation_data: {
+    pending_comments: Comment[];
+    recent_novels: {
+      id: number;
+      title: string;
+      author: string | null;
+      status: "ongoing" | "completed" | "hiatus";
+      created_at: string;
+    }[];
+  };
+}
+
+export interface AdminSystemHealth {
+  message: string;
+  health: {
+    database: {
+      status: "healthy" | "warning" | "critical";
+      total_tables: number;
+    };
+    cache: {
+      status: "healthy" | "warning" | "critical";
+    };
+    storage: {
+      status: "healthy" | "warning" | "critical";
+    };
+    recent_errors: {
+      count_today: number;
+      critical_errors: number;
+    };
+  };
 }

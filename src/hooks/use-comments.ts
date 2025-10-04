@@ -1,6 +1,6 @@
 "use client";
 
-import { commentService } from '@/services/comments';
+import { commentService } from "@/services/comments";
 import {
   Comment,
   CommentsResponse,
@@ -8,23 +8,27 @@ import {
   UpdateCommentRequest,
   VoteCommentRequest,
   CommentVote,
-  AdminCommentsResponse
-} from '@/types/api';
-import { useApi } from './use-api';
+  AdminCommentsResponse,
+} from "@/types/api";
+import { useApi } from "./use-api";
 
 // Hook for getting novel comments
 export function useNovelComments(novelSlug: string, page?: number) {
   return useApi(
     () => commentService.getNovelComments(novelSlug, page),
-    [novelSlug, page]
+    [novelSlug, page],
   );
 }
 
 // Hook for getting chapter comments
-export function useChapterComments(novelSlug: string, chapterId: number, page?: number) {
+export function useChapterComments(
+  novelSlug: string,
+  chapterId: number,
+  page?: number,
+) {
   return useApi(
     () => commentService.getChapterComments(novelSlug, chapterId, page),
-    [novelSlug, chapterId, page]
+    [novelSlug, chapterId, page],
   );
 }
 
@@ -32,7 +36,7 @@ export function useChapterComments(novelSlug: string, chapterId: number, page?: 
 export function useCreateComment() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with commentService.createComment
-    []
+    [],
   );
 }
 
@@ -40,7 +44,7 @@ export function useCreateComment() {
 export function useUpdateComment() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with commentService.updateComment
-    []
+    [],
   );
 }
 
@@ -48,7 +52,7 @@ export function useUpdateComment() {
 export function useDeleteComment() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with commentService.deleteComment
-    []
+    [],
   );
 }
 
@@ -56,7 +60,7 @@ export function useDeleteComment() {
 export function useVoteOnComment() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with commentService.voteOnComment
-    []
+    [],
   );
 }
 
@@ -64,22 +68,19 @@ export function useVoteOnComment() {
 export function useUserVoteOnComment(commentId: number) {
   return useApi(
     () => commentService.getUserVoteOnComment(commentId),
-    [commentId]
+    [commentId],
   );
 }
 
 // Admin hook for getting all comments
 export function useAllComments(page?: number) {
-  return useApi(
-    () => commentService.getAllComments(page),
-    [page]
-  );
+  return useApi(() => commentService.getAllComments(page), [page]);
 }
 
 // Admin hook for toggling comment approval (use refetch to call)
 export function useToggleCommentApproval() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with commentService.toggleCommentApproval
-    []
+    [],
   );
 }

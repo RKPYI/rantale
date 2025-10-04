@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { handleApiError } from '@/lib/api-client';
+import { useState, useEffect } from "react";
+import { handleApiError } from "@/lib/api-client";
 
 export interface UseApiState<T> {
   data: T | null;
@@ -12,7 +12,7 @@ export interface UseApiState<T> {
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
-  dependencies: any[] = []
+  dependencies: any[] = [],
 ): UseApiState<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,20 +61,21 @@ export function useAsync<T>(): UseAsyncState<T> {
     try {
       setLoading(true);
       setError(null);
-      
+
       // The first argument should be a function that returns a promise
       const apiCall = args[0];
-      if (typeof apiCall !== 'function') {
-        throw new Error('First argument must be a function');
+      if (typeof apiCall !== "function") {
+        throw new Error("First argument must be a function");
       }
-      
+
       const result = await apiCall(...args.slice(1));
       setData(result);
       return result;
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
-      return null;
+      // Re-throw the original error so it can be caught by the calling component
+      throw err;
     } finally {
       setLoading(false);
     }

@@ -9,18 +9,23 @@ interface NovelCardSkeletonProps {
   className?: string;
 }
 
-export function NovelCardSkeleton({ size = "default", className }: NovelCardSkeletonProps) {
+export function NovelCardSkeleton({
+  size = "default",
+  className,
+}: NovelCardSkeletonProps) {
   const isCompact = size === "compact";
   const isFeatured = size === "featured";
-  
+
   return (
     <Card className={cn("overflow-hidden", className)}>
-      <Skeleton className={cn(
-        "w-full",
-        isCompact ? "aspect-[3/2]" : "aspect-[2/3]",
-        isFeatured && "aspect-[2/3]"
-      )} />
-      <CardContent className="p-4 space-y-3">
+      <Skeleton
+        className={cn(
+          "w-full",
+          isCompact ? "aspect-[3/2]" : "aspect-[2/3]",
+          isFeatured && "aspect-[2/3]",
+        )}
+      />
+      <CardContent className="space-y-3 p-4">
         <div className="space-y-2">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-3 w-24" />
@@ -36,7 +41,7 @@ export function NovelCardSkeleton({ size = "default", className }: NovelCardSkel
           <Skeleton className="h-5 w-12" />
         </div>
       </CardContent>
-      <CardFooter className="pt-0 pb-4 px-4">
+      <CardFooter className="px-4 pt-0 pb-4">
         <div className="flex gap-3">
           <Skeleton className="h-3 w-12" />
           <Skeleton className="h-3 w-8" />

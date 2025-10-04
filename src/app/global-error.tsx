@@ -19,43 +19,40 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
   return (
     <html>
       <body>
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-background flex min-h-screen items-center justify-center p-4">
           <Card className="w-full max-w-md text-center">
             <CardHeader>
-              <div className="flex justify-center mb-4">
-                <div className="p-4 bg-destructive/10 rounded-full">
-                  <AlertTriangle className="h-12 w-12 text-destructive" />
+              <div className="mb-4 flex justify-center">
+                <div className="bg-destructive/10 rounded-full p-4">
+                  <AlertTriangle className="text-destructive h-12 w-12" />
                 </div>
               </div>
               <CardTitle className="text-2xl">Critical Error</CardTitle>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                A critical error has occurred. The application needs to be restarted.
+                A critical error has occurred. The application needs to be
+                restarted.
               </p>
-              
+
               <div className="space-y-3">
-                <Button 
-                  onClick={reset}
-                  className="w-full"
-                  size="lg"
-                >
+                <Button onClick={reset} className="w-full" size="lg">
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Restart Application
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   className="w-full"
-                  onClick={() => window.location.href = "/"}
+                  onClick={() => (window.location.href = "/")}
                 >
                   <Home className="mr-2 h-4 w-4" />
                   Go to Home
                 </Button>
               </div>
-              
-              <div className="pt-4 border-t text-xs text-muted-foreground">
+
+              <div className="text-muted-foreground border-t pt-4 text-xs">
                 <p>Error ID: {error.digest}</p>
                 <p className="mt-1">
                   If this persists, please contact support.

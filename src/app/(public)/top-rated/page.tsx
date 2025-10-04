@@ -1,42 +1,42 @@
 "use client";
 
-import { useState } from 'react';
-import { Star, TrendingUp, Clock, BookOpen, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Link from 'next/link';
-import Image from 'next/image';
+import { useState } from "react";
+import { Star, TrendingUp, Clock, BookOpen, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
+import Image from "next/image";
 
-import { useNovels } from '@/hooks/use-novels';
-import { 
-  formatRating, 
-  formatChapterCount, 
+import { useNovels } from "@/hooks/use-novels";
+import {
+  formatRating,
+  formatChapterCount,
   formatViewCount,
   truncateDescription,
-  getStatusColor
-} from '@/lib/novel-utils';
-import { Novel } from '@/types/api';
+  getStatusColor,
+} from "@/lib/novel-utils";
+import { Novel } from "@/types/api";
 
 export default function TopRatedPage() {
-  const [activeTab, setActiveTab] = useState('rating');
-  
+  const [activeTab, setActiveTab] = useState("rating");
+
   // Fetch novels with different sorting
   const { data: topRatedData, loading: ratingLoading } = useNovels({
-    sort_by: 'rating',
-    per_page: 20
+    sort_by: "rating",
+    per_page: 20,
   });
-  
+
   const { data: mostViewedData, loading: viewsLoading } = useNovels({
-    sort_by: 'popular',
-    per_page: 20
+    sort_by: "popular",
+    per_page: 20,
   });
-  
+
   const { data: recentlyUpdatedData, loading: updatedLoading } = useNovels({
-    sort_by: 'updated',
-    per_page: 20
+    sort_by: "updated",
+    per_page: 20,
   });
 
   // Extract data arrays from paginated responses
@@ -46,20 +46,23 @@ export default function TopRatedPage() {
 
   const NovelCard = ({ novel, rank }: { novel: Novel; rank: number }) => (
     <Link href={`/novels/${novel.slug}`}>
-      <Card className="hover:shadow-lg transition-all duration-200 hover:scale-[1.01] cursor-pointer">
+      <Card className="cursor-pointer transition-all duration-200 hover:scale-[1.01] hover:shadow-lg">
         <CardContent className="p-4">
           <div className="flex gap-4">
             {/* Rank Badge */}
-            <div className="flex-shrink-0 flex flex-col items-center">
-              <div className={`
-                w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white mb-2
-                ${rank <= 3 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' : 
-                  rank <= 10 ? 'bg-gradient-to-r from-slate-400 to-slate-600' : 
-                  'bg-gradient-to-r from-orange-400 to-orange-600'}
-              `}>
+            <div className="flex flex-shrink-0 flex-col items-center">
+              <div
+                className={`mb-2 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white ${
+                  rank <= 3
+                    ? "bg-gradient-to-r from-yellow-400 to-yellow-600"
+                    : rank <= 10
+                      ? "bg-gradient-to-r from-slate-400 to-slate-600"
+                      : "bg-gradient-to-r from-orange-400 to-orange-600"
+                } `}
+              >
                 {rank}
               </div>
-              
+
               {/* Cover Image */}
               {novel.cover_image ? (
                 <Image
@@ -67,26 +70,28 @@ export default function TopRatedPage() {
                   alt={novel.title}
                   width={80}
                   height={120}
-                  className="rounded object-cover bg-muted"
+                  className="bg-muted rounded object-cover"
                 />
               ) : (
-                <div className="w-20 h-30 bg-muted rounded flex items-center justify-center">
-                  <BookOpen className="h-8 w-8 text-muted-foreground" />
+                <div className="bg-muted flex h-30 w-20 items-center justify-center rounded">
+                  <BookOpen className="text-muted-foreground h-8 w-8" />
                 </div>
               )}
             </div>
-            
+
             {/* Novel Info */}
-            <div className="flex-1 min-w-0 space-y-2">
+            <div className="min-w-0 flex-1 space-y-2">
               <div>
-                <h3 className="font-semibold text-lg line-clamp-2">{novel.title}</h3>
+                <h3 className="line-clamp-2 text-lg font-semibold">
+                  {novel.title}
+                </h3>
                 <p className="text-muted-foreground">by {novel.author}</p>
               </div>
-              
-              <p className="text-sm text-muted-foreground line-clamp-3">
+
+              <p className="text-muted-foreground line-clamp-3 text-sm">
                 {truncateDescription(novel.description, 200)}
               </p>
-              
+
               {/* Genres */}
               <div className="flex flex-wrap gap-1">
                 {novel.genres.slice(0, 3).map((genre) => (
@@ -100,21 +105,23 @@ export default function TopRatedPage() {
                   </Badge>
                 )}
               </div>
-              
+
               {/* Stats */}
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1 text-yellow-600">
                   <Star className="h-4 w-4 fill-current" />
-                  <span className="font-medium">{formatRating(novel.rating)}</span>
+                  <span className="font-medium">
+                    {formatRating(novel.rating)}
+                  </span>
                 </div>
                 <Badge variant={getStatusColor(novel.status)}>
                   {novel.status}
                 </Badge>
-                <div className="flex items-center gap-1 text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-1">
                   <BookOpen className="h-4 w-4" />
                   <span>{formatChapterCount(novel.total_chapters)}</span>
                 </div>
-                <div className="flex items-center gap-1 text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-1">
                   <Eye className="h-4 w-4" />
                   <span>{formatViewCount(novel.views)}</span>
                 </div>
@@ -130,16 +137,16 @@ export default function TopRatedPage() {
     <Card>
       <CardContent className="p-4">
         <div className="flex gap-4">
-          <div className="flex-shrink-0 flex flex-col items-center">
-            <div className="w-8 h-8 rounded-full bg-muted mb-2 flex items-center justify-center">
+          <div className="flex flex-shrink-0 flex-col items-center">
+            <div className="bg-muted mb-2 flex h-8 w-8 items-center justify-center rounded-full">
               <span className="text-sm font-bold">{rank}</span>
             </div>
-            <Skeleton className="w-20 h-30 rounded" />
+            <Skeleton className="h-30 w-20 rounded" />
           </div>
           <div className="flex-1 space-y-2">
             <div>
               <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2 mt-1" />
+              <Skeleton className="mt-1 h-4 w-1/2" />
             </div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
@@ -175,8 +182,8 @@ export default function TopRatedPage() {
       return (
         <Card>
           <CardContent className="p-8 text-center">
-            <TrendingUp className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">No Novels Found</h3>
+            <TrendingUp className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
+            <h3 className="mb-2 text-xl font-medium">No Novels Found</h3>
             <p className="text-muted-foreground">
               Check back later for top-rated content.
             </p>
@@ -225,11 +232,11 @@ export default function TopRatedPage() {
           <TabsContent value="rating" className="mt-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
+                <h2 className="flex items-center gap-2 text-xl font-semibold">
                   <Star className="h-5 w-5 text-yellow-500" />
                   Highest Rated Novels
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Based on user ratings
                 </p>
               </div>
@@ -240,11 +247,11 @@ export default function TopRatedPage() {
           <TabsContent value="views" className="mt-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
+                <h2 className="flex items-center gap-2 text-xl font-semibold">
                   <Eye className="h-5 w-5 text-blue-500" />
                   Most Viewed Novels
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Based on total views
                 </p>
               </div>
@@ -255,11 +262,11 @@ export default function TopRatedPage() {
           <TabsContent value="updated" className="mt-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
+                <h2 className="flex items-center gap-2 text-xl font-semibold">
                   <Clock className="h-5 w-5 text-green-500" />
                   Recently Updated
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Latest chapter updates
                 </p>
               </div>
@@ -269,14 +276,15 @@ export default function TopRatedPage() {
         </Tabs>
 
         {/* Call to Action */}
-        <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+        <Card className="from-primary/10 to-primary/5 border-primary/20 bg-gradient-to-r">
           <CardContent className="p-6 text-center">
-            <TrendingUp className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Discover More</h3>
+            <TrendingUp className="text-primary mx-auto mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-xl font-semibold">Discover More</h3>
             <p className="text-muted-foreground mb-4">
-              Explore our full collection of novels with advanced filtering and search
+              Explore our full collection of novels with advanced filtering and
+              search
             </p>
-            <div className="flex gap-2 justify-center">
+            <div className="flex justify-center gap-2">
               <Link href="/search">
                 <Button>Browse All Novels</Button>
               </Link>

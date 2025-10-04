@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { authService } from '@/services/auth';
-import { User, UpdateProfileRequest } from '@/types/api';
-import { handleApiError } from '@/lib/api-client';
+import { useState, useEffect, useCallback } from "react";
+import { authService } from "@/services/auth";
+import { User, UpdateProfileRequest } from "@/types/api";
+import { handleApiError } from "@/lib/api-client";
 
 interface AuthState {
   user: User | null;
@@ -13,8 +13,21 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (email: string, password: string, remember?: boolean) => Promise<boolean>;
-  register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<{ success: boolean; needsVerification?: boolean; message?: string }>;
+  login: (
+    email: string,
+    password: string,
+    remember?: boolean,
+  ) => Promise<boolean>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    passwordConfirmation: string,
+  ) => Promise<{
+    success: boolean;
+    needsVerification?: boolean;
+    message?: string;
+  }>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateProfile: (data: UpdateProfileRequest) => Promise<boolean>;
@@ -51,75 +64,88 @@ export function useAuth(): AuthState & AuthActions {
     initAuth();
   }, []);
 
-  const login = useCallback(async (
-    email: string, 
-    password: string, 
-    remember: boolean = false
-  ): Promise<boolean> => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log('🔐 Attempting login...');
-      const authResponse = await authService.login({ email, password }, remember);
-      
-      console.log('✅ Login response:', authResponse);
-      
-      if (!authResponse || !authResponse.user) {
-        throw new Error('Invalid authentication response: missing user data');
-      }
-      
-      setUser(authResponse.user);
-      
-      return true;
-    } catch (err) {
-      console.error('❌ Login error:', err);
-      setError(handleApiError(err));
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const login = useCallback(
+    async (
+      email: string,
+      password: string,
+      remember: boolean = false,
+    ): Promise<boolean> => {
+      try {
+        setLoading(true);
+        setError(null);
 
-  const register = useCallback(async (
-    name: string,
-    email: string,
-    password: string,
-    passwordConfirmation: string
-  ): Promise<{ success: boolean; needsVerification?: boolean; message?: string }> => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const authResponse = await authService.register({
-        name,
-        email,
-        password,
-        password_confirmation: passwordConfirmation,
-      });
-      
-      // Registration successful with token - auto login
-      setUser(authResponse.user);
-      
-      return {
-        success: true,
-        needsVerification: !authResponse.user.email_verified,
-        message: authResponse.verification_notice || authResponse.message,
-      };
-    } catch (err) {
-      setError(handleApiError(err));
-      return { success: false };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        console.log("🔐 Attempting login...");
+        const authResponse = await authService.login(
+          { email, password },
+          remember,
+        );
+
+        console.log("✅ Login response:", authResponse);
+
+        if (!authResponse || !authResponse.user) {
+          throw new Error("Invalid authentication response: missing user data");
+        }
+
+        setUser(authResponse.user);
+
+        return true;
+      } catch (err) {
+        console.error("❌ Login error:", err);
+        setError(handleApiError(err));
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  const register = useCallback(
+    async (
+      name: string,
+      email: string,
+      password: string,
+      passwordConfirmation: string,
+    ): Promise<{
+      success: boolean;
+      needsVerification?: boolean;
+      message?: string;
+    }> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const authResponse = await authService.register({
+          name,
+          email,
+          password,
+          password_confirmation: passwordConfirmation,
+        });
+
+        // Registration successful with token - auto login
+        setUser(authResponse.user);
+
+        return {
+          success: true,
+          needsVerification: !authResponse.user.email_verified,
+          message: authResponse.verification_notice || authResponse.message,
+        };
+      } catch (err) {
+        setError(handleApiError(err));
+        return { success: false };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const logout = useCallback(async (): Promise<void> => {
     try {
       await authService.logout();
     } catch (err) {
       // Log error but don't block logout
-      console.error('Logout error:', err);
+      console.error("Logout error:", err);
     } finally {
       setUser(null);
       setError(null);
@@ -137,22 +163,25 @@ export function useAuth(): AuthState & AuthActions {
     }
   }, []);
 
-  const updateProfile = useCallback(async (data: UpdateProfileRequest): Promise<boolean> => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const updatedUser = await authService.updateProfile(data);
-      setUser(updatedUser);
-      
-      return true;
-    } catch (err) {
-      setError(handleApiError(err));
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const updateProfile = useCallback(
+    async (data: UpdateProfileRequest): Promise<boolean> => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const updatedUser = await authService.updateProfile(data);
+        setUser(updatedUser);
+
+        return true;
+      } catch (err) {
+        setError(handleApiError(err));
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   const clearError = useCallback(() => {
     setError(null);
@@ -184,7 +213,7 @@ export function useAuth(): AuthState & AuthActions {
     loading,
     error,
     isAuthenticated: !!user && authService.isAuthenticated(),
-    
+
     // Actions
     login,
     register,

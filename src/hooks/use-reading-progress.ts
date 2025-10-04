@@ -1,19 +1,19 @@
 "use client";
 
-import { readingProgressService } from '@/services/reading-progress';
+import { readingProgressService } from "@/services/reading-progress";
 import {
   ReadingProgressResponse,
   UpdateReadingProgressRequest,
   CreateReadingProgressRequest,
-  UserReadingProgressResponse
-} from '@/types/api';
-import { useApi } from './use-api';
+  UserReadingProgressResponse,
+} from "@/types/api";
+import { useApi } from "./use-api";
 
 // Hook for getting reading progress for a novel
 export function useNovelProgress(novelSlug: string) {
   return useApi(
     () => readingProgressService.getNovelProgress(novelSlug),
-    [novelSlug]
+    [novelSlug],
   );
 }
 
@@ -21,7 +21,7 @@ export function useNovelProgress(novelSlug: string) {
 export function useUpdateProgress() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with readingProgressService.updateProgress
-    []
+    [],
   );
 }
 
@@ -29,23 +29,20 @@ export function useUpdateProgress() {
 export function useCreateInitialProgress() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with readingProgressService.createInitialProgress
-    []
+    [],
   );
 }
 
 // Hook for getting all user's reading progress
 export function useUserReadingProgress() {
-  return useApi(
-    () => readingProgressService.getUserReadingProgress(),
-    []
-  );
+  return useApi(() => readingProgressService.getUserReadingProgress(), []);
 }
 
 // Hook for deleting reading progress (use refetch to call)
 export function useDeleteProgress() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with readingProgressService.deleteProgress
-    []
+    [],
   );
 }
 
@@ -53,7 +50,7 @@ export function useDeleteProgress() {
 export function useStartReading() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with readingProgressService.startReading
-    []
+    [],
   );
 }
 
@@ -61,6 +58,6 @@ export function useStartReading() {
 export function useContinueReading() {
   return useApi(
     () => Promise.resolve(null), // Use refetch with readingProgressService.continueReading
-    []
+    [],
   );
 }

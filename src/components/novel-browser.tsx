@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, 
-  Star, 
-  Clock, 
-  TrendingUp, 
-  BookOpen, 
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Search,
+  Star,
+  Clock,
+  TrendingUp,
+  BookOpen,
   Filter,
   ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+  ChevronRight,
+} from "lucide-react";
 
 import {
   useNovels,
@@ -26,8 +26,8 @@ import {
   useRecommendedNovels,
   useGenres,
   useNovelsByGenre,
-  useNovelsByStatus
-} from '@/hooks/use-novels';
+  useNovelsByStatus,
+} from "@/hooks/use-novels";
 
 import {
   formatRating,
@@ -37,17 +37,21 @@ import {
   getStatusColor,
   truncateDescription,
   simplifyPagination,
-  formatRelativeTime
-} from '@/lib/novel-utils';
+  formatRelativeTime,
+} from "@/lib/novel-utils";
 
-import { NovelListParams } from '@/types/api';
+import { NovelListParams } from "@/types/api";
 
 export function NovelBrowserComponent() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedGenre, setSelectedGenre] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<'ongoing' | 'completed' | 'hiatus' | ''>('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<
+    "ongoing" | "completed" | "hiatus" | ""
+  >("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<'popular' | 'rating' | 'latest' | 'updated'>('latest');
+  const [sortBy, setSortBy] = useState<
+    "popular" | "rating" | "latest" | "updated"
+  >("latest");
 
   // Fetch genres for filtering
   const { data: genres, loading: genresLoading } = useGenres();
@@ -57,21 +61,28 @@ export function NovelBrowserComponent() {
     page: currentPage,
     per_page: 12,
     sort_by: sortBy,
-    sort_order: 'desc',
+    sort_order: "desc",
     ...(selectedGenre && { genre: selectedGenre }),
-    ...(selectedStatus && { status: selectedStatus })
+    ...(selectedStatus && { status: selectedStatus }),
   };
 
   // Fetch novels based on current filters
-  const { data: novels, loading: novelsLoading, error: novelsError, refetch: refetchNovels } = useNovels(novelParams);
+  const {
+    data: novels,
+    loading: novelsLoading,
+    error: novelsError,
+    refetch: refetchNovels,
+  } = useNovels(novelParams);
 
   // Fetch different novel collections
   const { data: popularNovels, loading: popularLoading } = usePopularNovels();
   const { data: latestNovels, loading: latestLoading } = useLatestNovels();
-  const { data: recommendedNovels, loading: recommendedLoading } = useRecommendedNovels();
-  
+  const { data: recommendedNovels, loading: recommendedLoading } =
+    useRecommendedNovels();
+
   // Search functionality
-  const { data: searchResults, loading: searchLoading } = useSearchNovels(searchQuery);
+  const { data: searchResults, loading: searchLoading } =
+    useSearchNovels(searchQuery);
 
   // Pagination helper
   const pagination = novels ? simplifyPagination(novels) : null;
@@ -84,29 +95,29 @@ export function NovelBrowserComponent() {
 
   // Reset filters
   const resetFilters = () => {
-    setSelectedGenre('');
-    setSelectedStatus('');
+    setSelectedGenre("");
+    setSelectedStatus("");
     setCurrentPage(1);
-    setSortBy('latest');
+    setSortBy("latest");
   };
 
   // Novel card component
   const NovelCard = ({ novel }: { novel: any }) => (
-    <Card className="hover:shadow-lg transition-shadow h-full">
-      <CardContent className="p-4 h-full flex flex-col">
+    <Card className="h-full transition-shadow hover:shadow-lg">
+      <CardContent className="flex h-full flex-col p-4">
         <div className="flex-1">
-          <h3 className="font-semibold mb-2 truncate" title={novel.title}>
+          <h3 className="mb-2 truncate font-semibold" title={novel.title}>
             {novel.title}
           </h3>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-muted-foreground mb-2 text-sm">
             by {novel.author}
           </p>
-          <p className="text-xs text-muted-foreground mb-3 line-clamp-3">
+          <p className="text-muted-foreground mb-3 line-clamp-3 text-xs">
             {truncateDescription(novel.description)}
           </p>
-          
+
           {/* Genres */}
-          <div className="flex flex-wrap gap-1 mb-3">
+          <div className="mb-3 flex flex-wrap gap-1">
             {novel.genres.slice(0, 2).map((genre: any) => (
               <Badge key={genre.id} variant="secondary" className="text-xs">
                 {genre.name}
@@ -121,7 +132,7 @@ export function NovelBrowserComponent() {
         </div>
 
         {/* Stats */}
-        <div className="space-y-2 mt-auto">
+        <div className="mt-auto space-y-2">
           <div className="flex items-center justify-between text-sm">
             <Badge variant={getStatusColor(novel.status)}>
               {formatStatus(novel.status)}
@@ -131,11 +142,11 @@ export function NovelBrowserComponent() {
               {formatRating(novel.rating)}
             </div>
           </div>
-          <div className="text-xs text-muted-foreground flex justify-between">
+          <div className="text-muted-foreground flex justify-between text-xs">
             <span>{formatChapterCount(novel.total_chapters)}</span>
             <span>{formatViewCount(novel.views)} views</span>
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             Updated {formatRelativeTime(novel.updated_at)}
           </div>
         </div>
@@ -145,7 +156,7 @@ export function NovelBrowserComponent() {
 
   // Loading skeleton
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => (
         <Skeleton key={i} className="h-64 w-full" />
       ))}
@@ -153,9 +164,9 @@ export function NovelBrowserComponent() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto space-y-8 px-4 py-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Novel Browser</h1>
+        <h1 className="mb-4 text-3xl font-bold">Novel Browser</h1>
         <p className="text-muted-foreground">
           Explore our collection of novels with advanced filtering and search
         </p>
@@ -182,7 +193,7 @@ export function NovelBrowserComponent() {
             <CardContent className="space-y-4">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
                   placeholder="Search novels by title, author, or description..."
                   value={searchQuery}
@@ -192,14 +203,16 @@ export function NovelBrowserComponent() {
               </div>
 
               {/* Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                 {/* Genre Filter */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Genre</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Genre
+                  </label>
                   <select
                     value={selectedGenre}
                     onChange={(e) => setSelectedGenre(e.target.value)}
-                    className="w-full p-2 border rounded-md bg-background"
+                    className="bg-background w-full rounded-md border p-2"
                     disabled={genresLoading}
                   >
                     <option value="">All Genres</option>
@@ -213,11 +226,13 @@ export function NovelBrowserComponent() {
 
                 {/* Status Filter */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Status</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Status
+                  </label>
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value as any)}
-                    className="w-full p-2 border rounded-md bg-background"
+                    className="bg-background w-full rounded-md border p-2"
                   >
                     <option value="">All Status</option>
                     <option value="ongoing">Ongoing</option>
@@ -228,11 +243,13 @@ export function NovelBrowserComponent() {
 
                 {/* Sort By */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Sort By</label>
+                  <label className="mb-2 block text-sm font-medium">
+                    Sort By
+                  </label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="w-full p-2 border rounded-md bg-background"
+                    className="bg-background w-full rounded-md border p-2"
                   >
                     <option value="latest">Latest Updates</option>
                     <option value="popular">Most Popular</option>
@@ -243,7 +260,11 @@ export function NovelBrowserComponent() {
 
                 {/* Reset Button */}
                 <div className="flex items-end">
-                  <Button onClick={resetFilters} variant="outline" className="w-full">
+                  <Button
+                    onClick={resetFilters}
+                    variant="outline"
+                    className="w-full"
+                  >
                     Reset Filters
                   </Button>
                 </div>
@@ -261,13 +282,13 @@ export function NovelBrowserComponent() {
                 {searchLoading ? (
                   <LoadingSkeleton />
                 ) : searchResults && searchResults.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {searchResults.map((novel) => (
                       <NovelCard key={novel.id} novel={novel} />
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-center py-8">
+                  <p className="text-muted-foreground py-8 text-center">
                     No novels found matching your search.
                   </p>
                 )}
@@ -281,7 +302,7 @@ export function NovelBrowserComponent() {
               <CardTitle className="flex items-center justify-between">
                 <span>Novels</span>
                 {pagination && (
-                  <span className="text-sm font-normal text-muted-foreground">
+                  <span className="text-muted-foreground text-sm font-normal">
                     {pagination.from}-{pagination.to} of {pagination.totalItems}
                   </span>
                 )}
@@ -289,7 +310,7 @@ export function NovelBrowserComponent() {
             </CardHeader>
             <CardContent>
               {novelsError && (
-                <div className="text-red-500 text-center py-4 mb-4 bg-red-50 rounded">
+                <div className="mb-4 rounded bg-red-50 py-4 text-center text-red-500">
                   Error: {novelsError}
                 </div>
               )}
@@ -298,7 +319,7 @@ export function NovelBrowserComponent() {
                 <LoadingSkeleton />
               ) : novels && novels.data.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+                  <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {novels.data.map((novel) => (
                       <NovelCard key={novel.id} novel={novel} />
                     ))}
@@ -310,24 +331,29 @@ export function NovelBrowserComponent() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        onClick={() =>
+                          handlePageChange(pagination.currentPage - 1)
+                        }
                         disabled={!pagination.hasPrev}
                       >
                         <ChevronLeft className="h-4 w-4" />
                         Previous
                       </Button>
-                      
+
                       <div className="flex items-center gap-1">
                         {/* Simple pagination display */}
-                        <span className="text-sm text-muted-foreground px-2">
-                          Page {pagination.currentPage} of {pagination.totalPages}
+                        <span className="text-muted-foreground px-2 text-sm">
+                          Page {pagination.currentPage} of{" "}
+                          {pagination.totalPages}
                         </span>
                       </div>
 
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        onClick={() =>
+                          handlePageChange(pagination.currentPage + 1)
+                        }
                         disabled={!pagination.hasNext}
                       >
                         Next
@@ -337,7 +363,7 @@ export function NovelBrowserComponent() {
                   )}
                 </>
               ) : (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center">
                   No novels found with the current filters.
                 </p>
               )}
@@ -358,13 +384,13 @@ export function NovelBrowserComponent() {
               {popularLoading ? (
                 <LoadingSkeleton />
               ) : popularNovels && popularNovels.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {popularNovels.map((novel) => (
                     <NovelCard key={novel.id} novel={novel} />
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center">
                   No popular novels available.
                 </p>
               )}
@@ -385,13 +411,13 @@ export function NovelBrowserComponent() {
               {latestLoading ? (
                 <LoadingSkeleton />
               ) : latestNovels && latestNovels.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {latestNovels.map((novel) => (
                     <NovelCard key={novel.id} novel={novel} />
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center">
                   No latest novels available.
                 </p>
               )}
@@ -412,13 +438,13 @@ export function NovelBrowserComponent() {
               {recommendedLoading ? (
                 <LoadingSkeleton />
               ) : recommendedNovels && recommendedNovels.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {recommendedNovels.map((novel) => (
                     <NovelCard key={novel.id} novel={novel} />
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-center py-8">
+                <p className="text-muted-foreground py-8 text-center">
                   No recommended novels available.
                 </p>
               )}
