@@ -329,12 +329,14 @@ export function AuthModal({
                 <Checkbox
                   id="remember-me"
                   checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    setRememberMe(checked as boolean)
+                  }
                   disabled={loading}
                 />
                 <Label
                   htmlFor="remember-me"
-                  className="text-sm font-normal cursor-pointer"
+                  className="cursor-pointer text-sm font-normal"
                 >
                   Remember me
                 </Label>

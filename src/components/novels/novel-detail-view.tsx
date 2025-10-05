@@ -296,7 +296,9 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
         <TabsList className="grid w-full grid-cols-4 lg:flex lg:w-auto lg:grid-cols-none">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="chapters">Chapters</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          <TabsTrigger disabled value="reviews">
+            Reviews (Coming Soon)
+          </TabsTrigger>
           <TabsTrigger value="comments">Comments</TabsTrigger>
         </TabsList>
 
