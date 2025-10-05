@@ -1,99 +1,122 @@
-import { apiClient } from '@/lib/api-client';
-import { Novel, PaginatedResponse, Chapter } from '@/types/api';
-
-export interface NovelFilters {
-  search?: string;
-  genre?: string[];
-  status?: 'ongoing' | 'completed' | 'hiatus';
-  sortBy?: 'title' | 'rating' | 'views' | 'createdAt' | 'updatedAt';
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
-}
+import { apiClient } from "@/lib/api-client";
+import {
+  Novel,
+  NovelWithChapters,
+  PaginatedResponse,
+  Chapter,
+  Genre,
+  NovelApiResponse,
+  SearchApiResponse,
+  GenresApiResponse,
+  NovelListParams,
+  NovelSearchParams,
+  CreateNovelRequest,
+  UpdateNovelRequest,
+} from "@/types/api";
 
 export const novelService = {
   // Get novels with filtering and pagination
-  async getNovels(filters?: NovelFilters): Promise<PaginatedResponse<Novel>> {
-    const response = await apiClient.get<PaginatedResponse<Novel>>('/novels', filters);
-    return response.data;
-  },
-
-  // Get featured/popular novels
-  async getFeaturedNovels(limit: number = 10): Promise<Novel[]> {
-    const response = await apiClient.get<Novel[]>('/novels/featured', { limit });
-    return response.data;
-  },
-
-  // Get recently updated novels
-  async getRecentlyUpdated(limit: number = 10): Promise<Novel[]> {
-    const response = await apiClient.get<Novel[]>('/novels/recent', { limit });
-    return response.data;
-  },
-
-  // Get novel by ID
-  async getNovel(id: string): Promise<Novel> {
-    const response = await apiClient.get<Novel>(`/novels/${id}`);
-    return response.data;
-  },
-
-  // Get novel chapters
-  async getNovelChapters(novelId: string, page?: number, limit?: number): Promise<PaginatedResponse<Chapter>> {
-    const params = { page, limit };
-    const response = await apiClient.get<PaginatedResponse<Chapter>>(`/novels/${novelId}/chapters`, params);
-    return response.data;
-  },
-
-  // Get specific chapter
-  async getChapter(novelId: string, chapterNumber: number): Promise<Chapter> {
-    const response = await apiClient.get<Chapter>(`/novels/${novelId}/chapters/${chapterNumber}`);
-    return response.data;
-  },
-
-  // Get chapter by ID
-  async getChapterById(chapterId: string): Promise<Chapter> {
-    const response = await apiClient.get<Chapter>(`/chapters/${chapterId}`);
-    return response.data;
+  async getNovels(params?: NovelListParams): Promise<PaginatedResponse<Novel>> {
+    const response = await apiClient.get<NovelApiResponse>("/novels", params);
+    return response.data.novels as PaginatedResponse<Novel>;
   },
 
   // Search novels
-  async searchNovels(query: string, filters?: Omit<NovelFilters, 'search'>): Promise<PaginatedResponse<Novel>> {
-    const params = { search: query, ...filters };
-    const response = await apiClient.get<PaginatedResponse<Novel>>('/novels/search', params);
-    return response.data;
+  async searchNovels(query: string): Promise<Novel[]> {
+    const params: NovelSearchParams = { q: query };
+    const response = await apiClient.get<SearchApiResponse>(
+      "/novels/search",
+      params,
+    );
+    return response.data.novels;
   },
 
-  // Get novels by genre
-  async getNovelsByGenre(genre: string, page?: number, limit?: number): Promise<PaginatedResponse<Novel>> {
-    const params = { page, limit };
-    const response = await apiClient.get<PaginatedResponse<Novel>>(`/novels/genre/${genre}`, params);
-    return response.data;
+  // Get popular novels
+  async getPopularNovels(): Promise<Novel[]> {
+    const response = await apiClient.get<{ message: string; novels: Novel[] }>(
+      "/novels/popular",
+    );
+    return response.data.novels;
+  },
+
+  // Get latest novels
+  async getLatestNovels(): Promise<Novel[]> {
+    const response = await apiClient.get<{ message: string; novels: Novel[] }>(
+      "/novels/latest",
+    );
+    return response.data.novels;
+  },
+
+  // Get recommended novels
+  async getRecommendedNovels(): Promise<Novel[]> {
+    const response = await apiClient.get<{ message: string; novels: Novel[] }>(
+      "/novels/recommendations",
+    );
+    return response.data.novels;
+  },
+
+  // Get novel by slug
+  async getNovelBySlug(slug: string): Promise<NovelWithChapters> {
+    const response = await apiClient.get<{
+      message: string;
+      novel: NovelWithChapters;
+    }>(`/novels/${slug}`);
+    return response.data.novel;
   },
 
   // Get available genres
-  async getGenres(): Promise<string[]> {
-    const response = await apiClient.get<string[]>('/novels/genres');
-    return response.data;
+  async getGenres(): Promise<Genre[]> {
+    const response = await apiClient.get<GenresApiResponse>("/novels/genres");
+    return response.data.genres;
   },
 
-  // Rate a novel (if authenticated)
-  async rateNovel(novelId: string, rating: number): Promise<void> {
-    await apiClient.post(`/novels/${novelId}/rate`, { rating });
+  // Admin-only operations (require authentication and admin role)
+  async createNovel(data: CreateNovelRequest): Promise<Novel> {
+    const response = await apiClient.post<{ message: string; novel: Novel }>(
+      "/novels",
+      data,
+    );
+    return response.data.novel;
   },
 
-  // Add novel to favorites/library
-  async addToLibrary(novelId: string): Promise<void> {
-    await apiClient.post(`/novels/${novelId}/library`);
+  async updateNovel(slug: string, data: UpdateNovelRequest): Promise<Novel> {
+    const response = await apiClient.put<{ message: string; novel: Novel }>(
+      `/novels/${slug}`,
+      data,
+    );
+    return response.data.novel;
   },
 
-  // Remove from library
-  async removeFromLibrary(novelId: string): Promise<void> {
-    await apiClient.delete(`/novels/${novelId}/library`);
+  async deleteNovel(slug: string): Promise<void> {
+    await apiClient.delete(`/novels/${slug}`);
   },
 
-  // Get user's library
-  async getUserLibrary(page?: number, limit?: number): Promise<PaginatedResponse<Novel>> {
-    const params = { page, limit };
-    const response = await apiClient.get<PaginatedResponse<Novel>>('/user/library', params);
-    return response.data;
+  // Helper methods for filtering
+  async getNovelsByGenre(
+    genreSlug: string,
+    params?: Omit<NovelListParams, "genre">,
+  ): Promise<PaginatedResponse<Novel>> {
+    const fullParams = { ...params, genre: genreSlug };
+    return this.getNovels(fullParams);
   },
+
+  async getNovelsByStatus(
+    status: "ongoing" | "completed" | "hiatus",
+    params?: Omit<NovelListParams, "status">,
+  ): Promise<PaginatedResponse<Novel>> {
+    const fullParams = { ...params, status };
+    return this.getNovels(fullParams);
+  },
+
+  // Get novels sorted by specific criteria
+  async getNovelsSortedBy(
+    sortBy: "popular" | "rating" | "latest" | "updated",
+    params?: Omit<NovelListParams, "sort_by">,
+  ): Promise<PaginatedResponse<Novel>> {
+    const fullParams = { ...params, sort_by: sortBy };
+    return this.getNovels(fullParams);
+  },
+
+  // Note: Library functionality (addToLibrary, removeFromLibrary, getUserLibrary)
+  // not yet implemented in the backend API
 };

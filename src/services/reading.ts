@@ -1,15 +1,22 @@
-import { apiClient } from '@/lib/api-client';
-import { ReadingProgress, PaginatedResponse } from '@/types/api';
+import { apiClient } from "@/lib/api-client";
+import { ReadingProgress, PaginatedResponse } from "@/types/api";
 
 export const readingService = {
   // Get user's reading progress for a novel
   async getReadingProgress(novelId: string): Promise<ReadingProgress | null> {
     try {
-      const response = await apiClient.get<ReadingProgress>(`/reading-progress/${novelId}`);
+      const response = await apiClient.get<ReadingProgress>(
+        `/reading-progress/${novelId}`,
+      );
       return response.data;
     } catch (error) {
       // Return null if no progress found (404)
-      if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 404) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "statusCode" in error &&
+        error.statusCode === 404
+      ) {
         return null;
       }
       throw error;
@@ -18,27 +25,39 @@ export const readingService = {
 
   // Update reading progress
   async updateProgress(
-    novelId: string, 
-    chapterId: string, 
-    progress: number
+    novelId: string,
+    chapterId: string,
+    progress: number,
   ): Promise<ReadingProgress> {
-    const response = await apiClient.post<ReadingProgress>('/reading-progress', {
-      novelId,
-      chapterId,
-      progress,
-    });
+    const response = await apiClient.post<ReadingProgress>(
+      "/reading-progress",
+      {
+        novelId,
+        chapterId,
+        progress,
+      },
+    );
     return response.data;
   },
 
   // Get all reading progress for the user
-  async getAllReadingProgress(page?: number, limit?: number): Promise<PaginatedResponse<ReadingProgress>> {
+  async getAllReadingProgress(
+    page?: number,
+    limit?: number,
+  ): Promise<PaginatedResponse<ReadingProgress>> {
     const params = { page, limit };
-    const response = await apiClient.get<PaginatedResponse<ReadingProgress>>('/reading-progress', params);
+    const response = await apiClient.get<PaginatedResponse<ReadingProgress>>(
+      "/reading-progress",
+      params,
+    );
     return response.data;
   },
 
   // Mark chapter as read
-  async markChapterAsRead(novelId: string, chapterId: string): Promise<ReadingProgress> {
+  async markChapterAsRead(
+    novelId: string,
+    chapterId: string,
+  ): Promise<ReadingProgress> {
     return this.updateProgress(novelId, chapterId, 100);
   },
 
@@ -54,7 +73,7 @@ export const readingService = {
       totalChaptersRead: number;
       totalReadingTime: number;
       favoriteGenres: string[];
-    }>('/reading-progress/stats');
+    }>("/reading-progress/stats");
     return response.data;
   },
 
