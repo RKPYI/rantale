@@ -1,6 +1,6 @@
 # API Integration Setup
 
-This document describes the API integration setup for the Ranovel frontend
+This document describes the API integration setup for the Rantale frontend
 application.
 
 ## 🚀 Quick Start

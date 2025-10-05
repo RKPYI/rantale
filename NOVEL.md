@@ -1,11 +1,11 @@
-# Ranovel Frontend - API Integration Guide
+# Rantale Frontend - API Integration Guide
 
 This document provides a comprehensive step-by-step guide for adding new APIs to
-your Ranovel frontend application.
+your Rantale frontend application.
 
 ## Architecture Overview
 
-The Ranovel frontend follows a layered architecture pattern:
+The Rantale frontend follows a layered architecture pattern:
 
 - **Types Layer**: TypeScript interfaces and types (`src/types/api.ts`)
 - **Service Layer**: API calls and data fetching (`src/services/`)
@@ -930,4 +930,4 @@ export function useRealTimeUpdates(resourceId: string) {
 6. Add loading skeletons for better user experience
 
 This pattern ensures consistent, maintainable, and scalable API integrations
-throughout your Ranovel application.
+throughout your Rantale application.

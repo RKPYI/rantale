@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project for Ranovel, a novel reading
+This is a [Next.js](https://nextjs.org) project for Rantale, a novel reading
 platform built with modern React patterns and shadcn/ui components.
 
 ## 🚀 Getting Started

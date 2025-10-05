@@ -134,8 +134,8 @@ export default function RegisterPage() {
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo-dark.svg"
-              alt="RANOVEL"
+              src="/rantale-dark.svg"
+              alt="Rantale"
               width={120}
               height={32}
               className="mr-2 h-8 w-auto"

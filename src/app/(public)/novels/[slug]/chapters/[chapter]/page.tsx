@@ -21,7 +21,7 @@ export async function generateMetadata({
     const chapterData = await chapterService.getChapter(slug, chapterNumber);
 
     return {
-      title: `Chapter ${chapterNumber}: ${chapterData.chapter.title} - ${chapterData.novel.title} | Ranovel`,
+      title: `Chapter ${chapterNumber}: ${chapterData.chapter.title} - ${chapterData.novel.title} | Rantale`,
       description: `Read Chapter ${chapterNumber} of ${chapterData.novel.title} by ${chapterData.novel.author}. ${chapterData.chapter.word_count} words.`,
       openGraph: {
         title: `${chapterData.novel.title} - Chapter ${chapterNumber}`,
@@ -30,7 +30,7 @@ export async function generateMetadata({
     };
   } catch (error) {
     return {
-      title: "Chapter Not Found | Ranovel",
+      title: "Chapter Not Found | Rantale",
       description: "The requested chapter could not be found.",
     };
   }
