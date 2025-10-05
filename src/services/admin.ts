@@ -16,6 +16,9 @@ export const adminService = {
     const response = await apiClient.get<AdminDashboardStats>(
       "/admin/dashboard/stats",
     );
+    if (!response.data) {
+      throw new Error("No data received from dashboard stats endpoint");
+    }
     return response.data;
   },
 
@@ -26,7 +29,7 @@ export const adminService = {
       message: string;
       activities: AdminActivity[];
     }>("/admin/activity", params);
-    return response.data.activities;
+    return response.data?.activities || [];
   },
 
   // User Management
@@ -36,7 +39,7 @@ export const adminService = {
     role?: string,
     status?: string,
   ): Promise<AdminUsersResponse> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
     if (page) params.page = page;
     if (search) params.search = search;
     if (role && role !== "all") params.role = role;
@@ -80,7 +83,7 @@ export const adminService = {
 
   // Author Applications Management (from existing authorService but for admin context)
   async getAllAuthorApplications(page?: number, status?: string) {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
     if (page) params.page = page;
     if (status && status !== "all") params.status = status;
 

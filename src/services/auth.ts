@@ -21,7 +21,7 @@ export const authService = {
     );
 
     // Laravel returns the data directly, not wrapped in { success, data }
-    const authData = response.data || (response as any);
+    const authData = response.data || (response as unknown as AuthResponse);
 
     if (authData && authData.token) {
       apiClient.setAuthToken(authData.token, remember);
@@ -37,7 +37,7 @@ export const authService = {
     );
 
     // Laravel returns the data directly, not wrapped in { success, data }
-    const authData = response.data || (response as any);
+    const authData = response.data || (response as unknown as AuthResponse);
 
     if (authData && authData.token) {
       apiClient.setAuthToken(authData.token, true); // Auto-login after registration
@@ -65,7 +65,7 @@ export const authService = {
     const response = await apiClient.get<{ user: User }>("/auth/me");
 
     // Laravel returns { user: User } directly
-    const userData = response.data || (response as any);
+    const userData = response.data || (response as unknown as { user: User });
 
     if (userData && userData.user) {
       return userData.user;
@@ -81,7 +81,8 @@ export const authService = {
       userData,
     );
 
-    const userResponse = response.data || (response as any);
+    const userResponse =
+      response.data || (response as unknown as { user: User });
 
     if (userResponse && userResponse.user) {
       return userResponse.user;
@@ -110,7 +111,7 @@ export const authService = {
     const response = await apiClient.get<AuthResponse>(
       `/auth/google/callback?${params.toString()}`,
     );
-    const authData = response.data || (response as any);
+    const authData = response.data || (response as unknown as AuthResponse);
 
     if (authData && authData.token) {
       apiClient.setAuthToken(authData.token, true);
@@ -145,8 +146,11 @@ export const authService = {
   async updatePassword(data: {
     current_password: string;
     new_password: string;
-  }): Promise<any> {
-    const response = await apiClient.put("/auth/password", data);
+  }): Promise<{ message: string }> {
+    const response = await apiClient.put<{ message: string }>(
+      "/auth/password",
+      data,
+    );
     return response.data;
   },
 

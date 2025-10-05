@@ -60,10 +60,19 @@ export const readingProgressService = {
   async startReading(novelSlug: string): Promise<ReadingProgressResponse> {
     try {
       return await this.createInitialProgress({ novel_slug: novelSlug });
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If progress already exists (409 conflict), get existing progress
-      if (error.status === 409 && error.data?.progress) {
-        return error.data.progress;
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 409 &&
+        "data" in error &&
+        error.data &&
+        typeof error.data === "object" &&
+        "progress" in error.data
+      ) {
+        return (error.data as { progress: ReadingProgressResponse }).progress;
       }
       throw error;
     }

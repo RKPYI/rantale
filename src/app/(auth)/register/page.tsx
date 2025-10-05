@@ -146,8 +146,8 @@ export default function RegisterPage() {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "Join thousands of readers and start your amazing reading journey
-              with us."
+              &ldquo;Join thousands of readers and start your amazing reading
+              journey with us.&rdquo;
             </p>
             <footer className="text-sm">Create your account today</footer>
           </blockquote>

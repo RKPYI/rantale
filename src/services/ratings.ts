@@ -24,9 +24,7 @@ export const ratingService = {
   },
 
   // Create or update a rating (requires authentication)
-  async createOrUpdateRating(
-    data: CreateRatingRequest,
-  ): Promise<{
+  async createOrUpdateRating(data: CreateRatingRequest): Promise<{
     rating: Rating;
     isNew: boolean;
     novelStats: { average_rating: number; total_ratings: number };
@@ -49,9 +47,7 @@ export const ratingService = {
   },
 
   // Delete a rating (requires authentication and ownership or admin)
-  async deleteRating(
-    ratingId: number,
-  ): Promise<{
+  async deleteRating(ratingId: number): Promise<{
     message: string;
     novelStats: { average_rating: number; total_ratings: number };
   }> {
@@ -65,9 +61,7 @@ export const ratingService = {
   },
 
   // Get all ratings by the current user (requires authentication)
-  async getUserRatings(
-    page?: number,
-  ): Promise<
+  async getUserRatings(page?: number): Promise<
     PaginatedResponse<
       Rating & {
         novel: {

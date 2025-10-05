@@ -380,7 +380,7 @@ export function AuthorApplicationForm() {
           <Alert>
             <FileText className="h-4 w-4" />
             <AlertDescription>
-              Applications are reviewed by our admin team. You'll receive a
+              Applications are reviewed by our admin team. You&apos;ll receive a
               notification once your application has been processed.
             </AlertDescription>
           </Alert>

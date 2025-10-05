@@ -66,7 +66,7 @@ export function useUpdateLibraryStatus() {
 
 // Hook for removing from library (use refetch to call)
 export function useRemoveFromLibrary() {
-  return useAsync<any>();
+  return useAsync<void>();
 }
 
 // Hook for toggling favorite (use refetch to call)

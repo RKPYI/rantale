@@ -35,8 +35,8 @@ export default function AdminPage() {
         <Alert variant="destructive">
           <Shield className="h-4 w-4" />
           <AlertDescription>
-            You don't have permission to access the admin dashboard. Admin or
-            moderator privileges required.
+            You don&apos;t have permission to access the admin dashboard. Admin
+            or moderator privileges required.
           </AlertDescription>
         </Alert>
       </div>

@@ -69,8 +69,8 @@ export default function LoginPage() {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "Discover thousands of amazing novels and start your reading
-              journey today."
+              &ldquo;Discover thousands of amazing novels and start your reading
+              journey today.&rdquo;
             </p>
             <footer className="text-sm">Welcome to RANOVEL</footer>
           </blockquote>
@@ -222,7 +222,7 @@ export default function LoginPage() {
           </div>
 
           <p className="text-muted-foreground px-8 text-center text-sm">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               href="/register"
               className="hover:text-primary underline underline-offset-4"

@@ -40,7 +40,7 @@ import {
   useApproveAuthorApplication,
   useRejectAuthorApplication,
 } from "@/hooks/use-admin";
-import { AuthorApplication } from "@/types/api";
+import { AuthorApplication, AdminActivity } from "@/types/api";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { getUserRole } from "@/lib/user-utils";
 import { adminService } from "@/services/admin";
@@ -787,14 +787,14 @@ function StatusBadge({
 }
 
 // Helper function for activity descriptions
-const getActivityDescription = (activity: any) => {
+const getActivityDescription = (activity: AdminActivity) => {
   switch (activity.activity_type) {
     case "user_registered":
       return `${activity.name} registered as a new user`;
     case "novel_created":
       return `"${activity.title}" was created by ${activity.author}`;
     case "comment_posted":
-      return `${activity.user?.name} commented on "${activity.novel?.title}": ${activity.content?.substring(0, 100)}${activity.content?.length > 100 ? "..." : ""}`;
+      return `${activity.user?.name} commented on "${activity.novel?.title}": ${activity.content?.substring(0, 100)}${(activity.content?.length ?? 0) > 100 ? "..." : ""}`;
     case "application_submitted":
       return `${activity.user?.name} submitted an author application`;
     default:
@@ -880,7 +880,7 @@ function ActivityTab() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {activities.map((activity: any) => {
+          {activities.map((activity: AdminActivity) => {
             const Icon = getActivityIcon(activity.activity_type);
             return (
               <Card key={activity.id}>
@@ -1012,7 +1012,9 @@ function AuthorApplicationsTab() {
     );
   }
 
-  const applicationsList = (applications as any)?.applications?.data || [];
+  const applicationsList = ((
+    applications as { applications?: { data?: AuthorApplication[] } }
+  )?.applications?.data || []) as AuthorApplication[];
 
   return (
     <div className="space-y-6">

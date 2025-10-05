@@ -12,7 +12,7 @@ export interface Notification {
     | "system";
   title: string;
   message: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   read_at: string | null;
   created_at: string;
   updated_at: string;

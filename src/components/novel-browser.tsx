@@ -40,7 +40,7 @@ import {
   formatRelativeTime,
 } from "@/lib/novel-utils";
 
-import { NovelListParams } from "@/types/api";
+import { NovelListParams, Novel, Genre } from "@/types/api";
 
 export function NovelBrowserComponent() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -102,7 +102,7 @@ export function NovelBrowserComponent() {
   };
 
   // Novel card component
-  const NovelCard = ({ novel }: { novel: any }) => (
+  const NovelCard = ({ novel }: { novel: Novel }) => (
     <Card className="h-full transition-shadow hover:shadow-lg">
       <CardContent className="flex h-full flex-col p-4">
         <div className="flex-1">
@@ -118,7 +118,7 @@ export function NovelBrowserComponent() {
 
           {/* Genres */}
           <div className="mb-3 flex flex-wrap gap-1">
-            {novel.genres.slice(0, 2).map((genre: any) => (
+            {novel.genres.slice(0, 2).map((genre: Genre) => (
               <Badge key={genre.id} variant="secondary" className="text-xs">
                 {genre.name}
               </Badge>
@@ -231,7 +231,15 @@ export function NovelBrowserComponent() {
                   </label>
                   <select
                     value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value as any)}
+                    onChange={(e) =>
+                      setSelectedStatus(
+                        e.target.value as
+                          | "ongoing"
+                          | "completed"
+                          | "hiatus"
+                          | "",
+                      )
+                    }
                     className="bg-background w-full rounded-md border p-2"
                   >
                     <option value="">All Status</option>
@@ -248,7 +256,15 @@ export function NovelBrowserComponent() {
                   </label>
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
+                    onChange={(e) =>
+                      setSortBy(
+                        e.target.value as
+                          | "popular"
+                          | "rating"
+                          | "latest"
+                          | "updated",
+                      )
+                    }
                     className="bg-background w-full rounded-md border p-2"
                   >
                     <option value="latest">Latest Updates</option>
@@ -276,7 +292,9 @@ export function NovelBrowserComponent() {
           {searchQuery.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Search Results for "{searchQuery}"</CardTitle>
+                <CardTitle>
+                  Search Results for &ldquo;{searchQuery}&rdquo;
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {searchLoading ? (
@@ -289,7 +307,8 @@ export function NovelBrowserComponent() {
                   </div>
                 ) : (
                   <p className="text-muted-foreground py-8 text-center">
-                    No novels found matching your search.
+                    No novels found matching &ldquo;
+                    <strong>{selectedGenre}</strong>&rdquo;.
                   </p>
                 )}
               </CardContent>

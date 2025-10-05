@@ -37,7 +37,7 @@ export const authorService = {
     page?: number,
     status?: string,
   ): Promise<AuthorApplicationsResponse> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
     if (page) params.page = page;
     if (status && status !== "all") params.status = status;
 

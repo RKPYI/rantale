@@ -10,9 +10,7 @@ import {
 
 export const chapterService = {
   // Get all chapters for a novel
-  async getNovelChapters(
-    novelSlug: string,
-  ): Promise<{
+  async getNovelChapters(novelSlug: string): Promise<{
     novel: { title: string; slug: string; author: string };
     chapters: ChapterSummary[];
   }> {

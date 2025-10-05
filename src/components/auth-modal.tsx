@@ -146,11 +146,20 @@ export function AuthModal({
       });
 
       handleSuccess();
-    } catch (error: any) {
-      if (error?.details) {
-        setErrors(error.details);
+    } catch (error: unknown) {
+      const err = error as {
+        details?: Record<string, string | string[]>;
+        message?: string;
+      };
+      if (err?.details) {
+        // Convert error details to the expected format
+        const formattedErrors: Record<string, string[]> = {};
+        Object.entries(err.details).forEach(([key, value]) => {
+          formattedErrors[key] = Array.isArray(value) ? value : [value];
+        });
+        setErrors(formattedErrors);
       } else {
-        toast.error(error?.message || "Login failed. Please try again.");
+        toast.error(err?.message || "Login failed. Please try again.");
       }
     }
   };
@@ -190,11 +199,20 @@ export function AuthModal({
       });
 
       handleSuccess();
-    } catch (error: any) {
-      if (error?.details) {
-        setErrors(error.details);
+    } catch (error: unknown) {
+      const err = error as {
+        details?: Record<string, string | string[]>;
+        message?: string;
+      };
+      if (err?.details) {
+        // Convert error details to the expected format
+        const formattedErrors: Record<string, string[]> = {};
+        Object.entries(err.details).forEach(([key, value]) => {
+          formattedErrors[key] = Array.isArray(value) ? value : [value];
+        });
+        setErrors(formattedErrors);
       } else {
-        toast.error(error?.message || "Registration failed. Please try again.");
+        toast.error(err?.message || "Registration failed. Please try again.");
       }
     }
   };
@@ -205,7 +223,8 @@ export function AuthModal({
       const url = await authService.getGoogleAuthRedirectUrl();
       // Redirect to Google OAuth
       window.location.href = url;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      console.error("Google authentication error:", error);
       toast.error("Google authentication failed. Please try again.");
     }
   };
@@ -256,7 +275,7 @@ export function AuthModal({
                     className="pl-10"
                     value={signinData.email}
                     onChange={(e) =>
-                      setSigninData((prev) => ({
+                      setSigninData((prev: LoginRequest) => ({
                         ...prev,
                         email: e.target.value,
                       }))
@@ -278,7 +297,7 @@ export function AuthModal({
                     className="pr-10 pl-10"
                     value={signinData.password}
                     onChange={(e) =>
-                      setSigninData((prev) => ({
+                      setSigninData((prev: LoginRequest) => ({
                         ...prev,
                         password: e.target.value,
                       }))
@@ -352,7 +371,7 @@ export function AuthModal({
                     className="pl-10"
                     value={signupData.name}
                     onChange={(e) =>
-                      setSignupData((prev) => ({
+                      setSignupData((prev: RegisterRequest) => ({
                         ...prev,
                         name: e.target.value,
                       }))
@@ -374,7 +393,7 @@ export function AuthModal({
                     className="pl-10"
                     value={signupData.email}
                     onChange={(e) =>
-                      setSignupData((prev) => ({
+                      setSignupData((prev: RegisterRequest) => ({
                         ...prev,
                         email: e.target.value,
                       }))
@@ -396,7 +415,7 @@ export function AuthModal({
                     className="pr-10 pl-10"
                     value={signupData.password}
                     onChange={(e) =>
-                      setSignupData((prev) => ({
+                      setSignupData((prev: RegisterRequest) => ({
                         ...prev,
                         password: e.target.value,
                       }))
@@ -434,7 +453,7 @@ export function AuthModal({
                     className="pr-10 pl-10"
                     value={signupData.password_confirmation}
                     onChange={(e) =>
-                      setSignupData((prev) => ({
+                      setSignupData((prev: RegisterRequest) => ({
                         ...prev,
                         password_confirmation: e.target.value,
                       }))

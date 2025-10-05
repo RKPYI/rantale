@@ -408,7 +408,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 <div className="text-muted-foreground py-12 text-center">
                   <BookOpen className="mx-auto mb-4 h-12 w-12" />
                   <h3 className="mb-2 font-medium">No chapters available</h3>
-                  <p>This novel doesn't have any chapters yet.</p>
+                  <p>This novel doesn&apos;t have any chapters yet.</p>
                 </div>
               )}
             </CardContent>

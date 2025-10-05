@@ -113,6 +113,7 @@ export interface ChapterDetailResponse {
 // Request Types
 export interface NovelSearchParams {
   q: string;
+  [key: string]: string | number | undefined;
 }
 
 export interface NovelListParams {
@@ -122,6 +123,7 @@ export interface NovelListParams {
   sort_order?: "asc" | "desc";
   page?: number;
   per_page?: number;
+  [key: string]: string | number | undefined;
 }
 
 export interface CreateNovelRequest {

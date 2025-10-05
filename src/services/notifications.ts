@@ -12,7 +12,7 @@ export const notificationService = {
     type?: string,
     read?: string,
   ): Promise<NotificationsResponse> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
     if (page) params.page = page;
     if (type && type !== "all") params.type = type;
     if (read && read !== "all") params.read = read;

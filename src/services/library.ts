@@ -15,7 +15,7 @@ export const libraryService = {
     status?: string,
     favorites?: boolean,
   ): Promise<LibraryResponse> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number | boolean> = {};
     if (page) params.page = page;
     if (status && status !== "all") params.status = status;
     if (favorites !== undefined) params.favorites = favorites;

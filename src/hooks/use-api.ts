@@ -12,7 +12,7 @@ export interface UseApiState<T> {
 
 export function useApi<T>(
   apiCall: () => Promise<T>,
-  dependencies: any[] = [],
+  dependencies: unknown[] = [],
 ): UseApiState<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,7 @@ export interface UseAsyncState<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
-  execute: (...args: any[]) => Promise<T | null>;
+  execute: (...args: unknown[]) => Promise<T | null>;
   reset: () => void;
 }
 
@@ -57,7 +57,7 @@ export function useAsync<T>(): UseAsyncState<T> {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const execute = async (...args: any[]): Promise<T | null> => {
+  const execute = async (...args: unknown[]): Promise<T | null> => {
     try {
       setLoading(true);
       setError(null);

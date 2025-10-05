@@ -109,8 +109,8 @@ export function simplifyPagination<T>(
     itemsPerPage: paginatedResponse.per_page,
     hasNext: paginatedResponse.next_page_url !== null,
     hasPrev: paginatedResponse.prev_page_url !== null,
-    from: paginatedResponse.from,
-    to: paginatedResponse.to,
+    from: paginatedResponse.from ?? 0,
+    to: paginatedResponse.to ?? 0,
   };
 }
 

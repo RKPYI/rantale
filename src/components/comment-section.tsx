@@ -81,14 +81,15 @@ export function CommentSection({
   const { user, isAuthenticated } = useAuth();
 
   // Fetch comments - use different hooks for novel vs chapter comments
+  const novelCommentsResult = useNovelComments(novelSlug);
+  const chapterCommentsResult = useChapterComments(novelSlug, chapterId || 0);
+
   const {
     data: commentsData,
     loading: commentsLoading,
     error: commentsError,
     refetch: refetchComments,
-  } = chapterId
-    ? useChapterComments(novelSlug, chapterId)
-    : useNovelComments(novelSlug);
+  } = chapterId ? chapterCommentsResult : novelCommentsResult;
 
   // Async operations
   const { loading: submittingComment, execute: executeCommentAction } =
@@ -175,7 +176,8 @@ export function CommentSection({
 
       fetchAllUserVotes();
     }
-  }, [comments, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comments, isAuthenticated]);
 
   // Create comment
   const handleCreateComment = async (parentId?: number) => {

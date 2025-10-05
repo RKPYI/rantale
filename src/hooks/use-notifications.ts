@@ -32,7 +32,7 @@ export function useMarkNotificationAsRead() {
 
 // Alias for component compatibility
 export function useMarkAsRead() {
-  return useAsync<any>();
+  return useAsync<void>();
 }
 
 // Hook for marking as unread (use refetch to call)
@@ -53,12 +53,12 @@ export function useMarkAllNotificationsAsRead() {
 
 // Alias for component compatibility
 export function useMarkAllAsRead() {
-  return useAsync<any>();
+  return useAsync<void>();
 }
 
 // Hook for deleting notification (use refetch to call)
 export function useDeleteNotification() {
-  return useAsync<any>();
+  return useAsync<void>();
 }
 
 // Hook for clearing read notifications (use refetch to call)

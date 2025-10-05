@@ -31,8 +31,8 @@ export default function PublicError({ error, reset }: PublicErrorProps) {
 
           <Alert variant="destructive" className="mb-6 text-left">
             <AlertDescription>
-              We're having trouble loading this page. Please try refreshing or
-              check back later.
+              We&apos;re having trouble loading this page. Please try refreshing
+              or check back later.
             </AlertDescription>
           </Alert>
 

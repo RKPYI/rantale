@@ -92,7 +92,7 @@ class ApiClient {
   // HTTP Methods
   async get<T>(
     endpoint: string,
-    params?: Record<string, any>,
+    params?: Record<string, unknown>,
   ): Promise<ApiResponse<T>> {
     const url = new URL(this.buildURL(endpoint));
 
@@ -114,7 +114,7 @@ class ApiClient {
 
   async post<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     headers?: HeadersInit,
   ): Promise<ApiResponse<T>> {
     const response = await fetch(this.buildURL(endpoint), {
@@ -128,7 +128,7 @@ class ApiClient {
 
   async put<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     headers?: HeadersInit,
   ): Promise<ApiResponse<T>> {
     const response = await fetch(this.buildURL(endpoint), {
@@ -142,7 +142,7 @@ class ApiClient {
 
   async patch<T>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     headers?: HeadersInit,
   ): Promise<ApiResponse<T>> {
     const response = await fetch(this.buildURL(endpoint), {
@@ -174,7 +174,7 @@ class ApiClient {
 
     // Don't set Content-Type for FormData - browser will set it with boundary
     const headers = { ...this.defaultHeaders };
-    delete (headers as any)["Content-Type"];
+    delete (headers as Record<string, unknown>)["Content-Type"];
 
     return this.post<T>(endpoint, formData, headers);
   }

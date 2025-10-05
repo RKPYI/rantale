@@ -24,7 +24,7 @@ export function getCommentDepth(
   maxDepth: number = 3,
 ): number {
   let depth = 0;
-  let current = comment;
+  const current = comment;
 
   while (current.parent_id && depth < maxDepth) {
     depth++;

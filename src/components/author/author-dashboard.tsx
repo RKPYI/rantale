@@ -64,7 +64,7 @@ import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { novelService } from "@/services/novels";
 import { chapterService } from "@/services/chapters";
 import { cn } from "@/lib/utils";
-import { AuthorNovel } from "@/types/api";
+import { AuthorNovel, Genre, ChapterSummary, Chapter } from "@/types/api";
 import { toast } from "sonner";
 
 export function AuthorDashboard() {
@@ -663,7 +663,7 @@ function NovelDialog({
   onClose: () => void;
   novel?: AuthorNovel | null;
   isEditing: boolean;
-  genres: any[];
+  genres: Genre[];
   onSuccess: () => void;
 }) {
   const [formData, setFormData] = useState({
@@ -715,10 +715,14 @@ function NovelDialog({
       }
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to save novel:", error);
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const errorMessage =
-        error?.response?.data?.message ||
+        err?.response?.data?.message ||
         "Failed to save novel. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
@@ -811,7 +815,10 @@ function NovelDialog({
                   type="button"
                   variant={formData.status === status ? "default" : "outline"}
                   onClick={() =>
-                    setFormData((prev) => ({ ...prev, status: status as any }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      status: status as "ongoing" | "completed" | "hiatus",
+                    }))
                   }
                   className="capitalize"
                 >
@@ -882,7 +889,9 @@ function ChapterManagement({
     selectedNovel,
   );
   const [isChapterDialogOpen, setIsChapterDialogOpen] = useState(false);
-  const [selectedChapter, setSelectedChapter] = useState<any>(null);
+  const [selectedChapter, setSelectedChapter] = useState<ChapterSummary | null>(
+    null,
+  );
   const [isEditingChapter, setIsEditingChapter] = useState(false);
 
   const {
@@ -1059,7 +1068,7 @@ function ChapterManagement({
       <ChapterDialog
         isOpen={isChapterDialogOpen}
         onClose={() => setIsChapterDialogOpen(false)}
-        chapter={selectedChapter}
+        chapter={selectedChapter ?? undefined}
         isEditing={isEditingChapter}
         novel={currentNovel}
         onSuccess={() => {
@@ -1082,7 +1091,7 @@ function ChapterDialog({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  chapter?: any;
+  chapter?: ChapterSummary | Chapter;
   isEditing: boolean;
   novel: AuthorNovel | null;
   onSuccess: () => void;
@@ -1102,8 +1111,8 @@ function ChapterDialog({
       setFormData({
         chapter_number: chapter.chapter_number,
         title: chapter.title,
-        content: chapter.content || "",
-        is_free: chapter.is_free !== false,
+        content: ("content" in chapter && chapter.content) || "",
+        is_free: ("is_free" in chapter && chapter.is_free !== false) || true,
       });
     } else {
       setFormData({
@@ -1132,10 +1141,14 @@ function ChapterDialog({
       }
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to save chapter:", error);
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const errorMessage =
-        error?.response?.data?.message ||
+        err?.response?.data?.message ||
         "Failed to save chapter. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
