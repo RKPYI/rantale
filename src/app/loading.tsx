@@ -60,7 +60,7 @@ export default function Loading() {
               <Loader2 className="text-primary absolute -top-1 -right-1 h-4 w-4 animate-spin" />
             </div>
             <div className="space-y-1">
-              <div className="text-lg font-medium">Loading RanoVel...</div>
+              <div className="text-lg font-medium">Loading Ranovel...</div>
               <div className="text-muted-foreground text-sm">
                 Please wait while we prepare your content
               </div>

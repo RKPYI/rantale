@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RDKNovel - Your Novel Reading Platform",
-  description: "Discover and read amazing novels on RDKNovel",
+  title: "Ranovel - Your Novel Reading Platform",
+  description: "Discover and read amazing novels on Ranovel",
 };
 
 export default function RootLayout({

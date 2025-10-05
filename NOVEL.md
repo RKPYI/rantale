@@ -1,10 +1,12 @@
-# RDKNovel Frontend - API Integration Guide
+# Ranovel Frontend - API Integration Guide
 
-This document provides a comprehensive step-by-step guide for adding new APIs to your RDKNovel frontend application.
+This document provides a comprehensive step-by-step guide for adding new APIs to
+your Ranovel frontend application.
 
 ## Architecture Overview
 
-The RDKNovel frontend follows a layered architecture pattern:
+The Ranovel frontend follows a layered architecture pattern:
+
 - **Types Layer**: TypeScript interfaces and types (`src/types/api.ts`)
 - **Service Layer**: API calls and data fetching (`src/services/`)
 - **Hook Layer**: React state management (`src/hooks/`)
@@ -68,46 +70,55 @@ Create a new service file for your API endpoints:
 
 ```typescript
 // Example: src/services/reviews.ts
-import { apiClient } from '@/lib/api-client';
-import { 
-  BookReview, 
-  CreateReviewRequest, 
+import { apiClient } from "@/lib/api-client";
+import {
+  BookReview,
+  CreateReviewRequest,
   UpdateReviewRequest,
-  PaginatedResponse 
-} from '@/types/api';
+  PaginatedResponse,
+} from "@/types/api";
 
 export const reviewService = {
   // Get reviews for a novel
   async getNovelReviews(
-    novelId: string, 
-    page: number = 1, 
-    limit: number = 10
+    novelId: string,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<PaginatedResponse<BookReview>> {
     const response = await apiClient.get<PaginatedResponse<BookReview>>(
       `/novels/${novelId}/reviews`,
-      { page, limit }
+      { page, limit },
     );
     return response.data;
   },
 
   // Get user's reviews
-  async getUserReviews(page: number = 1, limit: number = 10): Promise<PaginatedResponse<BookReview>> {
+  async getUserReviews(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedResponse<BookReview>> {
     const response = await apiClient.get<PaginatedResponse<BookReview>>(
-      '/reviews/my-reviews',
-      { page, limit }
+      "/reviews/my-reviews",
+      { page, limit },
     );
     return response.data;
   },
 
   // Create new review
   async createReview(reviewData: CreateReviewRequest): Promise<BookReview> {
-    const response = await apiClient.post<BookReview>('/reviews', reviewData);
+    const response = await apiClient.post<BookReview>("/reviews", reviewData);
     return response.data;
   },
 
   // Update existing review
-  async updateReview(reviewId: string, reviewData: UpdateReviewRequest): Promise<BookReview> {
-    const response = await apiClient.put<BookReview>(`/reviews/${reviewId}`, reviewData);
+  async updateReview(
+    reviewId: string,
+    reviewData: UpdateReviewRequest,
+  ): Promise<BookReview> {
+    const response = await apiClient.put<BookReview>(
+      `/reviews/${reviewId}`,
+      reviewData,
+    );
     return response.data;
   },
 
@@ -135,22 +146,29 @@ export const reviewService = {
 
 ```typescript
 // Example: src/services/bookmarks.ts
-import { apiClient } from '@/lib/api-client';
-import { Bookmark, CreateBookmarkRequest, PaginatedResponse } from '@/types/api';
+import { apiClient } from "@/lib/api-client";
+import {
+  Bookmark,
+  CreateBookmarkRequest,
+  PaginatedResponse,
+} from "@/types/api";
 
 export const bookmarkService = {
   // Get user's bookmarks
-  async getUserBookmarks(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Bookmark>> {
+  async getUserBookmarks(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<PaginatedResponse<Bookmark>> {
     const response = await apiClient.get<PaginatedResponse<Bookmark>>(
-      '/bookmarks',
-      { page, limit }
+      "/bookmarks",
+      { page, limit },
     );
     return response.data;
   },
 
   // Create bookmark
   async createBookmark(bookmarkData: CreateBookmarkRequest): Promise<Bookmark> {
-    const response = await apiClient.post<Bookmark>('/bookmarks', bookmarkData);
+    const response = await apiClient.post<Bookmark>("/bookmarks", bookmarkData);
     return response.data;
   },
 
@@ -162,7 +180,9 @@ export const bookmarkService = {
   // Check if novel is bookmarked
   async isBookmarked(novelId: string): Promise<boolean> {
     try {
-      const response = await apiClient.get<{ bookmarked: boolean }>(`/bookmarks/check/${novelId}`);
+      const response = await apiClient.get<{ bookmarked: boolean }>(
+        `/bookmarks/check/${novelId}`,
+      );
       return response.data.bookmarked;
     } catch {
       return false;
@@ -179,11 +199,15 @@ Build React hooks for state management:
 // Example: src/hooks/use-reviews.ts
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { reviewService } from '@/services/reviews';
-import { BookReview, CreateReviewRequest, UpdateReviewRequest } from '@/types/api';
-import { handleApiError } from '@/lib/api-client';
-import { useAsync } from './use-api';
+import { useState, useEffect, useCallback } from "react";
+import { reviewService } from "@/services/reviews";
+import {
+  BookReview,
+  CreateReviewRequest,
+  UpdateReviewRequest,
+} from "@/types/api";
+import { handleApiError } from "@/lib/api-client";
+import { useAsync } from "./use-api";
 
 export function useReviews(novelId?: string) {
   const [reviews, setReviews] = useState<BookReview[]>([]);
@@ -199,43 +223,51 @@ export function useReviews(novelId?: string) {
   });
 
   // Fetch reviews
-  const fetchReviews = useCallback(async (page: number = 1) => {
-    if (!novelId) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await reviewService.getNovelReviews(novelId, page);
-      setReviews(response.data);
-      setPagination(response.pagination);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
-      setLoading(false);
-    }
-  }, [novelId]);
+  const fetchReviews = useCallback(
+    async (page: number = 1) => {
+      if (!novelId) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await reviewService.getNovelReviews(novelId, page);
+        setReviews(response.data);
+        setPagination(response.pagination);
+      } catch (err) {
+        setError(handleApiError(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [novelId],
+  );
 
   // Create review
   const createReview = useAsync(async (reviewData: CreateReviewRequest) => {
     const newReview = await reviewService.createReview(reviewData);
-    setReviews(prev => [newReview, ...prev]);
+    setReviews((prev) => [newReview, ...prev]);
     return newReview;
   });
 
   // Update review
-  const updateReview = useAsync(async (reviewId: string, reviewData: UpdateReviewRequest) => {
-    const updatedReview = await reviewService.updateReview(reviewId, reviewData);
-    setReviews(prev => prev.map(review => 
-      review.id === reviewId ? updatedReview : review
-    ));
-    return updatedReview;
-  });
+  const updateReview = useAsync(
+    async (reviewId: string, reviewData: UpdateReviewRequest) => {
+      const updatedReview = await reviewService.updateReview(
+        reviewId,
+        reviewData,
+      );
+      setReviews((prev) =>
+        prev.map((review) => (review.id === reviewId ? updatedReview : review)),
+      );
+      return updatedReview;
+    },
+  );
 
   // Delete review
   const deleteReview = useAsync(async (reviewId: string) => {
     await reviewService.deleteReview(reviewId);
-    setReviews(prev => prev.filter(review => review.id !== reviewId));
+    setReviews((prev) => prev.filter((review) => review.id !== reviewId));
   });
 
   // Initial load
@@ -249,7 +281,7 @@ export function useReviews(novelId?: string) {
     loading,
     error,
     pagination,
-    
+
     // Actions
     fetchReviews,
     createReview,
@@ -294,11 +326,11 @@ export function useUserReviews() {
 // Example: src/hooks/use-bookmarks.ts
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { bookmarkService } from '@/services/bookmarks';
-import { Bookmark, CreateBookmarkRequest } from '@/types/api';
-import { handleApiError } from '@/lib/api-client';
-import { useAsync } from './use-api';
+import { useState, useEffect, useCallback } from "react";
+import { bookmarkService } from "@/services/bookmarks";
+import { Bookmark, CreateBookmarkRequest } from "@/types/api";
+import { handleApiError } from "@/lib/api-client";
+import { useAsync } from "./use-api";
 
 export function useBookmarks() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
@@ -320,13 +352,15 @@ export function useBookmarks() {
 
   const addBookmark = useAsync(async (bookmarkData: CreateBookmarkRequest) => {
     const newBookmark = await bookmarkService.createBookmark(bookmarkData);
-    setBookmarks(prev => [newBookmark, ...prev]);
+    setBookmarks((prev) => [newBookmark, ...prev]);
     return newBookmark;
   });
 
   const removeBookmark = useAsync(async (bookmarkId: string) => {
     await bookmarkService.removeBookmark(bookmarkId);
-    setBookmarks(prev => prev.filter(bookmark => bookmark.id !== bookmarkId));
+    setBookmarks((prev) =>
+      prev.filter((bookmark) => bookmark.id !== bookmarkId),
+    );
   });
 
   useEffect(() => {
@@ -350,13 +384,13 @@ export function useBookmarkStatus(novelId: string) {
 
   const checkBookmarkStatus = useCallback(async () => {
     if (!novelId) return;
-    
+
     try {
       setLoading(true);
       const bookmarked = await bookmarkService.isBookmarked(novelId);
       setIsBookmarked(bookmarked);
     } catch (err) {
-      console.error('Error checking bookmark status:', err);
+      console.error("Error checking bookmark status:", err);
     } finally {
       setLoading(false);
     }
@@ -424,7 +458,7 @@ export function ReviewForm({ novelId, onSubmit, loading }: ReviewFormProps) {
       title,
       content,
     });
-    
+
     // Reset form
     setRating(5);
     setTitle('');
@@ -453,7 +487,7 @@ export function ReviewForm({ novelId, onSubmit, loading }: ReviewFormProps) {
                   <Star
                     className={`h-6 w-6 ${
                       star <= (hoveredStar || rating)
-                        ? 'fill-yellow-400 text-yellow-400' 
+                        ? 'fill-yellow-400 text-yellow-400'
                         : 'text-gray-300'
                     }`}
                   />
@@ -548,7 +582,7 @@ export function ReviewCard({ review, canEdit, onEdit, onDelete, onLike }: Review
               </p>
             </div>
           </div>
-          
+
           {canEdit && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -577,8 +611,8 @@ export function ReviewCard({ review, canEdit, onEdit, onDelete, onLike }: Review
                 <Star
                   key={i}
                   className={`h-4 w-4 ${
-                    i < review.rating 
-                      ? 'fill-yellow-400 text-yellow-400' 
+                    i < review.rating
+                      ? 'fill-yellow-400 text-yellow-400'
                       : 'text-gray-300'
                   }`}
                 />
@@ -588,7 +622,7 @@ export function ReviewCard({ review, canEdit, onEdit, onDelete, onLike }: Review
           </div>
 
           <h4 className="font-semibold text-lg">{review.title}</h4>
-          
+
           <p className="text-muted-foreground leading-relaxed">
             {review.content}
           </p>
@@ -694,7 +728,7 @@ export default function NovelDetailPage({ params }: { params: { id: string } }) 
           <h1 className="text-3xl font-bold mb-2">Novel Title</h1>
           <p className="text-muted-foreground">By Author Name</p>
         </div>
-        
+
         <div className="flex gap-2">
           <BookmarkButton novelId={params.id} />
           <Button>Start Reading</Button>
@@ -708,7 +742,7 @@ export default function NovelDetailPage({ params }: { params: { id: string } }) 
             Reviews ({pagination.total})
           </h2>
         </div>
-        
+
         {/* Review Form */}
         {isAuthenticated && (
           <div className="mb-8">
@@ -719,7 +753,7 @@ export default function NovelDetailPage({ params }: { params: { id: string } }) 
             />
           </div>
         )}
-        
+
         {/* Reviews List */}
         {loading ? (
           <div className="space-y-4">
@@ -752,11 +786,11 @@ export default function NovelDetailPage({ params }: { params: { id: string } }) 
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Previous
                 </Button>
-                
+
                 <span className="text-sm text-muted-foreground">
                   Page {pagination.page} of {pagination.totalPages}
                 </span>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -778,7 +812,8 @@ export default function NovelDetailPage({ params }: { params: { id: string } }) 
 
 ### 6. **Update Environment Variables** (if needed)
 
-If you need additional API endpoints or configurations, update your `.env.local`:
+If you need additional API endpoints or configurations, update your
+`.env.local`:
 
 ```env
 # Add any new environment variables
@@ -816,40 +851,50 @@ if (error) {
 ## Common API Patterns
 
 ### Authentication-Required APIs
+
 ```typescript
 // In your service
 export const protectedService = {
   async createResource(data: CreateRequest): Promise<Resource> {
     // apiClient automatically adds auth token
-    const response = await apiClient.post<Resource>('/protected-resource', data);
+    const response = await apiClient.post<Resource>(
+      "/protected-resource",
+      data,
+    );
     return response.data;
-  }
+  },
 };
 ```
 
 ### File Upload APIs
+
 ```typescript
 // In your service
 export const uploadService = {
   async uploadAvatar(file: File): Promise<{ url: string }> {
-    const response = await apiClient.uploadFile<{ url: string }>('/upload/avatar', file, 'avatar');
+    const response = await apiClient.uploadFile<{ url: string }>(
+      "/upload/avatar",
+      file,
+      "avatar",
+    );
     return response.data;
-  }
+  },
 };
 ```
 
 ### Real-time Updates with WebSockets
+
 ```typescript
 // In your hook
 export function useRealTimeUpdates(resourceId: string) {
   useEffect(() => {
     const ws = new WebSocket(`${env.WS_URL}/updates/${resourceId}`);
-    
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       // Update your state based on real-time data
     };
-    
+
     return () => ws.close();
   }, [resourceId]);
 }
@@ -884,4 +929,5 @@ export function useRealTimeUpdates(resourceId: string) {
 5. Consider implementing caching strategies for performance
 6. Add loading skeletons for better user experience
 
-This pattern ensures consistent, maintainable, and scalable API integrations throughout your RDKNovel application.
+This pattern ensures consistent, maintainable, and scalable API integrations
+throughout your Ranovel application.

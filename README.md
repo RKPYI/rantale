@@ -1,35 +1,41 @@
-This is a [Next.js](https://nextjs.org) project for RDKNovel, a novel reading platform built with modern React patterns and shadcn/ui components.
+This is a [Next.js](https://nextjs.org) project for Ranovel, a novel reading
+platform built with modern React patterns and shadcn/ui components.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm, yarn, pnpm, or bun
 - A running Laravel backend API
 
 ### Installation
 
 1. **Clone and install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Environment setup:**
+
    ```bash
    cp .env.example .env.local
    ```
-   
+
    Edit `.env.local` with your backend API URL:
+
    ```bash
    NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
 3. **Run the development server:**
+
    ```bash
    npm run dev
    ```
-   
+
    Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 ## ✨ Features
@@ -89,13 +95,14 @@ src/
 ### Available Scripts
 
 - `npm run dev` - Development server with Turbopack
-- `npm run build` - Production build with Turbopack  
+- `npm run build` - Production build with Turbopack
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
 ### Adding Components
 
 Add shadcn/ui components:
+
 ```bash
 npx shadcn@latest add [component-name]
 ```
@@ -112,14 +119,16 @@ Components auto-configure with New York style and CSS variables.
 ## 📚 Documentation
 
 - **[API Integration Guide](./API.md)** - Complete API setup and usage
-- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
+- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding
+  assistant guidelines
 
 ## 🔗 Backend Integration
 
-This frontend connects to a Laravel backend with Sanctum authentication. Required API routes:
+This frontend connects to a Laravel backend with Sanctum authentication.
+Required API routes:
 
 - `POST /auth/register` - User registration
-- `POST /auth/login` - User login  
+- `POST /auth/login` - User login
 - `GET /auth/me` - Get user profile
 - `POST /auth/logout` - User logout
 - `GET /auth/google` - Google OAuth
@@ -128,6 +137,7 @@ This frontend connects to a Laravel backend with Sanctum authentication. Require
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 ```bash
 # Connect your repo to Vercel
 # Add environment variables in dashboard
@@ -135,6 +145,7 @@ This frontend connects to a Laravel backend with Sanctum authentication. Require
 ```
 
 ### Manual Deployment
+
 ```bash
 npm run build
 npm run start

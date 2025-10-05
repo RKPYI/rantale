@@ -18,7 +18,7 @@ export async function generateMetadata({
     const novel = await novelService.getNovelBySlug(slug);
 
     return {
-      title: `${novel.title} by ${novel.author} | RDKNovel`,
+      title: `${novel.title} by ${novel.author} | Ranovel`,
       description:
         novel.description ||
         `Read ${novel.title} by ${novel.author} online. ${novel.status === "completed" ? "Complete" : "Ongoing"} novel with ${novel.total_chapters || 0} chapters.`,
@@ -47,7 +47,7 @@ export async function generateMetadata({
     };
   } catch (error) {
     return {
-      title: "Novel Not Found | RDKNovel",
+      title: "Novel Not Found | Ranovel",
       description: "The requested novel could not be found.",
     };
   }
