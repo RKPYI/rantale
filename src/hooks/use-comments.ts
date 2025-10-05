@@ -72,6 +72,14 @@ export function useUserVoteOnComment(commentId: number) {
   );
 }
 
+// Hook for getting bulk user votes on multiple comments
+export function useBulkUserVotes(commentIds: number[]) {
+  return useApi(
+    () => commentService.getBulkUserVotes(commentIds),
+    [commentIds.join(",")], // Use stringified array as dependency to avoid re-renders
+  );
+}
+
 // Admin hook for getting all comments
 export function useAllComments(page?: number) {
   return useApi(() => commentService.getAllComments(page), [page]);

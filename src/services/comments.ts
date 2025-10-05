@@ -9,7 +9,6 @@ import {
   VoteResponse,
   CommentVote,
   AdminCommentsResponse,
-  PaginatedResponse,
 } from "@/types/api";
 
 export const commentService = {
@@ -85,6 +84,32 @@ export const commentService = {
       `/comments/${commentId}/vote`,
     );
     return response.data.vote;
+  },
+
+  // Get user's votes for multiple comments (requires authentication)
+  async getBulkUserVotes(
+    commentIds: number[],
+  ): Promise<Record<number, CommentVote | null>> {
+    if (commentIds.length === 0) {
+      return {};
+    }
+
+    interface BulkVoteData {
+      vote: CommentVote | null;
+    }
+
+    const response = await apiClient.get<Record<string, BulkVoteData>>(
+      `/comments/votes`,
+      { comment_ids: commentIds.join(",") },
+    );
+
+    // Convert string keys to numbers and extract vote objects
+    const result: Record<number, CommentVote | null> = {};
+    const responseData = response.data as Record<string, BulkVoteData>;
+    for (const [id, voteData] of Object.entries(responseData)) {
+      result[parseInt(id, 10)] = voteData.vote;
+    }
+    return result;
   },
 
   // Admin: Get all comments (requires admin)

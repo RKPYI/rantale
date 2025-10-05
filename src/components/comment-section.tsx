@@ -153,9 +153,23 @@ export function CommentSection({
 
         collectCommentIds(comments);
 
-        // Fetch votes for all comments
-        for (const commentId of commentIds) {
-          fetchUserVote(commentId);
+        // Fetch votes for all comments in a single request
+        try {
+          const bulkVotes = await commentService.getBulkUserVotes(commentIds);
+          const newVotesMap = new Map<number, boolean | null>();
+
+          for (const [id, vote] of Object.entries(bulkVotes)) {
+            const commentId = parseInt(id, 10);
+            newVotesMap.set(commentId, vote?.is_upvote ?? null);
+          }
+
+          setUserVotes(newVotesMap);
+        } catch (error) {
+          console.error("Error fetching bulk user votes:", error);
+          // Set all votes to null on error
+          const fallbackVotes = new Map<number, boolean | null>();
+          commentIds.forEach((id) => fallbackVotes.set(id, null));
+          setUserVotes(fallbackVotes);
         }
       };
 
@@ -229,21 +243,6 @@ export function CommentSection({
       refetchComments();
     } catch (error) {
       console.error("Error deleting comment:", error);
-    }
-  };
-
-  // Fetch user vote status for a comment
-  const fetchUserVote = async (commentId: number) => {
-    if (!isAuthenticated) return;
-
-    try {
-      const vote = await commentService.getUserVoteOnComment(commentId);
-      setUserVotes(
-        (prev) => new Map(prev.set(commentId, vote?.is_upvote ?? null)),
-      );
-    } catch (error) {
-      // User hasn't voted or error occurred, set as null
-      setUserVotes((prev) => new Map(prev.set(commentId, null)));
     }
   };
 
