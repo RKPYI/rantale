@@ -17,17 +17,13 @@ export const env = {
 
 // Validate required environment variables in production only
 // In development, we'll use defaults if not provided
-const requiredEnvVars = ["NEXT_PUBLIC_API_BASE_URL"] as const;
-
 export function validateEnv() {
   // Only validate in production, allow defaults in development
   if (env.IS_PRODUCTION) {
-    const missing = requiredEnvVars.filter((key) => !process.env[key]);
-
-    if (missing.length > 0) {
+    if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
       throw new Error(
-        `Missing required environment variables: ${missing.join(", ")}\n` +
-          "Please check your .env.local file.",
+        `Missing required environment variables: NEXT_PUBLIC_API_BASE_URL\n` +
+          "Please set this in your Vercel project settings under Environment Variables.",
       );
     }
   }
