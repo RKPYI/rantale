@@ -126,10 +126,10 @@ export function Navbar() {
               <Image
                 src={
                   resolvedTheme === "dark"
-                    ? "/logo-dark.svg"
-                    : "/logo-light.svg"
+                    ? "/rantale-dark.svg"
+                    : "/rantale-light.svg"
                 }
-                alt="RANOVEL"
+                alt="Rantale"
                 width={120}
                 height={40}
                 className="h-8 w-auto"

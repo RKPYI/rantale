@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ranovel - Your Novel Reading Platform",
-  description: "Discover and read amazing novels on Ranovel",
+  title: "Rantale - Your Novel Reading Platform",
+  description: "Discover and read amazing novels on Rantale",
 };
 
 export default function RootLayout({

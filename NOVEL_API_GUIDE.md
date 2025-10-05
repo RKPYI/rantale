@@ -1,7 +1,7 @@
 # Novel API Integration Guide
 
 This document provides comprehensive examples of how to use the Novel API
-integration in the Ranovel frontend.
+integration in the Rantale frontend.
 
 ## Quick Start
 
@@ -506,4 +506,4 @@ See the following example components for complete implementations:
 3. **`/src/lib/novel-utils.ts`** - Utility functions for novel data manipulation
 
 These components demonstrate all the patterns and best practices for working
-with the Novel API in the Ranovel frontend application.
+with the Novel API in the Rantale frontend application.

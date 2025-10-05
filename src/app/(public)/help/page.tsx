@@ -88,7 +88,7 @@ export default function HelpPage() {
             Help Center
           </h1>
           <p className="text-muted-foreground">
-            Find answers to common questions and get help with Ranovel
+            Find answers to common questions and get help with Rantale
           </p>
         </div>
 

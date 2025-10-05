@@ -248,7 +248,7 @@ export function AuthModal({
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Join Ranovel</DialogTitle>
+          <DialogTitle>Join Rantale</DialogTitle>
           <DialogDescription>
             Sign in to your account or create a new one to start commenting and
             track your reading progress.

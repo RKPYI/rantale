@@ -57,8 +57,8 @@ export default function LoginPage() {
         <div className="relative z-20 flex items-center text-lg font-medium">
           <Link href="/" className="flex items-center">
             <Image
-              src="/logo-dark.svg"
-              alt="RANOVEL"
+              src="/rantale-dark.svg"
+              alt="Rantale"
               width={120}
               height={32}
               className="mr-2 h-8 w-auto"
@@ -72,7 +72,7 @@ export default function LoginPage() {
               &ldquo;Discover thousands of amazing novels and start your reading
               journey today.&rdquo;
             </p>
-            <footer className="text-sm">Welcome to RANOVEL</footer>
+            <footer className="text-sm">Welcome to Rantale</footer>
           </blockquote>
         </div>
       </div>
