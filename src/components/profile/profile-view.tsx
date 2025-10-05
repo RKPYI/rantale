@@ -148,12 +148,14 @@ export function ProfileView() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setActiveTab("author")}
+                    asChild
                     className="w-full sm:w-auto"
                   >
-                    <PenTool className="mr-2 h-4 w-4" />
-                    <span className="sm:hidden">Author</span>
-                    <span className="hidden sm:inline">Become Author</span>
+                    <a href="/author">
+                      <PenTool className="mr-2 h-4 w-4" />
+                      <span className="sm:hidden">Author</span>
+                      <span className="hidden sm:inline">Become Author</span>
+                    </a>
                   </Button>
                 )}
               </div>
