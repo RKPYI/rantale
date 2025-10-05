@@ -66,7 +66,7 @@ export default function GoogleCallbackPage() {
               className={`text-2xl ${status === "success" ? "text-green-700 dark:text-green-400" : status === "error" ? "text-red-700 dark:text-red-400" : ""}`}
             >
               {status === "loading" && "Signing you in..."}
-              {status === "success" && "Welcome to RDKNovel!"}
+              {status === "success" && "Welcome to Ranovel!"}
               {status === "error" && "Authentication Error"}
             </CardTitle>
           </CardHeader>

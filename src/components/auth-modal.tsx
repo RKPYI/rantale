@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -68,6 +69,7 @@ export function AuthModal({
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Form states
   const [signinData, setSigninData] = useState<LoginRequest>({
@@ -98,6 +100,7 @@ export function AuthModal({
     setErrors({});
     setShowPassword(false);
     setShowConfirmPassword(false);
+    setRememberMe(false);
   };
 
   const handleClose = () => {
@@ -136,11 +139,11 @@ export function AuthModal({
 
     try {
       await execute(async () => {
-        const authResponse = await authService.login(signinData);
+        const authResponse = await authService.login(signinData, rememberMe);
         // If successful, update the auth context
         if (authResponse?.user) {
           // The auth service already set the token, now we just need to trigger auth state update
-          await login(signinData.email, signinData.password);
+          await login(signinData.email, signinData.password, rememberMe);
         }
         return authResponse;
       });
@@ -245,7 +248,7 @@ export function AuthModal({
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Join RDKNovel</DialogTitle>
+          <DialogTitle>Join Ranovel</DialogTitle>
           <DialogDescription>
             Sign in to your account or create a new one to start commenting and
             track your reading progress.
@@ -320,6 +323,23 @@ export function AuthModal({
                   </Button>
                 </div>
                 {renderFieldError("password")}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember-me"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) =>
+                    setRememberMe(checked as boolean)
+                  }
+                  disabled={loading}
+                />
+                <Label
+                  htmlFor="remember-me"
+                  className="cursor-pointer text-sm font-normal"
+                >
+                  Remember me
+                </Label>
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>

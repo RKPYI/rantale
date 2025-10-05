@@ -1,19 +1,22 @@
 # API Integration Setup
 
-This document describes the API integration setup for the RDKNovel frontend application.
+This document describes the API integration setup for the Ranovel frontend
+application.
 
 ## 🚀 Quick Start
 
 1. **Environment Setup**
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your actual API configuration
    ```
 
 2. **Basic Usage**
+
    ```tsx
-   import { useAuth } from '@/hooks/use-auth';
-   import { useNovels } from '@/hooks/use-novels';
+   import { useAuth } from "@/hooks/use-auth";
+   import { useNovels } from "@/hooks/use-novels";
 
    function MyComponent() {
      const { user, login, logout } = useAuth();
@@ -73,13 +76,13 @@ NEXTAUTH_URL=http://localhost:3000
 ### 1. Authentication
 
 ```tsx
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from "@/hooks/use-auth";
 
 function LoginComponent() {
   const { login, logout, user, isAuthenticated, loading } = useAuth();
 
   const handleLogin = async () => {
-    const success = await login('user@example.com', 'password', true); // remember me
+    const success = await login("user@example.com", "password", true); // remember me
     if (success) {
       // Login successful
     }
@@ -103,27 +106,32 @@ function LoginComponent() {
 ### 2. Data Fetching
 
 ```tsx
-import { useNovels, useNovel } from '@/hooks/use-novels';
+import { useNovels, useNovel } from "@/hooks/use-novels";
 
 function NovelsComponent() {
   // List novels with pagination and filters
-  const { data: novels, loading, error, refetch } = useNovels({
+  const {
+    data: novels,
+    loading,
+    error,
+    refetch,
+  } = useNovels({
     page: 1,
     limit: 20,
-    genre: ['fantasy', 'adventure'],
-    sortBy: 'rating',
-    sortOrder: 'desc'
+    genre: ["fantasy", "adventure"],
+    sortBy: "rating",
+    sortOrder: "desc",
   });
 
   // Single novel
-  const { data: novel } = useNovel('novel-id-123');
+  const { data: novel } = useNovel("novel-id-123");
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
-      {novels?.data.map(novel => (
+      {novels?.data.map((novel) => (
         <div key={novel.id}>{novel.title}</div>
       ))}
       <button onClick={refetch}>Refresh</button>
@@ -135,8 +143,8 @@ function NovelsComponent() {
 ### 3. Async Operations
 
 ```tsx
-import { useAsync } from '@/hooks/use-api';
-import { novelService } from '@/services/novels';
+import { useAsync } from "@/hooks/use-api";
+import { novelService } from "@/services/novels";
 
 function NovelActions({ novelId }: { novelId: string }) {
   const { loading, error, execute } = useAsync();
@@ -149,11 +157,8 @@ function NovelActions({ novelId }: { novelId: string }) {
   };
 
   return (
-    <button 
-      onClick={handleAddToLibrary} 
-      disabled={loading}
-    >
-      {loading ? 'Adding...' : 'Add to Library'}
+    <button onClick={handleAddToLibrary} disabled={loading}>
+      {loading ? "Adding..." : "Add to Library"}
     </button>
   );
 }
@@ -162,29 +167,29 @@ function NovelActions({ novelId }: { novelId: string }) {
 ### 4. Search with Debouncing
 
 ```tsx
-import { useState } from 'react';
-import { useSearchNovels } from '@/hooks/use-novels';
+import { useState } from "react";
+import { useSearchNovels } from "@/hooks/use-novels";
 
 function SearchComponent() {
-  const [query, setQuery] = useState('');
-  
+  const [query, setQuery] = useState("");
+
   // Only search when query is 3+ characters
   const { data: results, loading } = useSearchNovels(
-    query.length >= 3 ? query : '',
-    { limit: 10 }
+    query.length >= 3 ? query : "",
+    { limit: 10 },
   );
 
   return (
     <div>
-      <input 
+      <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search novels..."
       />
-      
+
       {loading && <div>Searching...</div>}
-      
-      {results?.data.map(novel => (
+
+      {results?.data.map((novel) => (
         <div key={novel.id}>{novel.title}</div>
       ))}
     </div>
@@ -233,7 +238,7 @@ interface PaginatedResponse<T> {
 Errors are consistently handled across all API calls:
 
 ```tsx
-import { handleApiError } from '@/lib/api-client';
+import { handleApiError } from "@/lib/api-client";
 
 try {
   await novelService.addToLibrary(novelId);
@@ -248,8 +253,8 @@ try {
 The API hooks integrate seamlessly with shadcn/ui components:
 
 ```tsx
-import { Skeleton } from '@/components/ui/skeleton';
-import { useNovels } from '@/hooks/use-novels';
+import { Skeleton } from "@/components/ui/skeleton";
+import { useNovels } from "@/hooks/use-novels";
 
 function NovelsList() {
   const { data: novels, loading, error } = useNovels();
@@ -257,7 +262,7 @@ function NovelsList() {
   if (loading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-20 w-full" />
         ))}
       </div>
@@ -265,11 +270,7 @@ function NovelsList() {
   }
 
   if (error) {
-    return (
-      <div className="text-destructive text-sm">
-        Error: {error}
-      </div>
-    );
+    return <div className="text-destructive text-sm">Error: {error}</div>;
   }
 
   // Render novels...
@@ -278,7 +279,8 @@ function NovelsList() {
 
 ## 📋 Best Practices
 
-1. **Use Services**: Always use service methods rather than calling `apiClient` directly
+1. **Use Services**: Always use service methods rather than calling `apiClient`
+   directly
 2. **Type Safety**: Import and use TypeScript interfaces from `@/types/api`
 3. **Error Handling**: Use `handleApiError()` for consistent error messages
 4. **Loading States**: Always handle loading and error states in UI
@@ -288,6 +290,7 @@ function NovelsList() {
 ## 🔍 Example Component
 
 See `src/components/api-demo.tsx` for a comprehensive example showing:
+
 - Authentication flow
 - Data fetching with loading states
 - Search functionality
