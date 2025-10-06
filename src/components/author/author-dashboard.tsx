@@ -1304,7 +1304,7 @@ function ChapterDialog({
 
     try {
       if (isEditing && chapter) {
-        await chapterService.updateChapter(chapter.id, formData);
+        await chapterService.updateChapter(novel.slug, chapter.id, formData);
         toast.success("Chapter updated successfully!");
       } else {
         await chapterService.createChapter(novel.slug, formData);
