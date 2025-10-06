@@ -408,13 +408,15 @@ export function ChapterReadingView({
                 <div className="text-muted-foreground flex items-center justify-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    <span>{formatDate(chapter.published_at)}</span>
+                    <span>
+                      {formatDate(chapter.published_at ?? chapter.created_at)}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOpen className="h-4 w-4" />
                     <span>{formatNumber(chapter.word_count)} words</span>
                   </div>
-                  {chapter.views && (
+                  {chapter.views !== null && chapter.views !== undefined && (
                     <div className="flex items-center gap-1">
                       <Eye className="h-4 w-4" />
                       <span>{formatNumber(chapter.views)} views</span>

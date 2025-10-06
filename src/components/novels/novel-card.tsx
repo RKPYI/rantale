@@ -158,22 +158,26 @@ export function NovelCard({
           )}
         >
           <div className="text-muted-foreground flex items-center gap-3 text-xs">
-            {novel.rating && (
+            {novel.rating !== null && novel.rating !== undefined && (
               <div className="flex items-center gap-1">
                 <Star className="h-3 w-3 fill-current text-yellow-400" />
                 <span>{formatRating(novel.rating)}</span>
-                {novel.rating_count && <span>({novel.rating_count})</span>}
+                {novel.rating_count !== null &&
+                  novel.rating_count !== undefined && (
+                    <span>({novel.rating_count})</span>
+                  )}
               </div>
             )}
 
-            {novel.total_chapters && (
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3" />
-                <span>{novel.total_chapters} ch</span>
-              </div>
-            )}
+            {novel.total_chapters !== null &&
+              novel.total_chapters !== undefined && (
+                <div className="flex items-center gap-1">
+                  <BookOpen className="h-3 w-3" />
+                  <span>{novel.total_chapters} ch</span>
+                </div>
+              )}
 
-            {novel.views && (
+            {novel.views !== null && novel.views !== undefined && (
               <div className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
                 <span>

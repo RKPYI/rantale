@@ -203,31 +203,35 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
             {/* Stats Row */}
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              {novel.rating && (
+              {novel.rating !== null && novel.rating !== undefined && (
                 <div className="bg-muted rounded-lg p-3 text-center">
                   <div className="flex items-center justify-center gap-1 text-lg font-semibold">
                     <Star className="h-4 w-4 fill-current text-yellow-400" />
                     {formatRating(novel.rating)}
                   </div>
                   <div className="text-muted-foreground text-xs">
-                    {novel.rating_count
+                    {novel.rating_count !== null &&
+                    novel.rating_count !== undefined
                       ? `${formatNumber(novel.rating_count)} ratings`
                       : "Rating"}
                   </div>
                 </div>
               )}
 
-              {novel.total_chapters && (
-                <div className="bg-muted rounded-lg p-3 text-center">
-                  <div className="flex items-center justify-center gap-1 text-lg font-semibold">
-                    <BookOpen className="h-4 w-4" />
-                    {novel.total_chapters}
+              {novel.total_chapters !== null &&
+                novel.total_chapters !== undefined && (
+                  <div className="bg-muted rounded-lg p-3 text-center">
+                    <div className="flex items-center justify-center gap-1 text-lg font-semibold">
+                      <BookOpen className="h-4 w-4" />
+                      {novel.total_chapters}
+                    </div>
+                    <div className="text-muted-foreground text-xs">
+                      Chapters
+                    </div>
                   </div>
-                  <div className="text-muted-foreground text-xs">Chapters</div>
-                </div>
-              )}
+                )}
 
-              {novel.views && (
+              {novel.views !== null && novel.views !== undefined && (
                 <div className="bg-muted rounded-lg p-3 text-center">
                   <div className="flex items-center justify-center gap-1 text-lg font-semibold">
                     <Eye className="h-4 w-4" />

@@ -111,7 +111,9 @@ export function Navbar() {
   };
 
   return (
-    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b backdrop-blur">
+    <nav
+      className={`bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 border-b backdrop-blur ${showResults ? "z-[100]" : "z-50"}`}
+    >
       <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         {/* Left side - Logo and Navigation */}
         <div className="flex items-center space-x-6">
