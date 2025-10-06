@@ -53,11 +53,12 @@ export const chapterService = {
   },
 
   async updateChapter(
+    novelSlug: string,
     chapterId: number,
     data: UpdateChapterRequest,
   ): Promise<Chapter> {
     const response = await apiClient.put<{ message: string; chapter: Chapter }>(
-      `/chapters/${chapterId}`,
+      `/novels/${novelSlug}/chapters/${chapterId}`,
       data,
     );
     return response.data.chapter;
