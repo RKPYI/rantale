@@ -49,17 +49,28 @@ export function Footer() {
             </p>
             <div className="flex items-center space-x-3">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="#">
+                <Link
+                  href="https://github.com/RKPYI/rantale"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Github className="h-4 w-4" />
                   <span className="sr-only">GitHub</span>
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="#">
-                  <Twitter className="h-4 w-4" />
-                  <span className="sr-only">Twitter</span>
-                </Link>
-              </Button>
+              {/* Disable Twitter link for now */}
+              <div className="pointer-events-none opacity-50">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link
+                    href="https://twitter.com/RKPYI"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Twitter className="h-4 w-4" />
+                    <span className="sr-only">Twitter</span>
+                  </Link>
+                </Button>
+              </div>
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/contact">
                   <Mail className="h-4 w-4" />
