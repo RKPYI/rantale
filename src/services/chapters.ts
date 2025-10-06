@@ -63,7 +63,7 @@ export const chapterService = {
     return response.data.chapter;
   },
 
-  async deleteChapter(chapterId: number): Promise<void> {
-    await apiClient.delete(`/chapters/${chapterId}`);
+  async deleteChapter(novelSlug: string, chapterId: number): Promise<void> {
+    await apiClient.delete(`/novels/${novelSlug}/chapters/${chapterId}`);
   },
 };

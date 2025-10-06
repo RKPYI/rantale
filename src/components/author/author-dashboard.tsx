@@ -21,6 +21,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -66,6 +76,7 @@ import { chapterService } from "@/services/chapters";
 import { cn } from "@/lib/utils";
 import { AuthorNovel, Genre, ChapterSummary, Chapter } from "@/types/api";
 import { toast } from "sonner";
+import { MarkdownEditor } from "@/components/chapters/markdown-editor";
 
 export function AuthorDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -73,6 +84,10 @@ export function AuthorDashboard() {
   const [isChapterDialogOpen, setIsChapterDialogOpen] = useState(false);
   const [selectedNovel, setSelectedNovel] = useState<AuthorNovel | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteNovelDialog, setDeleteNovelDialog] = useState<{
+    isOpen: boolean;
+    novel: { id: number; slug: string; title: string } | null;
+  }>({ isOpen: false, novel: null });
 
   const {
     data: novels,
@@ -138,20 +153,24 @@ export function AuthorDashboard() {
     </Card>
   );
 
-  const handleDeleteNovel = async (novelId: number, slug: string) => {
-    if (
-      confirm(
-        `Are you sure you want to delete the novel? This will permanently remove all chapters and cannot be undone.`,
-      )
-    ) {
-      try {
-        await novelService.deleteNovel(slug);
-        await refetchNovels();
-        toast.success("Novel deleted successfully!");
-      } catch (error) {
-        console.error("Failed to delete novel:", error);
-        toast.error("Failed to delete novel. Please try again.");
+  const handleDeleteNovel = async () => {
+    if (!deleteNovelDialog.novel) return;
+
+    try {
+      await novelService.deleteNovel(deleteNovelDialog.novel.slug);
+      await refetchNovels();
+      toast.success("Novel deleted successfully!");
+      setDeleteNovelDialog({ isOpen: false, novel: null });
+    } catch (error) {
+      console.error("Failed to delete novel:", error);
+
+      let errorMessage = "Failed to delete novel. Please try again.";
+      if (error && typeof error === "object" && "error" in error) {
+        const apiError = error as { error: string };
+        errorMessage = apiError.error;
       }
+
+      toast.error(errorMessage);
     }
   };
 
@@ -472,7 +491,14 @@ export function AuthorDashboard() {
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() =>
-                                handleDeleteNovel(novel.id, novel.slug)
+                                setDeleteNovelDialog({
+                                  isOpen: true,
+                                  novel: {
+                                    id: novel.id,
+                                    slug: novel.slug,
+                                    title: novel.title,
+                                  },
+                                })
                               }
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
@@ -646,6 +672,36 @@ export function AuthorDashboard() {
         genres={genres || []}
         onSuccess={refetchNovels}
       />
+
+      {/* Delete Novel Confirmation Dialog */}
+      <AlertDialog
+        open={deleteNovelDialog.isOpen}
+        onOpenChange={(isOpen) =>
+          setDeleteNovelDialog({ isOpen, novel: deleteNovelDialog.novel })
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-semibold">
+                {deleteNovelDialog.novel?.title}
+              </span>{" "}
+              and all its chapters. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteNovel}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Novel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -717,15 +773,28 @@ function NovelDialog({
       onClose();
     } catch (error: unknown) {
       console.error("Failed to save novel:", error);
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const errorMessage =
-        err?.response?.data?.message ||
-        "Failed to save novel. Please try again.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+
+      // Handle ApiError from api-client
+      if (error && typeof error === "object" && "error" in error) {
+        const apiError = error as {
+          success: false;
+          error: string;
+          details?: Record<string, string[]>;
+          statusCode?: number;
+        };
+
+        const errorMessage =
+          apiError.error || "Failed to save novel. Please try again.";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } else if (error instanceof Error) {
+        setError(error.message);
+        toast.error(error.message);
+      } else {
+        const fallbackMessage = "Failed to save novel. Please try again.";
+        setError(fallbackMessage);
+        toast.error(fallbackMessage);
+      }
     } finally {
       setSaving(false);
     }
@@ -893,6 +962,10 @@ function ChapterManagement({
     null,
   );
   const [isEditingChapter, setIsEditingChapter] = useState(false);
+  const [deleteChapterDialog, setDeleteChapterDialog] = useState<{
+    isOpen: boolean;
+    chapter: { id: number; number: number; title: string } | null;
+  }>({ isOpen: false, chapter: null });
 
   const {
     data: chapters,
@@ -900,21 +973,28 @@ function ChapterManagement({
     refetch: refetchChapters,
   } = useNovelChapters(currentNovel?.slug || "");
 
-  const handleDeleteChapter = async (chapterId: number) => {
-    if (
-      confirm(
-        `Are you sure you want to delete Chapter ${chapterId}? This action cannot be undone.`,
-      )
-    ) {
-      try {
-        await chapterService.deleteChapter(chapterId);
-        await refetchChapters();
-        await refetchNovels();
-        toast.success("Chapter deleted successfully!");
-      } catch (error) {
-        console.error("Failed to delete chapter:", error);
-        toast.error("Failed to delete chapter. Please try again.");
+  const handleDeleteChapter = async () => {
+    if (!deleteChapterDialog.chapter || !currentNovel) return;
+
+    try {
+      await chapterService.deleteChapter(
+        currentNovel.slug,
+        deleteChapterDialog.chapter.id,
+      );
+      await refetchChapters();
+      await refetchNovels();
+      toast.success("Chapter deleted successfully!");
+      setDeleteChapterDialog({ isOpen: false, chapter: null });
+    } catch (error) {
+      console.error("Failed to delete chapter:", error);
+
+      let errorMessage = "Failed to delete chapter. Please try again.";
+      if (error && typeof error === "object" && "error" in error) {
+        const apiError = error as { error: string };
+        errorMessage = apiError.error;
       }
+
+      toast.error(errorMessage);
     }
   };
 
@@ -1032,7 +1112,16 @@ function ChapterManagement({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteChapter(chapter.id)}
+                        onClick={() =>
+                          setDeleteChapterDialog({
+                            isOpen: true,
+                            chapter: {
+                              id: chapter.id,
+                              number: chapter.chapter_number,
+                              title: chapter.title,
+                            },
+                          })
+                        }
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -1076,6 +1165,40 @@ function ChapterManagement({
           refetchNovels();
         }}
       />
+
+      {/* Delete Chapter Confirmation Dialog */}
+      <AlertDialog
+        open={deleteChapterDialog.isOpen}
+        onOpenChange={(isOpen: boolean) =>
+          setDeleteChapterDialog({
+            isOpen,
+            chapter: deleteChapterDialog.chapter,
+          })
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Chapter?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete{" "}
+              <span className="font-semibold">
+                Chapter {deleteChapterDialog.chapter?.number}:{" "}
+                {deleteChapterDialog.chapter?.title}
+              </span>
+              . This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteChapter}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Chapter
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -1104,25 +1227,73 @@ function ChapterDialog({
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>("");
+  const [loadingContent, setLoadingContent] = useState(false);
+
+  // Get chapters data to determine next chapter number
+  const { data: chaptersData } = useNovelChapters(novel?.slug || "");
 
   useEffect(() => {
     setError(""); // Clear error when dialog opens/closes
-    if (isEditing && chapter) {
-      setFormData({
-        chapter_number: chapter.chapter_number,
-        title: chapter.title,
-        content: ("content" in chapter && chapter.content) || "",
-        is_free: ("is_free" in chapter && chapter.is_free !== false) || true,
-      });
-    } else {
-      setFormData({
-        chapter_number: 1,
-        title: "",
-        content: "",
-        is_free: true,
-      });
+
+    const loadChapterContent = async () => {
+      if (isEditing && chapter && novel) {
+        // Check if we already have the content (full Chapter object)
+        if ("content" in chapter && chapter.content) {
+          setFormData({
+            chapter_number: chapter.chapter_number,
+            title: chapter.title,
+            content: chapter.content,
+            is_free: chapter.is_free !== false,
+          });
+        } else {
+          // Fetch full chapter content from API
+          setLoadingContent(true);
+          try {
+            const response = await chapterService.getChapter(
+              novel.slug,
+              chapter.chapter_number,
+            );
+            setFormData({
+              chapter_number: response.chapter.chapter_number,
+              title: response.chapter.title,
+              content: response.chapter.content,
+              is_free: response.chapter.is_free !== false,
+            });
+          } catch (error) {
+            console.error("Failed to load chapter content:", error);
+            toast.error("Failed to load chapter content");
+            setFormData({
+              chapter_number: chapter.chapter_number,
+              title: chapter.title,
+              content: "",
+              is_free: true,
+            });
+          } finally {
+            setLoadingContent(false);
+          }
+        }
+      } else {
+        // When creating new chapter, set next available number
+        const nextChapterNumber = chaptersData?.chapters
+          ? Math.max(
+              ...chaptersData.chapters.map((ch) => ch.chapter_number),
+              0,
+            ) + 1
+          : 1;
+
+        setFormData({
+          chapter_number: nextChapterNumber,
+          title: "",
+          content: "",
+          is_free: true,
+        });
+      }
+    };
+
+    if (isOpen) {
+      loadChapterContent();
     }
-  }, [isEditing, chapter, isOpen]);
+  }, [isEditing, chapter, isOpen, novel, chaptersData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1143,15 +1314,40 @@ function ChapterDialog({
       onClose();
     } catch (error: unknown) {
       console.error("Failed to save chapter:", error);
-      const err = error as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const errorMessage =
-        err?.response?.data?.message ||
-        "Failed to save chapter. Please try again.";
-      setError(errorMessage);
-      toast.error(errorMessage);
+
+      // Handle ApiError from api-client
+      if (error && typeof error === "object" && "error" in error) {
+        const apiError = error as {
+          success: false;
+          error: string;
+          details?: Record<string, string[]>;
+          statusCode?: number;
+          rawData?: Record<string, unknown>;
+        };
+
+        let errorMessage =
+          apiError.error || "Failed to save chapter. Please try again.";
+
+        // Handle chapter number conflict - check rawData for existing_chapter
+        if (apiError.rawData && "existing_chapter" in apiError.rawData) {
+          const existing = apiError.rawData.existing_chapter as {
+            id: number;
+            chapter_number: number;
+            title: string;
+          };
+          errorMessage = `Chapter ${existing.chapter_number} already exists: "${existing.title}". Please use a different chapter number or edit the existing chapter.`;
+        }
+
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } else if (error instanceof Error) {
+        setError(error.message);
+        toast.error(error.message);
+      } else {
+        const fallbackMessage = "Failed to save chapter. Please try again.";
+        setError(fallbackMessage);
+        toast.error(fallbackMessage);
+      }
     } finally {
       setSaving(false);
     }
@@ -1159,7 +1355,7 @@ function ChapterDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent className="max-h-[95vh] max-w-[95vw] overflow-y-auto lg:max-w-6xl">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Chapter" : "Create New Chapter"}
@@ -1178,9 +1374,31 @@ function ChapterDialog({
             </Alert>
           )}
 
+          {loadingContent && (
+            <Alert>
+              <AlertDescription className="flex items-center gap-2">
+                <span className="animate-spin">⏳</span>
+                Loading chapter content...
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="chapter_number">Chapter Number *</Label>
+              <Label htmlFor="chapter_number">
+                Chapter Number *
+                {!isEditing &&
+                  chaptersData?.chapters &&
+                  chaptersData.chapters.length > 0 && (
+                    <span className="text-muted-foreground ml-2 text-xs font-normal">
+                      (Next:{" "}
+                      {Math.max(
+                        ...chaptersData.chapters.map((ch) => ch.chapter_number),
+                      ) + 1}
+                      )
+                    </span>
+                  )}
+              </Label>
               <Input
                 id="chapter_number"
                 type="number"
@@ -1193,6 +1411,7 @@ function ChapterDialog({
                 }
                 min={1}
                 required
+                disabled={loadingContent}
               />
             </div>
 
@@ -1206,22 +1425,21 @@ function ChapterDialog({
                 }
                 placeholder="Enter chapter title"
                 required
+                disabled={loadingContent}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content *</Label>
-            <Textarea
-              id="content"
+            <MarkdownEditor
               value={formData.content}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, content: e.target.value }))
+              onChange={(content) =>
+                setFormData((prev) => ({ ...prev, content }))
               }
-              placeholder="Write your chapter content here..."
-              rows={15}
+              label="Chapter Content"
+              placeholder="Write your chapter content here... (Markdown supported)"
+              rows={20}
               required
-              className="font-mono text-sm"
             />
           </div>
 
@@ -1232,6 +1450,7 @@ function ChapterDialog({
               onCheckedChange={(checked) =>
                 setFormData((prev) => ({ ...prev, is_free: !!checked }))
               }
+              disabled={loadingContent}
             />
             <Label
               htmlFor="is_free"
@@ -1245,7 +1464,7 @@ function ChapterDialog({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || loadingContent}>
               {saving ? (
                 <>
                   <span className="mr-2 animate-spin">⏳</span>

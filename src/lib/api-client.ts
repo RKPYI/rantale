@@ -77,6 +77,7 @@ class ApiClient {
         error: data?.error || data?.message || `HTTP ${response.status}`,
         statusCode: response.status,
         details: data?.details || data?.errors, // Map Laravel's 'errors' to 'details'
+        rawData: data, // Preserve entire error response
       };
       throw error;
     }
