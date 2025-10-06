@@ -36,6 +36,7 @@ export interface ApiError {
   error: string;
   details?: Record<string, string[]>;
   statusCode?: number;
+  rawData?: Record<string, unknown>; // Preserve raw error response data
 }
 
 // Generic Message Response
