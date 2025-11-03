@@ -70,7 +70,7 @@ export default function ContactPage() {
                 <p className="text-muted-foreground mb-2">
                   Send us an email anytime!
                 </p>
-                <p className="font-medium">support@Rantale.com</p>
+                <p className="font-medium">support@rantale.randk.me</p>
               </CardContent>
             </Card>
 

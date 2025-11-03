@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -15,6 +16,20 @@ const nextConfig: NextConfig = {
       // }
     ],
   },
+
+  // SEO optimization
+  trailingSlash: false, // Consistent URL structure
+
+  // Compiler options for better performance
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+
+  // Generate static pages for better SEO where possible
+  // You can add specific paths here for static generation
+  // experimental: {
+  //   optimizeCss: true, // Enable CSS optimization
+  // },
 };
 
 export default nextConfig;
