@@ -16,8 +16,71 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rantale - Your Novel Reading Platform",
-  description: "Discover and read amazing novels on Rantale",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://rantale.randk.me",
+  ),
+  title: {
+    default: "Rantale - Your Novel Reading Platform",
+    template: "%s | Rantale",
+  },
+  description:
+    "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres, track your reading progress, and join a vibrant community of readers and authors.",
+  keywords: [
+    "novels",
+    "web novels",
+    "reading",
+    "stories",
+    "fiction",
+    "books",
+    "online reading",
+    "Rantale",
+  ],
+  authors: [{ name: "Rantale" }],
+  creator: "Rantale",
+  publisher: "Rantale",
+  applicationName: "Rantale",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "Rantale",
+    title: "Rantale - Your Novel Reading Platform",
+    description:
+      "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
+    images: [
+      {
+        url: "/rantale-dark.svg",
+        width: 1200,
+        height: 630,
+        alt: "Rantale - Novel Reading Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rantale - Your Novel Reading Platform",
+    description:
+      "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
+    images: ["/rantale-dark.svg"],
+    creator: "@rantale",
+  },
+  verification: {
+    google: "Yapy14cqRJErtoTdJT3GFdXFpKhtiptPZ5VTNzsrITE",
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
