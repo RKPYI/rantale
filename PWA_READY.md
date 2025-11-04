@@ -65,6 +65,16 @@ export default function DownloadsPage() {
 
 ## 🚀 Testing
 
+### Quick Diagnostics (Recommended)
+- Go to `/pwa-diagnostics` while the app is running
+- Click "Run All Tests" to automatically verify:
+  - Environment support (CacheStorage, localStorage, SW capability)
+  - Chapter download → read → remove cycle
+  - Storage usage reporting
+  - Service worker registration (production build)
+  - PWA installability
+- See the full checklist in `PWA_TEST_CHECKLIST.md`
+
 ### Test Offline Mode (Chrome)
 1. Open DevTools (F12)
 2. Application tab → Service Workers

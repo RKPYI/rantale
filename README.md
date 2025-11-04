@@ -119,8 +119,12 @@ Components auto-configure with New York style and CSS variables.
 ## 📚 Documentation
 
 - **[API Integration Guide](./API.md)** - Complete API setup and usage
-- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding
-  assistant guidelines
+- **PWA Ready**: [PWA_READY.md](./PWA_READY.md)
+- **PWA Quick Start**: [PWA_QUICKSTART.md](./PWA_QUICKSTART.md)
+- **PWA Offline Guide**: [PWA_OFFLINE_GUIDE.md](./PWA_OFFLINE_GUIDE.md)
+- **PWA Test Checklist**: [PWA_TEST_CHECKLIST.md](./PWA_TEST_CHECKLIST.md)
+- Diagnostics page (run app): /pwa-diagnostics
+- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
 
 ## 🔗 Backend Integration
 
