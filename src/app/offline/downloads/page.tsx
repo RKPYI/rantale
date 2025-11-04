@@ -131,7 +131,7 @@ export default function OfflineDownloadsPage() {
                 Offline Mode Active
               </p>
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                You're viewing this page without an internet connection. All features work offline!
+                You&apos;re viewing this page without an internet connection. All features work offline!
               </p>
             </div>
           </CardContent>
@@ -266,7 +266,7 @@ export default function OfflineDownloadsPage() {
           <CardTitle className="text-lg">How Offline Reading Works</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>• Downloaded chapters are stored in your browser's cache</p>
+          <p>• Downloaded chapters are stored in your browser&apos;s cache</p>
           <p>• You can read them anytime, even without internet</p>
           <p>• Navigate between chapters using the reader controls</p>
           <p>• Delete chapters you no longer need to free up space</p>

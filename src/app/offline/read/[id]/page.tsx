@@ -173,7 +173,7 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                     Reading Offline
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    You're reading a downloaded chapter. All navigation works without internet!
+                    You&apos;re reading a downloaded chapter. All navigation works without internet!
                   </p>
                 </div>
               </CardContent>
