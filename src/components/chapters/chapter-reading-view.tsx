@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Bookmark,
   ArrowUp,
+  WifiOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,12 +37,15 @@ import {
 import { CommentSection } from "@/components/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
+import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
 import { useAuth } from "@/hooks/use-auth";
 import { useAsync } from "@/hooks/use-api";
+import { useOfflineStatus } from "@/hooks/use-offline-chapter";
 import { readingProgressService } from "@/services/reading-progress";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Chapter, ChapterSummary } from "@/types/api";
+import { toast } from "sonner";
 
 // Local storage keys
 const READING_SETTINGS_KEY = "chapter-reading-settings";
@@ -93,6 +97,7 @@ export function ChapterReadingView({
 }: ChapterReadingViewProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { isOffline } = useOfflineStatus();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [showComments, setShowComments] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
@@ -242,6 +247,25 @@ export function ChapterReadingView({
 
             {/* Right: Actions */}
             <div className="flex items-center gap-1 md:gap-2">
+              {/* Download Button */}
+              <ChapterDownloadButton
+                chapter={chapter}
+                novelTitle={novel.title}
+                variant="ghost"
+                size="icon"
+                showLabel={false}
+                onSuccess={() => {
+                  toast.success("Chapter downloaded", {
+                    description: "You can now read this chapter offline",
+                  });
+                }}
+                onError={(error) => {
+                  toast.error("Download failed", {
+                    description: error.message,
+                  });
+                }}
+              />
+
               <ChapterNavigator
                 allChapters={allChapters}
                 currentChapterId={chapter.id}
@@ -390,6 +414,25 @@ export function ChapterReadingView({
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6 md:py-8">
         <div className="flex flex-col items-center">
+          {/* Offline Reading Indicator */}
+          {isOffline && (
+            <div className="mb-6 w-full" style={{ maxWidth: `${maxWidth}px` }}>
+              <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
+                <CardContent className="flex items-center gap-3 p-4">
+                  <WifiOff className="h-5 w-5 text-amber-600 dark:text-amber-500" />
+                  <div className="flex-1">
+                    <p className="font-medium text-amber-900 dark:text-amber-100">
+                      Reading Offline
+                    </p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      You are viewing a downloaded copy of this chapter
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Chapter Header */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
             <Card>
@@ -423,9 +466,28 @@ export function ChapterReadingView({
                     </div>
                   )}
                 </div>
-                {!chapter.is_free && (
-                  <Badge variant="secondary">Premium Chapter</Badge>
-                )}
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {!chapter.is_free && (
+                    <Badge variant="secondary">Premium Chapter</Badge>
+                  )}
+                  {/* Download Button */}
+                  <ChapterDownloadButton
+                    chapter={chapter}
+                    novelTitle={novel.title}
+                    variant="outline"
+                    size="sm"
+                    onSuccess={() => {
+                      toast.success("Chapter downloaded", {
+                        description: "You can now read this chapter offline",
+                      });
+                    }}
+                    onError={(error) => {
+                      toast.error("Download failed", {
+                        description: error.message,
+                      });
+                    }}
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>

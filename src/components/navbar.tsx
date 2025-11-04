@@ -17,6 +17,7 @@ import {
   Star,
   Shield,
   PenTool,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -379,6 +380,12 @@ export function Navbar() {
                     <Link href="/library">
                       <BookOpen className="mr-2 h-4 w-4" />
                       My Library
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile/downloads">
+                      <Download className="mr-2 h-4 w-4" />
+                      Downloads
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
