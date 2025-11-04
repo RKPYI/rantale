@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { OfflineIndicator } from "@/components/offline-indicator";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -109,6 +111,8 @@ export default function RootLayout({
           {children}
           <Toaster />
           <Analytics />
+          <OfflineIndicator />
+          <PWAInstallPrompt />
         </ThemeProvider>
       </body>
     </html>

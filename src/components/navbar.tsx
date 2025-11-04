@@ -17,6 +17,7 @@ import {
   Star,
   Shield,
   PenTool,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -312,6 +313,14 @@ export function Navbar() {
         {/* Right side - Auth section */}
         <div className="flex items-center space-x-4">
           <ModeToggle />
+          
+          {/* Offline Downloads Link - Always accessible */}
+          <Link href="/offline/downloads">
+            <Button variant="ghost" size="icon" title="Offline Downloads">
+              <Download className="h-4 w-4" />
+            </Button>
+          </Link>
+
           {loading ? (
             <div className="bg-muted h-8 w-8 animate-pulse rounded-full" />
           ) : isAuthenticated && user ? (
@@ -382,6 +391,12 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/profile/downloads">
+                      <Download className="mr-2 h-4 w-4" />
+                      Downloads
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/notifications">
                       <Star className="mr-2 h-4 w-4" />
                       Notifications
@@ -434,7 +449,7 @@ export function Navbar() {
                 defaultTab="signin"
               />
               <AuthModal
-                trigger={<Button size="sm">Sign up</Button>}
+                trigger={<Button size="sm" className="hidden md:flex">Sign up</Button>}
                 defaultTab="signup"
               />
             </div>
