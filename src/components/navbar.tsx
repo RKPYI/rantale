@@ -313,6 +313,14 @@ export function Navbar() {
         {/* Right side - Auth section */}
         <div className="flex items-center space-x-4">
           <ModeToggle />
+          
+          {/* Offline Downloads Link - Always accessible */}
+          <Link href="/offline/downloads">
+            <Button variant="ghost" size="icon" title="Offline Downloads">
+              <Download className="h-4 w-4" />
+            </Button>
+          </Link>
+
           {loading ? (
             <div className="bg-muted h-8 w-8 animate-pulse rounded-full" />
           ) : isAuthenticated && user ? (

@@ -37,8 +37,36 @@ export default withPWA({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
+  fallbacks: {
+    document: "/offline",
+  },
   workboxOptions: {
     runtimeCaching: [
+      // Offline-first pages - Always cache these
+      {
+        urlPattern: /^\/offline/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "offline-pages",
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+          },
+        },
+      },
+      // Navigation routes - Try network, fall back to cache
+      {
+        urlPattern: /^\/(?!api|_next\/static|_next\/data).*/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "page-cache",
+          networkTimeoutSeconds: 3,
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 7 * 24 * 60 * 60, // 1 week
+          },
+        },
+      },
       {
         urlPattern: /^https:\/\/fonts\.(?:gstatic|googleapis)\.com\/.*/i,
         handler: "CacheFirst",

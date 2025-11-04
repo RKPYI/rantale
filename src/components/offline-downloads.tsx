@@ -126,10 +126,10 @@ export function OfflineDownloads() {
           <h3 className="text-lg font-semibold">Downloaded Chapters</h3>
           {chapters.map((chapter) => (
             <Card key={chapter.id}>
-              <CardContent className="flex items-center justify-between p-4">
+              <CardContent className="space-y-3">
                 <div className="flex-1 space-y-1">
                   <Link
-                    href={`/novels/${chapter.novel_id}/chapters/${chapter.id}`}
+                    href={`/offline/read/${chapter.id}`}
                     className="font-medium hover:underline"
                   >
                     {chapter.title}
