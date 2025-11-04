@@ -449,7 +449,7 @@ export function Navbar() {
                 defaultTab="signin"
               />
               <AuthModal
-                trigger={<Button size="sm">Sign up</Button>}
+                trigger={<Button size="sm" className="hidden md:flex">Sign up</Button>}
                 defaultTab="signup"
               />
             </div>

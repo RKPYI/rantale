@@ -470,23 +470,6 @@ export function ChapterReadingView({
                   {!chapter.is_free && (
                     <Badge variant="secondary">Premium Chapter</Badge>
                   )}
-                  {/* Download Button */}
-                  <ChapterDownloadButton
-                    chapter={chapter}
-                    novelTitle={novel.title}
-                    variant="outline"
-                    size="sm"
-                    onSuccess={() => {
-                      toast.success("Chapter downloaded", {
-                        description: "You can now read this chapter offline",
-                      });
-                    }}
-                    onError={(error) => {
-                      toast.error("Download failed", {
-                        description: error.message,
-                      });
-                    }}
-                  />
                 </div>
               </CardContent>
             </Card>
