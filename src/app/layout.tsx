@@ -39,6 +39,13 @@ export const metadata: Metadata = {
   creator: "Rantale",
   publisher: "Rantale",
   applicationName: "Rantale",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: [{ url: "/favicon.png", type: "image/png" }],
+  },
   robots: {
     index: true,
     follow: true,
