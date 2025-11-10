@@ -131,7 +131,8 @@ export function sortComments(
 
 // Format rating for display
 export function formatRatingValue(rating: number): string {
-  return rating.toFixed(1);
+  // return rating.toFixed(1);
+  return rating.toString();
 }
 
 // Get rating stars array (for UI rendering)

@@ -33,6 +33,7 @@ import { formatDate } from "@/lib/novel-utils";
 import { getUserRole } from "@/lib/user-utils";
 import { ProfileSettings } from "@/components/profile/profile-settings";
 import { ReadingStats } from "@/components/profile/reading-stats";
+import { UserRatings } from "@/components/profile/user-ratings";
 
 export function ProfileView() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -173,6 +174,9 @@ export function ProfileView() {
             </TabsTrigger>
             <TabsTrigger value="library" className="flex-shrink-0">
               Library
+            </TabsTrigger>
+            <TabsTrigger value="ratings" className="flex-shrink-0">
+              Ratings
             </TabsTrigger>
             <TabsTrigger
               value="reading"
@@ -419,6 +423,11 @@ export function ProfileView() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Ratings Tab */}
+        <TabsContent value="ratings">
+          <UserRatings />
         </TabsContent>
 
         {/* Reading Stats Tab */}

@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { DeleteModal } from "@/components/ui/delete-modal";
 import { Star, Edit, Trash2, TrendingUp, BarChart3 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useNovelRatings, useUserRatingForNovel } from "@/hooks/use-ratings";
 import { useAuth } from "@/hooks/use-auth";
@@ -22,6 +24,7 @@ import {
 } from "@/lib/content-utils";
 
 import { CreateRatingRequest } from "@/types/api";
+import { UserAvatar } from "./ui/user-avatar";
 
 interface RatingSectionProps {
   novelSlug: string;
@@ -38,6 +41,7 @@ export function RatingSection({
   const [userReview, setUserReview] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { user, isAuthenticated } = useAuth();
 
@@ -65,7 +69,10 @@ export function RatingSection({
 
   // Submit rating
   const handleSubmitRating = async () => {
-    if (!userRating || !isAuthenticated) return;
+    if (!userRating || !isAuthenticated) {
+      toast.error("Please select a rating");
+      return;
+    }
 
     const ratingData: CreateRatingRequest = {
       novel_id: novelId,
@@ -74,10 +81,17 @@ export function RatingSection({
     };
 
     try {
-      const result = await executeRatingAction(
+      const result = (await executeRatingAction(
         ratingService.createOrUpdateRating,
         ratingData,
-      );
+      )) as Awaited<ReturnType<typeof ratingService.createOrUpdateRating>>;
+
+      if (result?.isNew) {
+        toast.success("Rating submitted successfully!");
+      } else {
+        toast.success("Rating updated successfully!");
+      }
+
       setIsEditing(false);
       setUserRating(0);
       setUserReview("");
@@ -85,26 +99,26 @@ export function RatingSection({
       refetchUserRating();
     } catch (error) {
       console.error("Error submitting rating:", error);
+      toast.error("Failed to submit rating. Please try again.");
     }
   };
 
   // Delete rating
   const handleDeleteRating = async () => {
-    if (
-      !existingUserRating ||
-      !confirm("Are you sure you want to delete your rating?")
-    )
-      return;
+    if (!existingUserRating) return;
 
     try {
       await executeRatingAction(
         ratingService.deleteRating,
         existingUserRating.id,
       );
+      toast.success("Rating deleted successfully!");
+      setShowDeleteModal(false);
       refetchRatings();
       refetchUserRating();
     } catch (error) {
       console.error("Error deleting rating:", error);
+      toast.error("Failed to delete rating. Please try again.");
     }
   };
 
@@ -258,7 +272,7 @@ export function RatingSection({
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={handleDeleteRating}
+                    onClick={() => setShowDeleteModal(true)}
                   >
                     <Trash2 className="h-3 w-3" />
                     Delete
@@ -379,11 +393,7 @@ export function RatingSection({
             <div className="space-y-4">
               {ratings.slice(0, 5).map((rating) => (
                 <div key={rating.id} className="flex items-start gap-3">
-                  <Avatar className="h-10 w-10">
-                    {rating.user.avatar && (
-                      <img src={rating.user.avatar} alt={rating.user.name} />
-                    )}
-                  </Avatar>
+                  <UserAvatar user={rating.user} size="md" showBadge={true} />
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{rating.user.name}</span>
@@ -423,6 +433,17 @@ export function RatingSection({
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        open={showDeleteModal}
+        onOpenChange={setShowDeleteModal}
+        onConfirm={handleDeleteRating}
+        title="Delete Rating?"
+        description={`Are you sure you want to delete your rating for "${title}"? This action cannot be undone.`}
+        confirmText="Delete Rating"
+        isLoading={submitting}
+      />
     </div>
   );
 }

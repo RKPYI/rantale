@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -51,6 +51,31 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
 
   const { data: readingProgress } = useNovelProgress(novel.slug);
+
+  // Handle URL hash to open specific tab (e.g., #reviews)
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // Remove the '#'
+    if (
+      hash &&
+      ["overview", "chapters", "reviews", "comments"].includes(hash)
+    ) {
+      setActiveTab(hash);
+      // Scroll to tabs section smoothly after a brief delay
+      setTimeout(() => {
+        const tabsElement = document.querySelector('[role="tablist"]');
+        if (tabsElement) {
+          tabsElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, []);
+
+  // Handle tab change and update URL hash
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL hash without scrolling
+    window.history.replaceState(null, "", `#${value}`);
+  };
 
   const handleStartReading = () => {
     if (novel.chapters && novel.chapters.length > 0) {
@@ -292,15 +317,13 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
       {/* Tabs Section */}
       <Tabs
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={handleTabChange}
         className="space-y-6"
       >
         <TabsList className="grid w-full grid-cols-4 lg:flex lg:w-auto lg:grid-cols-none">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="chapters">Chapters</TabsTrigger>
-          <TabsTrigger disabled value="reviews">
-            Reviews (Coming Soon)
-          </TabsTrigger>
+          <TabsTrigger value="reviews">Reviews</TabsTrigger>
           <TabsTrigger value="comments">Comments</TabsTrigger>
         </TabsList>
 
@@ -316,7 +339,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setActiveTab("chapters")}
+                      onClick={() => handleTabChange("chapters")}
                     >
                       View All
                       <ChevronRight className="ml-1 h-4 w-4" />

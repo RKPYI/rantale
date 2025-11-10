@@ -20,16 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteModal } from "@/components/ui/delete-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -674,34 +665,21 @@ export function AuthorDashboard() {
       />
 
       {/* Delete Novel Confirmation Dialog */}
-      <AlertDialog
+      <DeleteModal
         open={deleteNovelDialog.isOpen}
         onOpenChange={(isOpen) =>
           setDeleteNovelDialog({ isOpen, novel: deleteNovelDialog.novel })
         }
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete{" "}
-              <span className="font-semibold">
-                {deleteNovelDialog.novel?.title}
-              </span>{" "}
-              and all its chapters. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteNovel}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete Novel
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDeleteNovel}
+        title="Delete Novel?"
+        description={
+          deleteNovelDialog.novel
+            ? `This will permanently delete "${deleteNovelDialog.novel.title}" and all its chapters. This action cannot be undone.`
+            : "This will permanently delete this novel and all its chapters. This action cannot be undone."
+        }
+        confirmText="Delete Novel"
+        isLoading={false}
+      />
     </div>
   );
 }
@@ -1167,7 +1145,7 @@ function ChapterManagement({
       />
 
       {/* Delete Chapter Confirmation Dialog */}
-      <AlertDialog
+      <DeleteModal
         open={deleteChapterDialog.isOpen}
         onOpenChange={(isOpen: boolean) =>
           setDeleteChapterDialog({
@@ -1175,30 +1153,16 @@ function ChapterManagement({
             chapter: deleteChapterDialog.chapter,
           })
         }
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Chapter?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete{" "}
-              <span className="font-semibold">
-                Chapter {deleteChapterDialog.chapter?.number}:{" "}
-                {deleteChapterDialog.chapter?.title}
-              </span>
-              . This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteChapter}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete Chapter
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDeleteChapter}
+        title="Delete Chapter?"
+        description={
+          deleteChapterDialog.chapter
+            ? `This will permanently delete "Chapter ${deleteChapterDialog.chapter.number}: ${deleteChapterDialog.chapter.title}". This action cannot be undone.`
+            : "This will permanently delete this chapter. This action cannot be undone."
+        }
+        confirmText="Delete Chapter"
+        isLoading={false}
+      />
     </div>
   );
 }
