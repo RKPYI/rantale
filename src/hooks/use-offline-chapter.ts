@@ -3,9 +3,9 @@
  * Manages offline chapter download and removal functionality
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { offlineService, type OfflineChapter } from '@/services/offline';
-import type { Chapter } from '@/types/api';
+import { useState, useEffect, useCallback } from "react";
+import { offlineService, type OfflineChapter } from "@/services/offline";
+import type { Chapter } from "@/types/api";
 
 export interface UseOfflineChapterReturn {
   isDownloaded: boolean;
@@ -25,14 +25,14 @@ export function useOfflineChapter(chapterId: number): UseOfflineChapterReturn {
     if (!offlineService.isSupported()) {
       return;
     }
-    
+
     setIsDownloaded(offlineService.isChapterDownloaded(chapterId.toString()));
   }, [chapterId]);
 
   const downloadChapter = useCallback(
     async (chapter: Chapter, novelTitle?: string) => {
       if (!offlineService.isSupported()) {
-        setError('Offline features are not supported in this browser');
+        setError("Offline features are not supported in this browser");
         return;
       }
 
@@ -43,19 +43,20 @@ export function useOfflineChapter(chapterId: number): UseOfflineChapterReturn {
         await offlineService.downloadChapter(chapter, novelTitle);
         setIsDownloaded(true);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to download chapter';
+        const message =
+          err instanceof Error ? err.message : "Failed to download chapter";
         setError(message);
         throw err;
       } finally {
         setIsDownloading(false);
       }
     },
-    []
+    [],
   );
 
   const removeChapter = useCallback(async () => {
     if (!offlineService.isSupported()) {
-      setError('Offline features are not supported in this browser');
+      setError("Offline features are not supported in this browser");
       return;
     }
 
@@ -65,7 +66,8 @@ export function useOfflineChapter(chapterId: number): UseOfflineChapterReturn {
       await offlineService.removeChapter(chapterId.toString());
       setIsDownloaded(false);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to remove chapter';
+      const message =
+        err instanceof Error ? err.message : "Failed to remove chapter";
       setError(message);
       throw err;
     }
@@ -86,19 +88,19 @@ export function useOfflineChapter(chapterId: number): UseOfflineChapterReturn {
  */
 export function useOfflineStatus() {
   const [isOnline, setIsOnline] = useState(
-    typeof navigator !== 'undefined' ? navigator.onLine : true
+    typeof navigator !== "undefined" ? navigator.onLine : true,
   );
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -112,7 +114,11 @@ export function useOfflineStatus() {
 export function useDownloadedChapters() {
   const [chapters, setChapters] = useState<OfflineChapter[]>([]);
   const [loading, setLoading] = useState(true);
-  const [storageUsage, setStorageUsage] = useState({ used: 0, quota: 0, percentage: 0 });
+  const [storageUsage, setStorageUsage] = useState({
+    used: 0,
+    quota: 0,
+    percentage: 0,
+  });
 
   const loadChapters = useCallback(async () => {
     if (!offlineService.isSupported()) {
@@ -124,11 +130,11 @@ export function useDownloadedChapters() {
       setLoading(true);
       const downloaded = await offlineService.getAllDownloadedChapters();
       const usage = await offlineService.getStorageUsage();
-      
+
       setChapters(downloaded);
       setStorageUsage(usage);
     } catch (error) {
-      console.error('Failed to load downloaded chapters:', error);
+      console.error("Failed to load downloaded chapters:", error);
     } finally {
       setLoading(false);
     }
@@ -140,7 +146,7 @@ export function useDownloadedChapters() {
       setChapters([]);
       setStorageUsage({ used: 0, quota: 0, percentage: 0 });
     } catch (error) {
-      console.error('Failed to clear downloads:', error);
+      console.error("Failed to clear downloads:", error);
       throw error;
     }
   }, []);

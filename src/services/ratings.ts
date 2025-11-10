@@ -10,7 +10,7 @@ import {
 } from "@/types/api";
 
 export const ratingService = {
-  // Get ratings for a novel
+  // Get ratings for a novel (public - only shows ratings with review text)
   async getNovelRatings(
     novelSlug: string,
     page?: number,
@@ -24,13 +24,15 @@ export const ratingService = {
   },
 
   // Create or update a rating (requires authentication)
+  // If user hasn't rated this novel → Creates new rating
+  // If user already rated this novel → Updates existing rating
   async createOrUpdateRating(data: CreateRatingRequest): Promise<{
     rating: Rating;
     isNew: boolean;
     novelStats: { average_rating: number; total_ratings: number };
   }> {
     const response = await apiClient.post<RatingResponse>("/ratings", data);
-    const isNew = response.data.message.includes("created");
+    const isNew = response.data.message.toLowerCase().includes("created");
     return {
       rating: response.data.rating,
       isNew,
@@ -40,10 +42,15 @@ export const ratingService = {
 
   // Get user's rating for a novel (requires authentication)
   async getUserRatingForNovel(novelSlug: string): Promise<Rating | null> {
-    const response = await apiClient.get<{ rating: Rating | null }>(
-      `/novels/${novelSlug}/my-rating`,
-    );
-    return response.data.rating;
+    try {
+      const response = await apiClient.get<{ rating: Rating | null }>(
+        `/novels/${novelSlug}/my-rating`,
+      );
+      return response.data.rating;
+    } catch (error) {
+      // If not authenticated or no rating found, return null
+      return null;
+    }
   },
 
   // Delete a rating (requires authentication and ownership or admin)

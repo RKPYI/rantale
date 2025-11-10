@@ -8,9 +8,24 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CheckCircle2, CircleAlert, Loader2, PackageCheck, RefreshCcw, ShieldCheck, Wifi, WifiOff } from "lucide-react";
+import {
+  CheckCircle2,
+  CircleAlert,
+  Loader2,
+  PackageCheck,
+  RefreshCcw,
+  ShieldCheck,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { offlineService } from "@/services/offline";
 import type { Chapter } from "@/types/api";
 import Link from "next/link";
@@ -31,7 +46,12 @@ interface TestResult {
 }
 
 function isErrorWithMessage(e: unknown): e is { message: string } {
-  return typeof e === "object" && e !== null && "message" in e && typeof (e as Record<string, unknown>).message === "string";
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    "message" in e &&
+    typeof (e as Record<string, unknown>).message === "string"
+  );
 }
 
 function getErrorMessage(e: unknown): string {
@@ -51,7 +71,8 @@ export default function PWADiagnosticsPage() {
   const [tests, setTests] = useState<TestResult[]>(initialTests);
   const [runningAll, setRunningAll] = useState(false);
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [installPromptCaptured, setInstallPromptCaptured] = useState<boolean>(false);
+  const [installPromptCaptured, setInstallPromptCaptured] =
+    useState<boolean>(false);
   const [swScope, setSwScope] = useState<string | null>(null);
 
   useEffect(() => {
@@ -70,9 +91,12 @@ export default function PWADiagnosticsPage() {
 
     // Try to read existing SW registration (works in production only)
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (reg) setSwScope(reg.scope);
-      }).catch(() => {});
+      navigator.serviceWorker
+        .getRegistration()
+        .then((reg) => {
+          if (reg) setSwScope(reg.scope);
+        })
+        .catch(() => {});
     }
 
     return () => {
@@ -83,23 +107,31 @@ export default function PWADiagnosticsPage() {
   }, []);
 
   const updateTest = useCallback((name: string, patch: Partial<TestResult>) => {
-    setTests((prev) => prev.map((t) => (t.name === name ? { ...t, ...patch } : t)));
+    setTests((prev) =>
+      prev.map((t) => (t.name === name ? { ...t, ...patch } : t)),
+    );
   }, []);
 
   const reset = () => setTests(initialTests);
 
   const runEnvSupport = useCallback(async () => {
     const name = "Environment support";
-    updateTest(name, { status: "running", message: undefined, details: undefined });
+    updateTest(name, {
+      status: "running",
+      message: undefined,
+      details: undefined,
+    });
     try {
       const supported = offlineService.isSupported();
-      const swPossible = typeof window !== "undefined" && "serviceWorker" in navigator;
+      const swPossible =
+        typeof window !== "undefined" && "serviceWorker" in navigator;
       const cachesOK = typeof window !== "undefined" && "caches" in window;
       const lsOK = typeof window !== "undefined" && "localStorage" in window;
       if (!supported || !cachesOK || !lsOK) {
         updateTest(name, {
           status: "failed",
-          message: "Required Web APIs are not available in this context. Run a production build over HTTPS.",
+          message:
+            "Required Web APIs are not available in this context. Run a production build over HTTPS.",
           details: { supported, swPossible, cachesOK, lsOK },
         });
         return false;
@@ -118,11 +150,16 @@ export default function PWADiagnosticsPage() {
 
   const runSWCheck = useCallback(async () => {
     const name = "Service worker registration";
-    updateTest(name, { status: "running", message: undefined, details: undefined });
+    updateTest(name, {
+      status: "running",
+      message: undefined,
+      details: undefined,
+    });
     if (!("serviceWorker" in navigator)) {
       updateTest(name, {
         status: "failed",
-        message: "Service workers not supported. Use Chrome/Edge/Safari with HTTPS.",
+        message:
+          "Service workers not supported. Use Chrome/Edge/Safari with HTTPS.",
       });
       return false;
     }
@@ -130,12 +167,16 @@ export default function PWADiagnosticsPage() {
       const reg = await navigator.serviceWorker.getRegistration();
       if (reg) {
         setSwScope(reg.scope);
-        updateTest(name, { status: "passed", message: `Registered (${reg.scope})` });
+        updateTest(name, {
+          status: "passed",
+          message: `Registered (${reg.scope})`,
+        });
         return true;
       }
       updateTest(name, {
         status: "failed",
-        message: "No active registration. Build for production: npm run build && npm start",
+        message:
+          "No active registration. Build for production: npm run build && npm start",
       });
       return false;
     } catch (e: unknown) {
@@ -146,21 +187,36 @@ export default function PWADiagnosticsPage() {
 
   const runCacheLSCheck = useCallback(async () => {
     const name = "CacheStorage & localStorage";
-    updateTest(name, { status: "running", message: undefined, details: undefined });
+    updateTest(name, {
+      status: "running",
+      message: undefined,
+      details: undefined,
+    });
     try {
       const cachesOK = "caches" in window;
       const lsOK = "localStorage" in window;
       if (!cachesOK || !lsOK) {
-        updateTest(name, { status: "failed", message: "Missing caches or localStorage" });
+        updateTest(name, {
+          status: "failed",
+          message: "Missing caches or localStorage",
+        });
         return false;
       }
       // Try a no-op cache open
       const cache = await caches.open("diagnostics-test");
-      await cache.put("/pwa-diagnostics/ping", new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } }));
+      await cache.put(
+        "/pwa-diagnostics/ping",
+        new Response(JSON.stringify({ ok: true }), {
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
       const matched = await cache.match("/pwa-diagnostics/ping");
       await caches.delete("diagnostics-test");
       if (!matched) {
-        updateTest(name, { status: "failed", message: "Cache roundtrip failed" });
+        updateTest(name, {
+          status: "failed",
+          message: "Cache roundtrip failed",
+        });
         return false;
       }
       // LocalStorage roundtrip
@@ -168,10 +224,16 @@ export default function PWADiagnosticsPage() {
       const v = localStorage.getItem("__diag__");
       localStorage.removeItem("__diag__");
       if (v !== "1") {
-        updateTest(name, { status: "failed", message: "localStorage roundtrip failed" });
+        updateTest(name, {
+          status: "failed",
+          message: "localStorage roundtrip failed",
+        });
         return false;
       }
-      updateTest(name, { status: "passed", message: "CacheStorage + localStorage operational" });
+      updateTest(name, {
+        status: "passed",
+        message: "CacheStorage + localStorage operational",
+      });
       return true;
     } catch (e: unknown) {
       updateTest(name, { status: "failed", message: getErrorMessage(e) });
@@ -201,7 +263,11 @@ export default function PWADiagnosticsPage() {
 
   const runDownloadCycle = useCallback(async () => {
     const name = "Chapter download -> read -> remove cycle";
-    updateTest(name, { status: "running", message: undefined, details: undefined });
+    updateTest(name, {
+      status: "running",
+      message: undefined,
+      details: undefined,
+    });
     try {
       // Ensure clean start
       if (offlineService.isChapterDownloaded(String(mockChapter.id))) {
@@ -209,18 +275,30 @@ export default function PWADiagnosticsPage() {
       }
 
       await offlineService.downloadChapter(mockChapter, "Diagnostics Novel");
-      const isDownloaded = offlineService.isChapterDownloaded(String(mockChapter.id));
-      const readBack = await offlineService.getOfflineChapter(String(mockChapter.id));
+      const isDownloaded = offlineService.isChapterDownloaded(
+        String(mockChapter.id),
+      );
+      const readBack = await offlineService.getOfflineChapter(
+        String(mockChapter.id),
+      );
       if (!isDownloaded || !readBack) {
-        updateTest(name, { status: "failed", message: "Failed to verify downloaded chapter" });
+        updateTest(name, {
+          status: "failed",
+          message: "Failed to verify downloaded chapter",
+        });
         return false;
       }
 
       // Validate content roundtrip
-      const ok = readBack.title === mockChapter.title && typeof readBack.content === "string" && readBack.content.includes("diagnostics");
+      const ok =
+        readBack.title === mockChapter.title &&
+        typeof readBack.content === "string" &&
+        readBack.content.includes("diagnostics");
 
       await offlineService.removeChapter(String(mockChapter.id));
-      const stillThere = offlineService.isChapterDownloaded(String(mockChapter.id));
+      const stillThere = offlineService.isChapterDownloaded(
+        String(mockChapter.id),
+      );
 
       if (!ok || stillThere) {
         updateTest(name, {
@@ -245,7 +323,11 @@ export default function PWADiagnosticsPage() {
 
   const runStorageUsage = useCallback(async () => {
     const name = "Storage usage";
-    updateTest(name, { status: "running", message: undefined, details: undefined });
+    updateTest(name, {
+      status: "running",
+      message: undefined,
+      details: undefined,
+    });
     try {
       const usage = await offlineService.getStorageUsage();
       updateTest(name, {
@@ -262,7 +344,11 @@ export default function PWADiagnosticsPage() {
 
   const runInstallability = useCallback(async () => {
     const name = "PWA install prompt eligibility";
-    updateTest(name, { status: "running", message: undefined, details: undefined });
+    updateTest(name, {
+      status: "running",
+      message: undefined,
+      details: undefined,
+    });
     try {
       const hasManifest = !!document.querySelector('link[rel="manifest"]');
       const swReady = !!swScope;
@@ -270,7 +356,9 @@ export default function PWADiagnosticsPage() {
       if (hasManifest && swReady) {
         updateTest(name, {
           status: captured ? "passed" : "passed", // treat as pass if manifest + SW ready; event may not always fire immediately
-          message: captured ? "Install prompt captured" : "Manifest + SW detected. Prompt will appear when eligible.",
+          message: captured
+            ? "Install prompt captured"
+            : "Manifest + SW detected. Prompt will appear when eligible.",
           details: { hasManifest, swReady, captured, swScope },
         });
         return true;
@@ -301,7 +389,14 @@ export default function PWADiagnosticsPage() {
     } finally {
       setRunningAll(false);
     }
-  }, [runEnvSupport, runSWCheck, runCacheLSCheck, runDownloadCycle, runStorageUsage, runInstallability]);
+  }, [
+    runEnvSupport,
+    runSWCheck,
+    runCacheLSCheck,
+    runDownloadCycle,
+    runStorageUsage,
+    runInstallability,
+  ]);
 
   const iconFor = (status: TestStatus) => {
     switch (status) {
@@ -312,7 +407,7 @@ export default function PWADiagnosticsPage() {
       case "failed":
         return <CircleAlert className="h-4 w-4 text-red-600" />;
       default:
-        return <PackageCheck className="h-4 w-4 text-muted-foreground" />;
+        return <PackageCheck className="text-muted-foreground h-4 w-4" />;
     }
   };
 
@@ -321,14 +416,26 @@ export default function PWADiagnosticsPage() {
       <div className="mb-6 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">PWA & Offline Diagnostics</h1>
-          <p className="text-sm text-muted-foreground">Verify chapter downloads, offline mode, and PWA installability</p>
+          <p className="text-muted-foreground text-sm">
+            Verify chapter downloads, offline mode, and PWA installability
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${isOnline ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"}`}>
-            {isOnline ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
+          <div
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs ${isOnline ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"}`}
+          >
+            {isOnline ? (
+              <Wifi className="h-3.5 w-3.5" />
+            ) : (
+              <WifiOff className="h-3.5 w-3.5" />
+            )}
             <span>{isOnline ? "Online" : "Offline"}</span>
           </div>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+          >
             <RefreshCcw className="mr-1.5 h-3.5 w-3.5" /> Refresh
           </Button>
         </div>
@@ -338,20 +445,38 @@ export default function PWADiagnosticsPage() {
         <CardHeader>
           <CardTitle>Automated Checks</CardTitle>
           <CardDescription>
-            Tip: Service worker and installability require a production build (npm run build && npm start) over HTTPS.
+            Tip: Service worker and installability require a production build
+            (npm run build && npm start) over HTTPS.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <Button onClick={runAll} disabled={runningAll}>
-              {runningAll ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />} Run All Tests
+              {runningAll ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <ShieldCheck className="mr-2 h-4 w-4" />
+              )}{" "}
+              Run All Tests
             </Button>
-            <Button variant="outline" onClick={runEnvSupport}>Env Support</Button>
-            <Button variant="outline" onClick={runSWCheck}>Service Worker</Button>
-            <Button variant="outline" onClick={runCacheLSCheck}>Cache & LS</Button>
-            <Button variant="outline" onClick={runDownloadCycle}>Download Cycle</Button>
-            <Button variant="outline" onClick={runStorageUsage}>Storage</Button>
-            <Button variant="outline" onClick={runInstallability}>Installability</Button>
+            <Button variant="outline" onClick={runEnvSupport}>
+              Env Support
+            </Button>
+            <Button variant="outline" onClick={runSWCheck}>
+              Service Worker
+            </Button>
+            <Button variant="outline" onClick={runCacheLSCheck}>
+              Cache & LS
+            </Button>
+            <Button variant="outline" onClick={runDownloadCycle}>
+              Download Cycle
+            </Button>
+            <Button variant="outline" onClick={runStorageUsage}>
+              Storage
+            </Button>
+            <Button variant="outline" onClick={runInstallability}>
+              Installability
+            </Button>
           </div>
 
           <div className="divide-y rounded-md border">
@@ -361,9 +486,15 @@ export default function PWADiagnosticsPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div className="font-medium">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.status.toUpperCase()}</div>
+                    <div className="text-muted-foreground text-xs">
+                      {t.status.toUpperCase()}
+                    </div>
                   </div>
-                  {t.message && <div className="mt-1 text-sm text-muted-foreground">{t.message}</div>}
+                  {t.message && (
+                    <div className="text-muted-foreground mt-1 text-sm">
+                      {t.message}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -374,25 +505,40 @@ export default function PWADiagnosticsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Manual Verification</CardTitle>
-          <CardDescription>Use these quick links and tips to verify behavior</CardDescription>
+          <CardDescription>
+            Use these quick links and tips to verify behavior
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
+        <CardContent className="text-muted-foreground space-y-2 text-sm">
           <ol className="list-decimal space-y-2 pl-5">
             <li>
-              Use the Download Cycle test above. If it passes, offline chapter storage works.
+              Use the Download Cycle test above. If it passes, offline chapter
+              storage works.
             </li>
             <li>
-              Open the Downloads Manager to view and read saved chapters: <Link className="text-primary underline" href="/offline/downloads">/offline/downloads</Link>
+              Open the Downloads Manager to view and read saved chapters:{" "}
+              <Link
+                className="text-primary underline"
+                href="/offline/downloads"
+              >
+                /offline/downloads
+              </Link>
             </li>
             <li>
-              In Chrome DevTools → Application → Service Workers, toggle &quot;Offline&quot; and reload the Downloads or Offline Read page to verify content loads without network.
+              In Chrome DevTools → Application → Service Workers, toggle
+              &quot;Offline&quot; and reload the Downloads or Offline Read page
+              to verify content loads without network.
             </li>
             <li>
-              For PWA installability, run in production and look for the install prompt. If not shown automatically, the event may still be captured; try using the browser&apos;s install option.
+              For PWA installability, run in production and look for the install
+              prompt. If not shown automatically, the event may still be
+              captured; try using the browser&apos;s install option.
             </li>
           </ol>
           {swScope && (
-            <div className="mt-2 text-xs">Service Worker scope: <code>{swScope}</code></div>
+            <div className="mt-2 text-xs">
+              Service Worker scope: <code>{swScope}</code>
+            </div>
           )}
         </CardContent>
       </Card>

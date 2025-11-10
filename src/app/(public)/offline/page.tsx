@@ -3,14 +3,20 @@
  * Shown when user tries to access a page without internet connection
  */
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { WifiOff, RefreshCw, Download, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { offlineService } from '@/services/offline';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { WifiOff, RefreshCw, Download, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { offlineService } from "@/services/offline";
 
 export default function OfflinePage() {
   const [downloadCount, setDownloadCount] = useState(0);
@@ -28,12 +34,12 @@ export default function OfflinePage() {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -63,14 +69,15 @@ export default function OfflinePage() {
             </Button>
           ) : (
             <>
-              <div className="rounded-lg border bg-muted/50 p-4 text-center">
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-muted/50 rounded-lg border p-4 text-center">
+                <p className="text-muted-foreground text-sm">
                   You can still access your downloaded content
                 </p>
                 <div className="mt-2 flex items-center justify-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
+                  <BookOpen className="text-primary h-5 w-5" />
                   <span className="text-lg font-semibold">
-                    {downloadCount} {downloadCount === 1 ? 'Chapter' : 'Chapters'}
+                    {downloadCount}{" "}
+                    {downloadCount === 1 ? "Chapter" : "Chapters"}
                   </span>
                 </div>
               </div>
@@ -83,9 +90,11 @@ export default function OfflinePage() {
                   </Button>
                 </Link>
               ) : (
-                <div className="text-center text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-center text-sm">
                   <p>No downloaded chapters available.</p>
-                  <p className="mt-1">Download chapters while online to read them offline.</p>
+                  <p className="mt-1">
+                    Download chapters while online to read them offline.
+                  </p>
                 </div>
               )}
 
@@ -97,7 +106,7 @@ export default function OfflinePage() {
             </>
           )}
 
-          <div className="pt-4 text-center text-xs text-muted-foreground">
+          <div className="text-muted-foreground pt-4 text-center text-xs">
             <p>This page works without an internet connection</p>
           </div>
         </CardContent>

@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { UserAvatar, UserInfo } from "@/components/ui/user-avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { DeleteModal } from "@/components/ui/delete-modal";
 import {
   Collapsible,
   CollapsibleContent,
@@ -77,6 +78,8 @@ export function CommentSection({
   const [userVotes, setUserVotes] = useState<Map<number, boolean | null>>(
     new Map(),
   );
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
   const { user, isAuthenticated } = useAuth();
 
@@ -237,11 +240,18 @@ export function CommentSection({
   };
 
   // Delete comment
-  const handleDeleteComment = async (commentId: number) => {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+  const openDeleteModal = (commentId: number) => {
+    setCommentToDelete(commentId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteComment = async () => {
+    if (!commentToDelete) return;
 
     try {
-      await executeCommentAction(commentService.deleteComment, commentId);
+      await executeCommentAction(commentService.deleteComment, commentToDelete);
+      setDeleteModalOpen(false);
+      setCommentToDelete(null);
       refetchComments();
     } catch (error) {
       console.error("Error deleting comment:", error);
@@ -351,7 +361,7 @@ export function CommentSection({
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => handleDeleteComment(comment.id)}
+                    onClick={() => openDeleteModal(comment.id)}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -723,6 +733,17 @@ export function CommentSection({
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        onConfirm={handleDeleteComment}
+        title="Delete Comment?"
+        description="Are you sure you want to delete this comment? This action cannot be undone."
+        confirmText="Delete Comment"
+        isLoading={submittingComment}
+      />
     </div>
   );
 }

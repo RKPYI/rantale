@@ -3,18 +3,18 @@
  * Allows users to download chapters for offline reading
  */
 
-'use client';
+"use client";
 
-import { Download, Check, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useOfflineChapter } from '@/hooks/use-offline-chapter';
-import type { Chapter } from '@/types/api';
+import { Download, Check, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useOfflineChapter } from "@/hooks/use-offline-chapter";
+import type { Chapter } from "@/types/api";
 
 export interface ChapterDownloadButtonProps {
   chapter: Chapter;
   novelTitle?: string;
-  variant?: 'default' | 'outline' | 'ghost';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  variant?: "default" | "outline" | "ghost";
+  size?: "default" | "sm" | "lg" | "icon";
   showLabel?: boolean;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
@@ -23,8 +23,8 @@ export interface ChapterDownloadButtonProps {
 export function ChapterDownloadButton({
   chapter,
   novelTitle,
-  variant = 'outline',
-  size = 'sm',
+  variant = "outline",
+  size = "sm",
   showLabel = true,
   onSuccess,
   onError,
@@ -37,7 +37,7 @@ export function ChapterDownloadButton({
       await downloadChapter(chapter, novelTitle);
       onSuccess?.();
     } catch (error) {
-      onError?.(error instanceof Error ? error : new Error('Download failed'));
+      onError?.(error instanceof Error ? error : new Error("Download failed"));
     }
   };
 
@@ -46,7 +46,7 @@ export function ChapterDownloadButton({
       await removeChapter();
       onSuccess?.();
     } catch (error) {
-      onError?.(error instanceof Error ? error : new Error('Remove failed'));
+      onError?.(error instanceof Error ? error : new Error("Remove failed"));
     }
   };
 
@@ -94,7 +94,7 @@ export function ChapterDownloadIcon({
   novelTitle,
   onSuccess,
   onError,
-}: Omit<ChapterDownloadButtonProps, 'variant' | 'size' | 'showLabel'>) {
+}: Omit<ChapterDownloadButtonProps, "variant" | "size" | "showLabel">) {
   return (
     <ChapterDownloadButton
       chapter={chapter}

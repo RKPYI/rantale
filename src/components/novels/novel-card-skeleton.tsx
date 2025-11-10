@@ -17,7 +17,7 @@ export function NovelCardSkeleton({
   const isFeatured = size === "featured";
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn("overflow-hidden pt-0", className)}>
       <Skeleton
         className={cn(
           "w-full",
