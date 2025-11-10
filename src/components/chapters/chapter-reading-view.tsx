@@ -102,10 +102,16 @@ export function ChapterReadingView({
   const [showComments, setShowComments] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { fontSize, lineHeight, maxWidth } = settings;
 
   const { execute: executeUpdateProgress } = useAsync();
+
+  // Mark component as mounted to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -415,7 +421,7 @@ export function ChapterReadingView({
       <main className="container mx-auto px-4 py-6 md:py-8">
         <div className="flex flex-col items-center">
           {/* Offline Reading Indicator */}
-          {isOffline && (
+          {mounted && isOffline && (
             <div className="mb-6 w-full" style={{ maxWidth: `${maxWidth}px` }}>
               <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
                 <CardContent className="flex items-center gap-3 p-4">
