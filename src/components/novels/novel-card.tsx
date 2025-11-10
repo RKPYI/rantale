@@ -5,7 +5,7 @@ import Image from "next/image";
 import { BookOpen, TrendingUp, Star, Eye, Heart } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatRating, truncateDescription } from "@/lib/novel-utils";
+import { formatRating, getStatusColor, truncateDescription } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Novel } from "@/types/api";
 
@@ -30,7 +30,7 @@ export function NovelCard({
     >
       <Card
         className={cn(
-          "group relative overflow-hidden transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-lg hover:scale-[1.02] hover:shadow-lg",
+          "group relative pt-0 overflow-hidden transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-lg hover:scale-[1.02] hover:shadow-lg",
           isFeatured && "border-primary/20",
           isCompact ? "h-auto" : "h-full",
           className,
@@ -63,23 +63,17 @@ export function NovelCard({
 
           {/* Status Badge */}
           <Badge
-            variant={
-              novel.status === "completed"
-                ? "default"
-                : novel.status === "ongoing"
-                  ? "secondary"
-                  : "outline"
-            }
+            variant={getStatusColor(novel.status)}
             className="absolute top-2 left-2 text-xs"
             tabIndex={-1}
           >
-            {novel.status}
+            {novel.status.charAt(0).toUpperCase() + novel.status.slice(1)}
           </Badge>
 
           {/* Featured/Trending Badges */}
           {novel.is_featured && (
             <Badge
-              variant="destructive"
+              variant="default"
               className="absolute top-2 right-2 text-xs"
               tabIndex={-1}
             >

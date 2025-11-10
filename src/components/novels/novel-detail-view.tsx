@@ -97,17 +97,15 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
               {/* Status Badge */}
               <Badge
-                className={cn(
-                  "absolute top-4 left-4",
-                  getStatusColor(novel.status),
-                )}
+                variant={getStatusColor(novel.status)}
+                className="absolute top-4 left-4"
               >
                 {novel.status.charAt(0).toUpperCase() + novel.status.slice(1)}
               </Badge>
 
               {/* Featured/Trending Badges */}
               {novel.is_featured && (
-                <Badge variant="destructive" className="absolute top-4 right-4">
+                <Badge variant="default" className="absolute top-4 right-4">
                   Featured
                 </Badge>
               )}

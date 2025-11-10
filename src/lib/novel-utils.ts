@@ -43,13 +43,13 @@ export function getStatusColor(
 ): "default" | "secondary" | "destructive" | "outline" {
   switch (status.toLowerCase()) {
     case "ongoing":
-      return "default";
-    case "completed":
       return "secondary";
+    case "completed":
+      return "default";
     case "hiatus":
-      return "outline";
+      return "secondary";
     default:
-      return "outline";
+      return "secondary";
   }
 }
 
