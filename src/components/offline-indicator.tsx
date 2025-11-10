@@ -3,12 +3,12 @@
  * Shows the user's online/offline status
  */
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { WifiOff, Wifi } from 'lucide-react';
-import { useOfflineStatus } from '@/hooks/use-offline-chapter';
-import { cn } from '@/lib/utils';
+import { useEffect, useState } from "react";
+import { WifiOff, Wifi } from "lucide-react";
+import { useOfflineStatus } from "@/hooks/use-offline-chapter";
+import { cn } from "@/lib/utils";
 
 export function OfflineIndicator() {
   const { isOnline } = useOfflineStatus();
@@ -24,8 +24,8 @@ export function OfflineIndicator() {
   return (
     <div
       className={cn(
-        'fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium shadow-lg transition-all',
-        'bg-destructive text-destructive-foreground'
+        "fixed right-4 bottom-4 z-50 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium shadow-lg transition-all",
+        "bg-destructive text-destructive-foreground",
       )}
     >
       <WifiOff className="h-4 w-4" />
@@ -41,16 +41,16 @@ export function OfflineStatusBadge({ className }: { className?: string }) {
   const { isOnline } = useOfflineStatus();
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       {isOnline ? (
         <>
           <Wifi className="h-4 w-4 text-green-600" />
-          <span className="text-sm text-muted-foreground">Online</span>
+          <span className="text-muted-foreground text-sm">Online</span>
         </>
       ) : (
         <>
-          <WifiOff className="h-4 w-4 text-destructive" />
-          <span className="text-sm text-destructive">Offline</span>
+          <WifiOff className="text-destructive h-4 w-4" />
+          <span className="text-destructive text-sm">Offline</span>
         </>
       )}
     </div>

@@ -124,7 +124,8 @@ Components auto-configure with New York style and CSS variables.
 - **PWA Offline Guide**: [PWA_OFFLINE_GUIDE.md](./PWA_OFFLINE_GUIDE.md)
 - **PWA Test Checklist**: [PWA_TEST_CHECKLIST.md](./PWA_TEST_CHECKLIST.md)
 - Diagnostics page (run app): /pwa-diagnostics
-- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
+- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding
+  assistant guidelines
 
 ## 🔗 Backend Integration
 

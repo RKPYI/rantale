@@ -3,15 +3,15 @@
  * Read downloaded chapters without internet connection
  */
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import {
   ArrowLeft,
   BookOpen,
@@ -21,12 +21,12 @@ import {
   WifiOff,
   Home,
   List,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { offlineService, type OfflineChapter } from '@/services/offline';
-import { useOfflineStatus } from '@/hooks/use-offline-chapter';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { offlineService, type OfflineChapter } from "@/services/offline";
+import { useOfflineStatus } from "@/hooks/use-offline-chapter";
 
 interface OfflineReaderPageProps {
   params: {
@@ -53,9 +53,9 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
 
       // Load current chapter
       const chapterData = await offlineService.getOfflineChapter(params.id);
-      
+
       if (!chapterData) {
-        setError('Chapter not found in offline storage');
+        setError("Chapter not found in offline storage");
         setLoading(false);
         return;
       }
@@ -65,13 +65,13 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
       // Load all chapters from the same novel for navigation
       const allDownloaded = await offlineService.getAllDownloadedChapters();
       const sameNovelChapters = allDownloaded
-        .filter(ch => ch.novel_id === chapterData.novel_id)
+        .filter((ch) => ch.novel_id === chapterData.novel_id)
         .sort((a, b) => a.chapter_number - b.chapter_number);
-      
+
       setAllChapters(sameNovelChapters);
     } catch (err) {
-      console.error('Failed to load chapter:', err);
-      setError('Failed to load chapter');
+      console.error("Failed to load chapter:", err);
+      setError("Failed to load chapter");
     } finally {
       setLoading(false);
     }
@@ -96,11 +96,11 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
       <div className="container mx-auto max-w-2xl px-4 py-16">
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <BookOpen className="h-12 w-12 text-muted-foreground/50" />
+            <BookOpen className="text-muted-foreground/50 h-12 w-12" />
             <p className="mt-4 text-center text-lg font-medium">
-              {error || 'Chapter not found'}
+              {error || "Chapter not found"}
             </p>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-center text-sm">
               This chapter may not be downloaded for offline reading.
             </p>
             <Link href="/offline/downloads" className="mt-6">
@@ -116,9 +116,13 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
   }
 
   // Find navigation chapters
-  const currentIndex = allChapters.findIndex(ch => ch.id === chapter.id);
-  const previousChapter = currentIndex > 0 ? allChapters[currentIndex - 1] : null;
-  const nextChapter = currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1] : null;
+  const currentIndex = allChapters.findIndex((ch) => ch.id === chapter.id);
+  const previousChapter =
+    currentIndex > 0 ? allChapters[currentIndex - 1] : null;
+  const nextChapter =
+    currentIndex < allChapters.length - 1
+      ? allChapters[currentIndex + 1]
+      : null;
 
   return (
     <div className="bg-background min-h-screen">
@@ -173,7 +177,8 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                     Reading Offline
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    You&apos;re reading a downloaded chapter. All navigation works without internet!
+                    You&apos;re reading a downloaded chapter. All navigation
+                    works without internet!
                   </p>
                 </div>
               </CardContent>
@@ -193,8 +198,10 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                 {chapter.title}
               </h1>
             </CardHeader>
-            <CardContent className="text-center text-sm text-muted-foreground">
-              <p>Downloaded {new Date(chapter.downloadedAt).toLocaleDateString()}</p>
+            <CardContent className="text-muted-foreground text-center text-sm">
+              <p>
+                Downloaded {new Date(chapter.downloadedAt).toLocaleDateString()}
+              </p>
             </CardContent>
           </Card>
 
@@ -210,10 +217,16 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                       <h1 className="mt-6 mb-4 text-3xl font-bold" {...props} />
                     ),
                     h2: ({ node, ...props }) => (
-                      <h2 className="mt-5 mb-3 text-2xl font-semibold" {...props} />
+                      <h2
+                        className="mt-5 mb-3 text-2xl font-semibold"
+                        {...props}
+                      />
                     ),
                     h3: ({ node, ...props }) => (
-                      <h3 className="mt-4 mb-2 text-xl font-semibold" {...props} />
+                      <h3
+                        className="mt-4 mb-2 text-xl font-semibold"
+                        {...props}
+                      />
                     ),
                     p: ({ node, ...props }) => (
                       <p className="mb-4 leading-relaxed" {...props} />
@@ -244,8 +257,12 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                   >
                     <ChevronLeft className="h-4 w-4" />
                     <div className="text-left">
-                      <div className="text-muted-foreground text-xs">Previous</div>
-                      <div className="text-sm">Chapter {previousChapter.chapter_number}</div>
+                      <div className="text-muted-foreground text-xs">
+                        Previous
+                      </div>
+                      <div className="text-sm">
+                        Chapter {previousChapter.chapter_number}
+                      </div>
                     </div>
                   </Button>
                 ) : (
@@ -256,8 +273,10 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                   <div className="text-muted-foreground text-sm">
                     Chapter {chapter.chapter_number} of {allChapters.length}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {allChapters.length} {allChapters.length === 1 ? 'chapter' : 'chapters'} downloaded
+                  <div className="text-muted-foreground text-xs">
+                    {allChapters.length}{" "}
+                    {allChapters.length === 1 ? "chapter" : "chapters"}{" "}
+                    downloaded
                   </div>
                 </div>
 
@@ -268,7 +287,9 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                   >
                     <div className="text-right">
                       <div className="text-xs">Next</div>
-                      <div className="text-sm">Chapter {nextChapter.chapter_number}</div>
+                      <div className="text-sm">
+                        Chapter {nextChapter.chapter_number}
+                      </div>
                     </div>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
@@ -294,8 +315,10 @@ export default function OfflineReaderPage({ params }: OfflineReaderPageProps) {
                     <button
                       key={ch.id}
                       onClick={() => handleNavigation(ch.id)}
-                      className={`w-full rounded-lg border p-3 text-left transition-colors hover:bg-muted/50 ${
-                        ch.id === chapter.id ? 'border-primary bg-primary/5' : ''
+                      className={`hover:bg-muted/50 w-full rounded-lg border p-3 text-left transition-colors ${
+                        ch.id === chapter.id
+                          ? "border-primary bg-primary/5"
+                          : ""
                       }`}
                     >
                       <div className="font-medium">

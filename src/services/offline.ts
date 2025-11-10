@@ -3,11 +3,11 @@
  * Handles chapter downloads and offline reading functionality
  */
 
-import type { Chapter } from '@/types/api';
+import type { Chapter } from "@/types/api";
 
-const CACHE_NAME = 'rdknovel-chapters-v1';
-const CACHE_KEY_PREFIX = '/offline/chapters/';
-const STORAGE_KEY = 'downloaded-chapters';
+const CACHE_NAME = "rdknovel-chapters-v1";
+const CACHE_KEY_PREFIX = "/offline/chapters/";
+const STORAGE_KEY = "downloaded-chapters";
 
 export interface OfflineChapter {
   id: number;
@@ -22,7 +22,7 @@ export interface OfflineChapter {
 export interface DownloadProgress {
   chapterId: string;
   progress: number;
-  status: 'downloading' | 'completed' | 'failed';
+  status: "downloading" | "completed" | "failed";
 }
 
 export const offlineService = {
@@ -37,7 +37,7 @@ export const offlineService = {
         title: chapter.title,
         content: chapter.content,
         novel_id: chapter.novel_id,
-        novelTitle: novelTitle || '',
+        novelTitle: novelTitle || "",
         chapter_number: chapter.chapter_number,
         downloadedAt: new Date().toISOString(),
       };
@@ -45,9 +45,9 @@ export const offlineService = {
       // Store in Cache API
       const cache = await caches.open(CACHE_NAME);
       const response = new Response(JSON.stringify(offlineChapter), {
-        headers: { 
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache'
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
         },
       });
 
@@ -68,8 +68,8 @@ export const offlineService = {
       };
       localStorage.setItem(`${STORAGE_KEY}-metadata`, JSON.stringify(metadata));
     } catch (error) {
-      console.error('Failed to download chapter:', error);
-      throw new Error('Failed to download chapter for offline reading');
+      console.error("Failed to download chapter:", error);
+      throw new Error("Failed to download chapter for offline reading");
     }
   },
 
@@ -78,7 +78,7 @@ export const offlineService = {
    */
   async downloadMultipleChapters(
     chapters: Chapter[],
-    onProgress?: (progress: DownloadProgress) => void
+    onProgress?: (progress: DownloadProgress) => void,
   ): Promise<void> {
     const total = chapters.length;
     let completed = 0;
@@ -88,7 +88,7 @@ export const offlineService = {
         onProgress?.({
           chapterId: chapter.id.toString(),
           progress: (completed / total) * 100,
-          status: 'downloading',
+          status: "downloading",
         });
 
         await this.downloadChapter(chapter);
@@ -97,13 +97,13 @@ export const offlineService = {
         onProgress?.({
           chapterId: chapter.id.toString(),
           progress: (completed / total) * 100,
-          status: 'completed',
+          status: "completed",
         });
       } catch (error) {
         onProgress?.({
           chapterId: chapter.id.toString(),
           progress: (completed / total) * 100,
-          status: 'failed',
+          status: "failed",
         });
         throw error;
       }
@@ -123,7 +123,7 @@ export const offlineService = {
       const data = await response.json();
       return data as OfflineChapter;
     } catch (error) {
-      console.error('Failed to get offline chapter:', error);
+      console.error("Failed to get offline chapter:", error);
       return null;
     }
   },
@@ -145,7 +145,7 @@ export const offlineService = {
       delete metadata[chapterId];
       localStorage.setItem(`${STORAGE_KEY}-metadata`, JSON.stringify(metadata));
     } catch (error) {
-      console.error('Failed to remove chapter:', error);
+      console.error("Failed to remove chapter:", error);
       throw error;
     }
   },
@@ -165,12 +165,15 @@ export const offlineService = {
   /**
    * Get download metadata
    */
-  getDownloadMetadata(): Record<string, {
-    title: string;
-    novelTitle: string;
-    chapterNumber: number;
-    downloadedAt: string;
-  }> {
+  getDownloadMetadata(): Record<
+    string,
+    {
+      title: string;
+      novelTitle: string;
+      chapterNumber: number;
+      downloadedAt: string;
+    }
+  > {
     try {
       const stored = localStorage.getItem(`${STORAGE_KEY}-metadata`);
       return stored ? JSON.parse(stored) : {};
@@ -212,7 +215,7 @@ export const offlineService = {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(`${STORAGE_KEY}-metadata`);
     } catch (error) {
-      console.error('Failed to clear downloads:', error);
+      console.error("Failed to clear downloads:", error);
       throw error;
     }
   },
@@ -220,8 +223,12 @@ export const offlineService = {
   /**
    * Get storage usage estimate
    */
-  async getStorageUsage(): Promise<{ used: number; quota: number; percentage: number }> {
-    if ('storage' in navigator && 'estimate' in navigator.storage) {
+  async getStorageUsage(): Promise<{
+    used: number;
+    quota: number;
+    percentage: number;
+  }> {
+    if ("storage" in navigator && "estimate" in navigator.storage) {
       const estimate = await navigator.storage.estimate();
       const used = estimate.usage || 0;
       const quota = estimate.quota || 0;
@@ -238,9 +245,9 @@ export const offlineService = {
    */
   isSupported(): boolean {
     return (
-      typeof window !== 'undefined' &&
-      'caches' in window &&
-      'localStorage' in window
+      typeof window !== "undefined" &&
+      "caches" in window &&
+      "localStorage" in window
     );
   },
 
@@ -248,6 +255,6 @@ export const offlineService = {
    * Check if user is online
    */
   isOnline(): boolean {
-    return typeof navigator !== 'undefined' ? navigator.onLine : true;
+    return typeof navigator !== "undefined" ? navigator.onLine : true;
   },
 };

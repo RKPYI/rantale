@@ -3,22 +3,29 @@
  * Displays and manages all downloaded chapters
  */
 
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Trash2, Book, HardDrive, RefreshCw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDownloadedChapters } from '@/hooks/use-offline-chapter';
-import { offlineService } from '@/services/offline';
-import Link from 'next/link';
+import { useState } from "react";
+import { Trash2, Book, HardDrive, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useDownloadedChapters } from "@/hooks/use-offline-chapter";
+import { offlineService } from "@/services/offline";
+import Link from "next/link";
 
 export function OfflineDownloads() {
-  const { chapters, loading, storageUsage, refetch, clearAll } = useDownloadedChapters();
+  const { chapters, loading, storageUsage, refetch, clearAll } =
+    useDownloadedChapters();
   const [isClearing, setIsClearing] = useState(false);
 
   const handleClearAll = async () => {
-    if (!confirm('Are you sure you want to delete all downloaded chapters?')) {
+    if (!confirm("Are you sure you want to delete all downloaded chapters?")) {
       return;
     }
 
@@ -26,7 +33,7 @@ export function OfflineDownloads() {
     try {
       await clearAll();
     } catch (error) {
-      console.error('Failed to clear downloads:', error);
+      console.error("Failed to clear downloads:", error);
     } finally {
       setIsClearing(false);
     }
@@ -37,16 +44,16 @@ export function OfflineDownloads() {
       await offlineService.removeChapter(chapterId.toString());
       await refetch();
     } catch (error) {
-      console.error('Failed to remove chapter:', error);
+      console.error("Failed to remove chapter:", error);
     }
   };
 
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   if (loading) {
@@ -75,24 +82,29 @@ export function OfflineDownloads() {
             <div className="flex justify-between text-sm">
               <span>Used Storage</span>
               <span className="font-medium">
-                {formatBytes(storageUsage.used)} / {formatBytes(storageUsage.quota)}
+                {formatBytes(storageUsage.used)} /{" "}
+                {formatBytes(storageUsage.quota)}
               </span>
             </div>
-            <div className="h-2 w-full rounded-full bg-secondary">
+            <div className="bg-secondary h-2 w-full rounded-full">
               <div
-                className="h-full rounded-full bg-primary transition-all"
+                className="bg-primary h-full rounded-full transition-all"
                 style={{ width: `${Math.min(storageUsage.percentage, 100)}%` }}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               {storageUsage.percentage.toFixed(1)}% of available storage used
             </p>
           </div>
 
           <div className="flex items-center justify-between pt-2">
             <div className="text-sm">
-              <p className="font-medium">{chapters.length} Chapters Downloaded</p>
-              <p className="text-muted-foreground">Available for offline reading</p>
+              <p className="font-medium">
+                {chapters.length} Chapters Downloaded
+              </p>
+              <p className="text-muted-foreground">
+                Available for offline reading
+              </p>
             </div>
             {chapters.length > 0 && (
               <Button
@@ -113,8 +125,8 @@ export function OfflineDownloads() {
       {chapters.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Book className="h-12 w-12 text-muted-foreground/50" />
-            <p className="mt-4 text-center text-muted-foreground">
+            <Book className="text-muted-foreground/50 h-12 w-12" />
+            <p className="text-muted-foreground mt-4 text-center">
               No chapters downloaded yet.
               <br />
               Download chapters to read them offline.
@@ -134,11 +146,12 @@ export function OfflineDownloads() {
                   >
                     {chapter.title}
                   </Link>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {chapter.novelTitle} • Chapter {chapter.chapter_number}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Downloaded {new Date(chapter.downloadedAt).toLocaleDateString()}
+                  <p className="text-muted-foreground text-xs">
+                    Downloaded{" "}
+                    {new Date(chapter.downloadedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <Button

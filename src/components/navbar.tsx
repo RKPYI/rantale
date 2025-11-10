@@ -313,7 +313,7 @@ export function Navbar() {
         {/* Right side - Auth section */}
         <div className="flex items-center space-x-4">
           <ModeToggle />
-          
+
           {/* Offline Downloads Link - Always accessible */}
           <Link href="/offline/downloads">
             <Button variant="ghost" size="icon" title="Offline Downloads">
@@ -449,7 +449,11 @@ export function Navbar() {
                 defaultTab="signin"
               />
               <AuthModal
-                trigger={<Button size="sm" className="hidden md:flex">Sign up</Button>}
+                trigger={
+                  <Button size="sm" className="hidden md:flex">
+                    Sign up
+                  </Button>
+                }
                 defaultTab="signup"
               />
             </div>
