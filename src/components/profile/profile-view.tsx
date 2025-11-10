@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,39 @@ export function ProfileView() {
   const { user, isAuthenticated, loading } = useAuth();
   const { data: library, loading: libraryLoading } = useLibrary();
 
+  const userRole = user ? getUserRole(user) : "user";
+
+  // Handle URL hash to open specific tab (e.g., #library, #settings)
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // Remove the '#'
+    const validTabs = [
+      "overview",
+      "library",
+      "ratings",
+      "reading",
+      "settings",
+      "author",
+    ];
+
+    if (hash && validTabs.includes(hash)) {
+      setActiveTab(hash);
+      // Scroll to tabs section smoothly after a brief delay
+      setTimeout(() => {
+        const tabsElement = document.querySelector('[role="tablist"]');
+        if (tabsElement) {
+          tabsElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, []);
+
+  // Handle tab change and update URL hash
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL hash without scrolling
+    window.history.replaceState(null, "", `#${value}`);
+  };
+
   if (loading) {
     return <ProfileViewSkeleton />;
   }
@@ -56,7 +89,6 @@ export function ProfileView() {
     );
   }
 
-  const userRole = getUserRole(user);
   const joinedDate = user.created_at ? new Date(user.created_at) : new Date();
   const isVerified = user.email_verified_at !== null;
 
@@ -138,7 +170,7 @@ export function ProfileView() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setActiveTab("settings")}
+                  onClick={() => handleTabChange("settings")}
                   className="w-full sm:w-auto"
                 >
                   <Edit className="mr-2 h-4 w-4" />
@@ -166,7 +198,7 @@ export function ProfileView() {
       </Card>
 
       {/* Profile Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <div className="overflow-x-auto">
           <TabsList className="inline-flex w-full min-w-full sm:w-auto sm:min-w-0">
             <TabsTrigger value="overview" className="flex-shrink-0">
