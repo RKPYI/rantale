@@ -31,6 +31,7 @@ import { useAsync } from "@/hooks/use-api";
 import { authService } from "@/services/auth";
 import { toast } from "sonner";
 import type { LoginRequest, RegisterRequest } from "@/types/api";
+import Link from "next/link";
 
 // Google Logo SVG Component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -537,13 +538,13 @@ export function AuthModal({
         {/* Terms and Privacy */}
         <div className="text-muted-foreground mt-4 text-center text-xs">
           By continuing, you agree to our{" "}
-          <a href="/terms" className="hover:text-foreground underline">
+          <Link href="/terms" className="hover:text-foreground underline">
             Terms of Service
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a href="/privacy" className="hover:text-foreground underline">
+          <Link href="/privacy" className="hover:text-foreground underline">
             Privacy Policy
-          </a>
+          </Link>
           .
         </div>
       </DialogContent>

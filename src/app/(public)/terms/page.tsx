@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Rantale",
@@ -715,9 +716,9 @@ export default function TermsPage() {
             <ul className="space-y-2">
               <li>
                 <strong>Via Contact Page:</strong> Visit our{" "}
-                <a href="/contact" className="text-primary hover:underline">
+                <Link href="/contact" className="text-primary hover:underline">
                   contact page
-                </a>{" "}
+                </Link>{" "}
                 to send us a message
               </li>
               <li>

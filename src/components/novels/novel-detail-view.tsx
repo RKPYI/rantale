@@ -41,6 +41,7 @@ import {
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
 import { NovelWithChapters } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
@@ -49,6 +50,7 @@ interface NovelDetailViewProps {
 export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
     novel.slug,
@@ -83,13 +85,13 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const handleStartReading = () => {
     if (novel.chapters && novel.chapters.length > 0) {
       const firstChapter = novel.chapters[0];
-      window.location.href = `/novels/${novel.slug}/chapters/${firstChapter.chapter_number}`;
+      router.push(`/novels/${novel.slug}/chapters/${firstChapter.chapter_number}`);
     }
   };
 
   const handleContinueReading = () => {
     if (readingProgress?.current_chapter) {
-      window.location.href = `/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`;
+      router.push(`/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`);
     } else {
       handleStartReading();
     }

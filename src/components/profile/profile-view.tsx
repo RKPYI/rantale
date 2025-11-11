@@ -34,6 +34,7 @@ import { getUserRole } from "@/lib/user-utils";
 import { ProfileSettings } from "@/components/profile/profile-settings";
 import { ReadingStats } from "@/components/profile/reading-stats";
 import { UserRatings } from "@/components/profile/user-ratings";
+import Link from "next/link";
 
 export function ProfileView() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -184,11 +185,11 @@ export function ProfileView() {
                     asChild
                     className="w-full sm:w-auto"
                   >
-                    <a href="/author">
+                    <Link href="/author">
                       <PenTool className="mr-2 h-4 w-4" />
                       <span className="sm:hidden">Author</span>
                       <span className="hidden sm:inline">Become Author</span>
-                    </a>
+                    </Link>
                   </Button>
                 )}
               </div>
@@ -485,10 +486,10 @@ export function ProfileView() {
                   analytics.
                 </p>
                 <Button asChild>
-                  <a href="/author">
+                  <Link href="/author">
                     <PenTool className="mr-2 h-4 w-4" />
                     Go to Author Dashboard
-                  </a>
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
