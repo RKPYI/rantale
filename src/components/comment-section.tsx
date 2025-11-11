@@ -675,7 +675,7 @@ export function CommentSection({
         </Card>
       ) : authLoading ? (
         <Card>
-          <CardContent className="p-4 space-y-3">
+          <CardContent className="space-y-3 p-4">
             {/* Textarea skeleton */}
             <Skeleton className="h-24 w-full rounded-md" />
 

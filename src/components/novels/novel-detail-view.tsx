@@ -50,7 +50,9 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data: readingProgress, loading: progressLoading } = useNovelProgress(novel.slug);
+  const { data: readingProgress, loading: progressLoading } = useNovelProgress(
+    novel.slug,
+  );
   const isLoading = authLoading || progressLoading;
 
   // Handle URL hash to open specific tab (e.g., #reviews)
@@ -160,7 +162,9 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   onClick={handleStartReading}
                   className="w-full"
                   size="lg"
-                  disabled={isLoading || !novel.chapters || novel.chapters.length === 0}
+                  disabled={
+                    isLoading || !novel.chapters || novel.chapters.length === 0
+                  }
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Start Reading

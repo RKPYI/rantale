@@ -269,7 +269,7 @@ export function RatingSection({
               <Skeleton className="h-5 w-28" /> {/* “Your Rating” text */}
               <div className="flex gap-2">
                 <Skeleton className="h-8 w-16 rounded-md" /> {/* Edit button */}
-                <Skeleton className="h-8 w-16 rounded-md" /> {/* Delete button */}
+                <Skeleton className="h-8 w-16 rounded-md" />
               </div>
             </CardTitle>
           </CardHeader>
@@ -278,7 +278,7 @@ export function RatingSection({
               <Skeleton className="h-6 w-36" /> {/* Stars */}
               <Skeleton className="h-4 w-12" /> {/* rating text */}
             </div>
-            <Skeleton className="h-16 w-full rounded-md" /> {/* review text area */}
+            <Skeleton className="h-16 w-full rounded-md" />
             <div className="flex gap-2">
               <Skeleton className="h-9 w-28 rounded-md" /> {/* submit/update */}
               <Skeleton className="h-9 w-24 rounded-md" /> {/* cancel */}
