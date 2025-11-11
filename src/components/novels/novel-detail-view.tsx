@@ -30,7 +30,7 @@ import { RatingSection } from "@/components/rating-section";
 import { ReadingProgress } from "@/components/reading-progress";
 import { LibraryActionButton } from "@/components/library";
 import { ShareButton } from "@/components/ui/share-button";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useNovelProgress } from "@/hooks/use-reading-progress";
 import {
   formatRating,
@@ -41,16 +41,21 @@ import {
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
 import { NovelWithChapters } from "@/types/api";
+import { useRouter } from "next/navigation";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
 }
 
 export function NovelDetailView({ novel }: NovelDetailViewProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const router = useRouter();
 
-  const { data: readingProgress } = useNovelProgress(novel.slug);
+  const { data: readingProgress, loading: progressLoading } = useNovelProgress(
+    novel.slug,
+  );
+  const isLoading = authLoading || progressLoading;
 
   // Handle URL hash to open specific tab (e.g., #reviews)
   useEffect(() => {
@@ -80,13 +85,17 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const handleStartReading = () => {
     if (novel.chapters && novel.chapters.length > 0) {
       const firstChapter = novel.chapters[0];
-      window.location.href = `/novels/${novel.slug}/chapters/${firstChapter.chapter_number}`;
+      router.push(
+        `/novels/${novel.slug}/chapters/${firstChapter.chapter_number}`,
+      );
     }
   };
 
   const handleContinueReading = () => {
     if (readingProgress?.current_chapter) {
-      window.location.href = `/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`;
+      router.push(
+        `/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`,
+      );
     } else {
       handleStartReading();
     }
@@ -149,6 +158,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   onClick={handleContinueReading}
                   className="w-full"
                   size="lg"
+                  disabled={isLoading}
                 >
                   <Play className="mr-2 h-4 w-4" />
                   Continue Reading
@@ -158,7 +168,9 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   onClick={handleStartReading}
                   className="w-full"
                   size="lg"
-                  disabled={!novel.chapters || novel.chapters.length === 0}
+                  disabled={
+                    isLoading || !novel.chapters || novel.chapters.length === 0
+                  }
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Start Reading

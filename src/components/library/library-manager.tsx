@@ -5,9 +5,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -120,21 +126,18 @@ export function LibraryManager() {
     if (newStatus === "all" || newStatus === "favorites") return;
 
     try {
-      await updateStatus(libraryService.updateLibraryEntry, {
-        entry_id: entryId,
-        status: newStatus,
-      });
+      await updateStatus(() =>
+        libraryService.updateLibraryEntry(entryId, { status: newStatus }),
+      );
       refetch();
     } catch (error) {
       console.error("Error updating status:", error);
     }
   };
 
-  const handleToggleFavorite = async (novelId: number) => {
+  const handleToggleFavorite = async (novelSlug: string) => {
     try {
-      await toggleFavorite(libraryService.toggleFavorite, {
-        novel_id: novelId,
-      });
+      await toggleFavorite(() => libraryService.toggleFavorite(novelSlug));
       refetch();
     } catch (error) {
       console.error("Error toggling favorite:", error);
@@ -184,6 +187,28 @@ export function LibraryManager() {
     }
   };
 
+  const getFilterLabel = (status: LibraryStatus) => {
+    const count = getTabCount(status);
+    switch (status) {
+      case "all":
+        return `All Novels (${count})`;
+      case "favorites":
+        return `Favorites (${count})`;
+      case "want_to_read":
+        return `Want to Read (${count})`;
+      case "reading":
+        return `Reading (${count})`;
+      case "completed":
+        return `Completed (${count})`;
+      case "dropped":
+        return `Dropped (${count})`;
+      case "on_hold":
+        return `On Hold (${count})`;
+      default:
+        return status;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -196,265 +221,285 @@ export function LibraryManager() {
 
       {/* Stats Cards */}
       {library?.stats && (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-6">
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold">{library.stats.total}</p>
-              <p className="text-muted-foreground text-sm">Total</p>
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold sm:text-2xl">
+                {library.stats.total}
+              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">Total</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold">{library.stats.reading}</p>
-              <p className="text-muted-foreground text-sm">Reading</p>
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold sm:text-2xl">
+                {library.stats.reading}
+              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Reading
+              </p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold">{library.stats.completed}</p>
-              <p className="text-muted-foreground text-sm">Completed</p>
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold sm:text-2xl">
+                {library.stats.completed}
+              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Completed
+              </p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold">{library.stats.want_to_read}</p>
-              <p className="text-muted-foreground text-sm">Want to Read</p>
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold sm:text-2xl">
+                {library.stats.want_to_read}
+              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Want to Read
+              </p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold">{library.stats.on_hold}</p>
-              <p className="text-muted-foreground text-sm">On Hold</p>
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold sm:text-2xl">
+                {library.stats.on_hold}
+              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                On Hold
+              </p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-2xl font-bold text-red-500">
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold text-red-500 sm:text-2xl">
                 {library.stats.favorites}
               </p>
-              <p className="text-muted-foreground text-sm">Favorites</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Favorites
+              </p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Filter Tabs */}
-      <Tabs
-        value={activeStatus}
-        onValueChange={(value) => setActiveStatus(value as LibraryStatus)}
-      >
-        <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-          <TabsTrigger value="all">All ({getTabCount("all")})</TabsTrigger>
-          <TabsTrigger value="reading">
-            Reading ({getTabCount("reading")})
-          </TabsTrigger>
-          <TabsTrigger value="want_to_read">
-            Want to Read ({getTabCount("want_to_read")})
-          </TabsTrigger>
-          <TabsTrigger value="completed">
-            Completed ({getTabCount("completed")})
-          </TabsTrigger>
-          <TabsTrigger value="on_hold">
-            On Hold ({getTabCount("on_hold")})
-          </TabsTrigger>
-          <TabsTrigger value="favorites">
-            Favorites ({getTabCount("favorites")})
-          </TabsTrigger>
-        </TabsList>
+      {/* Filter Select */}
+      <div className="flex items-center justify-between gap-4">
+        <Select
+          value={activeStatus}
+          onValueChange={(value) => setActiveStatus(value as LibraryStatus)}
+        >
+          <SelectTrigger className="w-full sm:w-[280px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{getFilterLabel("all")}</SelectItem>
+            <SelectItem value="reading">{getFilterLabel("reading")}</SelectItem>
+            <SelectItem value="want_to_read">
+              {getFilterLabel("want_to_read")}
+            </SelectItem>
+            <SelectItem value="completed">
+              {getFilterLabel("completed")}
+            </SelectItem>
+            <SelectItem value="on_hold">{getFilterLabel("on_hold")}</SelectItem>
+            <SelectItem value="dropped">{getFilterLabel("dropped")}</SelectItem>
+            <SelectItem value="favorites">
+              {getFilterLabel("favorites")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* Library Content */}
-        <TabsContent value={activeStatus}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  {activeStatus === "all"
-                    ? "All Novels"
-                    : activeStatus === "favorites"
-                      ? "Favorite Novels"
-                      : getStatusLabel(activeStatus)}
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center space-x-4 rounded-lg border p-4"
-                    >
-                      <Skeleton className="h-20 w-16 rounded" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-48" />
-                        <Skeleton className="h-3 w-32" />
-                        <Skeleton className="h-3 w-24" />
+      {/* Library Content */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            {activeStatus === "all"
+              ? "All Novels"
+              : activeStatus === "favorites"
+                ? "Favorite Novels"
+                : getStatusLabel(activeStatus)}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex gap-3 rounded-lg border p-3 sm:gap-4 sm:p-4"
+                >
+                  <Skeleton className="h-16 w-12 flex-shrink-0 rounded sm:h-20 sm:w-16" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : library && library.library.data.length > 0 ? (
+            <div className="space-y-3">
+              {library.library.data.map((entry: LibraryEntry) => (
+                <div
+                  key={entry.id}
+                  className="hover:bg-muted/50 flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between sm:p-4"
+                >
+                  <div className="flex gap-3 sm:gap-4">
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={entry.novel.cover_image || "/placeholder-book.jpg"}
+                        alt={entry.novel.title}
+                        className="h-16 w-12 rounded object-cover sm:h-20 sm:w-16"
+                      />
+                      {entry.is_favorite && (
+                        <Heart className="absolute -top-1 -right-1 h-4 w-4 fill-red-500 text-red-500" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <Link href={`/novels/${entry.novel.slug}`}>
+                        <h4 className="hover:text-primary line-clamp-1 font-medium transition-colors sm:text-lg">
+                          {entry.novel.title}
+                        </h4>
+                      </Link>
+                      <p className="text-muted-foreground line-clamp-1 text-xs sm:text-sm">
+                        by {entry.novel.author}
+                      </p>
+                      <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
+                        <Badge
+                          className={cn(
+                            getStatusColor(entry.status),
+                            "text-xs",
+                          )}
+                        >
+                          <span className="flex items-center gap-1">
+                            {getStatusIcon(entry.status)}
+                            <span className="hidden sm:inline">
+                              {getStatusLabel(entry.status)}
+                            </span>
+                          </span>
+                        </Badge>
+                        {entry.novel.rating && (
+                          <span className="flex items-center gap-1">
+                            <Star className="h-3 w-3" />
+                            {entry.novel.rating}
+                          </span>
+                        )}
+                        <span className="hidden items-center gap-1 sm:flex">
+                          <Calendar className="h-3 w-3" />
+                          {formatDate(entry.added_at)}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : library && library.library.data.length > 0 ? (
-                <div className="space-y-4">
-                  {library.library.data.map((entry: LibraryEntry) => (
-                    <div
-                      key={entry.id}
-                      className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition-colors"
+                  </div>
+
+                  <div className="flex items-center justify-end gap-1 sm:gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleToggleFavorite(entry.novel.slug)}
+                      disabled={toggling}
+                      className={cn(
+                        "h-8 w-8 p-0 sm:h-9 sm:w-9",
+                        entry.is_favorite && "text-red-500 hover:text-red-600",
+                      )}
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className="relative">
-                          <img
-                            src={
-                              entry.novel.cover_image || "/placeholder-book.jpg"
-                            }
-                            alt={entry.novel.title}
-                            className="h-20 w-16 rounded object-cover"
-                          />
-                          {entry.is_favorite && (
-                            <Heart className="absolute -top-2 -right-2 h-4 w-4 fill-red-500 text-red-500" />
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <h4 className="text-lg font-medium">
-                            {entry.novel.title}
-                          </h4>
-                          <p className="text-muted-foreground text-sm">
-                            by {entry.novel.author}
-                          </p>
-                          <div className="text-muted-foreground flex items-center gap-4 text-sm">
-                            <Badge className={getStatusColor(entry.status)}>
-                              <span className="flex items-center gap-1">
-                                {getStatusIcon(entry.status)}
-                                {getStatusLabel(entry.status)}
-                              </span>
-                            </Badge>
-                            {entry.novel.rating && (
-                              <span className="flex items-center gap-1">
-                                <Star className="h-3 w-3" />
-                                {entry.novel.rating}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              Added {formatDate(entry.added_at)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      <Heart
+                        className={cn(
+                          "h-4 w-4",
+                          entry.is_favorite && "fill-current",
+                        )}
+                      />
+                    </Button>
 
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/novels/${entry.novel.slug}`}>
-                            <BookOpen className="h-4 w-4" />
-                          </Link>
-                        </Button>
-
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleToggleFavorite(entry.novel.id)}
-                          disabled={toggling}
-                          className={cn(
-                            entry.is_favorite &&
-                              "text-red-500 hover:text-red-600",
-                          )}
+                          disabled={updating || removing}
+                          className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                         >
-                          <Heart
-                            className={cn(
-                              "h-4 w-4",
-                              entry.is_favorite && "fill-current",
-                            )}
-                          />
+                          <MoreHorizontal className="h-4 w-4" />
                         </Button>
-
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              disabled={updating || removing}
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(entry.id, "want_to_read")
-                              }
-                            >
-                              <Clock className="mr-2 h-4 w-4" />
-                              Want to Read
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(entry.id, "reading")
-                              }
-                            >
-                              <Play className="mr-2 h-4 w-4" />
-                              Reading
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(entry.id, "completed")
-                              }
-                            >
-                              <CheckCircle className="mr-2 h-4 w-4" />
-                              Completed
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(entry.id, "on_hold")
-                              }
-                            >
-                              <Pause className="mr-2 h-4 w-4" />
-                              On Hold
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleStatusChange(entry.id, "dropped")
-                              }
-                            >
-                              <X className="mr-2 h-4 w-4" />
-                              Dropped
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleRemove(entry.id)}
-                              className="text-red-600"
-                            >
-                              <X className="mr-2 h-4 w-4" />
-                              Remove from Library
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))}
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(entry.id, "want_to_read")
+                          }
+                        >
+                          <Clock className="mr-2 h-4 w-4" />
+                          Want to Read
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(entry.id, "reading")
+                          }
+                        >
+                          <Play className="mr-2 h-4 w-4" />
+                          Reading
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(entry.id, "completed")
+                          }
+                        >
+                          <CheckCircle className="mr-2 h-4 w-4" />
+                          Completed
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(entry.id, "on_hold")
+                          }
+                        >
+                          <Pause className="mr-2 h-4 w-4" />
+                          On Hold
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusChange(entry.id, "dropped")
+                          }
+                        >
+                          <X className="mr-2 h-4 w-4" />
+                          Dropped
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleRemove(entry.id)}
+                          className="text-red-600"
+                        >
+                          <X className="mr-2 h-4 w-4" />
+                          Remove from Library
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-              ) : (
-                <div className="py-12 text-center">
-                  <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                  <h3 className="text-lg font-medium">
-                    {activeStatus === "all"
-                      ? "No novels in your library"
-                      : activeStatus === "favorites"
-                        ? "No favorite novels yet"
-                        : `No ${getStatusLabel(activeStatus).toLowerCase()} novels`}
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    {activeStatus === "all"
-                      ? "Start building your library by adding novels you want to read."
-                      : "Add some novels to your library to get started."}
-                  </p>
-                  <Button asChild>
-                    <Link href="/novels">Browse Novels</Link>
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center">
+              <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+              <h3 className="text-lg font-medium">
+                {activeStatus === "all"
+                  ? "No novels in your library"
+                  : activeStatus === "favorites"
+                    ? "No favorite novels yet"
+                    : `No ${getStatusLabel(activeStatus).toLowerCase()} novels`}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                {activeStatus === "all"
+                  ? "Start building your library by adding novels you want to read."
+                  : "Add some novels to your library to get started."}
+              </p>
+              <Button asChild>
+                <Link href="/novels">Browse Novels</Link>
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

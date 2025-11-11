@@ -178,9 +178,9 @@ export function AdminDashboard() {
                   </div>
                 ) : activities && activities.length > 0 ? (
                   <div className="space-y-3">
-                    {activities.slice(0, 5).map((activity) => (
+                    {activities.slice(0, 5).map((activity, index) => (
                       <div
-                        key={activity.id}
+                        key={`${activity.id}-${activity.activity_type}-${index}`}
                         className="flex items-start gap-3 text-sm"
                       >
                         <div className="bg-primary mt-2 h-2 w-2 flex-shrink-0 rounded-full"></div>
@@ -880,10 +880,10 @@ function ActivityTab() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {activities.map((activity: AdminActivity) => {
+          {activities.map((activity: AdminActivity, index: number) => {
             const Icon = getActivityIcon(activity.activity_type);
             return (
-              <Card key={activity.id}>
+              <Card key={`${activity.id}-${activity.activity_type}-${index}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="bg-primary/10 rounded-full p-2">

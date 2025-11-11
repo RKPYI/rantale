@@ -17,7 +17,7 @@ import {
   useNovelProgress,
   useUserReadingProgress,
 } from "@/hooks/use-reading-progress";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { readingProgressService } from "@/services/reading-progress";
 import { useAsync } from "@/hooks/use-api";
 

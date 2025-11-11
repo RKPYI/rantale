@@ -11,7 +11,7 @@ import { Star, Edit, Trash2, TrendingUp, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useNovelRatings, useUserRatingForNovel } from "@/hooks/use-ratings";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { ratingService } from "@/services/ratings";
 import { useAsync } from "@/hooks/use-api";
 
@@ -25,6 +25,7 @@ import {
 
 import { CreateRatingRequest } from "@/types/api";
 import { UserAvatar } from "./ui/user-avatar";
+import { Skeleton } from "./ui/skeleton";
 
 interface RatingSectionProps {
   novelSlug: string;
@@ -43,7 +44,7 @@ export function RatingSection({
   const [hoveredStar, setHoveredStar] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   // Fetch ratings and user's rating
   const {
@@ -56,6 +57,9 @@ export function RatingSection({
     loading: userRatingLoading,
     refetch: refetchUserRating,
   } = useUserRatingForNovel(novelSlug);
+
+  // Loading state
+  const isLoading = authLoading || userRatingLoading;
 
   // Async operations
   const { loading: submitting, execute: executeRatingAction } = useAsync();
@@ -258,7 +262,30 @@ export function RatingSection({
       </Card>
 
       {/* User Rating Section */}
-      {isAuthenticated ? (
+      {isLoading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <Skeleton className="h-5 w-28" /> {/* “Your Rating” text */}
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-16 rounded-md" /> {/* Edit button */}
+                <Skeleton className="h-8 w-16 rounded-md" />
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-6 w-36" /> {/* Stars */}
+              <Skeleton className="h-4 w-12" /> {/* rating text */}
+            </div>
+            <Skeleton className="h-16 w-full rounded-md" />
+            <div className="flex gap-2">
+              <Skeleton className="h-9 w-28 rounded-md" /> {/* submit/update */}
+              <Skeleton className="h-9 w-24 rounded-md" /> {/* cancel */}
+            </div>
+          </CardContent>
+        </Card>
+      ) : isAuthenticated ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">

@@ -12,7 +12,7 @@ import {
 import { NovelGrid, NovelsTabs } from "@/components/novels";
 import { GenreList } from "@/components/genres";
 import { usePopularNovels, useGenres } from "@/hooks/use-novels";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Home() {
   // Fetch data using hooks

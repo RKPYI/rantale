@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { OfflineIndicator } from "@/components/offline-indicator";
@@ -108,11 +109,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
-          <Analytics />
-          <OfflineIndicator />
-          <PWAInstallPrompt />
+          <AuthProvider>
+            {children}
+            <Toaster />
+            <Analytics />
+            <OfflineIndicator />
+            <PWAInstallPrompt />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

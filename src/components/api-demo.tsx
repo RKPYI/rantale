@@ -13,7 +13,7 @@ import {
   usePopularNovels,
   useLatestNovels,
 } from "@/hooks/use-novels";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { novelService } from "@/services/novels";
 import { useAsync } from "@/hooks/use-api";
 import { Novel, NovelListParams } from "@/types/api";

@@ -11,7 +11,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
-  Settings,
+  SlidersHorizontal,
   Eye,
   Clock,
   ChevronLeft,
@@ -22,6 +22,7 @@ import {
   Bookmark,
   ArrowUp,
   WifiOff,
+  Type,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +39,7 @@ import { CommentSection } from "@/components/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
 import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { useOfflineStatus } from "@/hooks/use-offline-chapter";
 import { readingProgressService } from "@/services/reading-progress";
@@ -52,7 +53,7 @@ const READING_SETTINGS_KEY = "chapter-reading-settings";
 
 // Default settings
 const DEFAULT_SETTINGS = {
-  fontSize: 16,
+  fontSize: 20,
   lineHeight: 1.6,
   maxWidth: 800,
 };
@@ -242,7 +243,7 @@ export function ChapterReadingView({
             </div>
 
             {/* Center: Chapter Info */}
-            <div className="flex-1 px-2 text-center md:px-4">
+            <div className="min-w-0 flex-1 px-2 text-center md:px-4">
               <div className="truncate text-xs font-medium sm:text-sm">
                 {novel.title}
               </div>
@@ -281,7 +282,7 @@ export function ChapterReadingView({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
-                    <Settings className="h-4 w-4" />
+                    <Type className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="mr-2 w-56 md:w-64">
@@ -602,15 +603,9 @@ export function ChapterReadingView({
                     <Link
                       href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
                     >
-                      <Button
-                        variant="outline"
-                        className="flex items-center gap-2"
-                      >
+                      <Button variant="outline" className="flex items-center">
                         <ChevronLeft className="h-4 w-4" />
-                        <div className="text-left">
-                          <div className="text-muted-foreground text-xs">
-                            Previous
-                          </div>
+                        <div className="hidden text-left md:block">
                           <div className="text-sm">
                             Chapter {previousChapter.chapter_number}
                           </div>
@@ -632,8 +627,7 @@ export function ChapterReadingView({
                       href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
                     >
                       <Button className="flex items-center gap-2">
-                        <div className="text-right">
-                          <div className="text-xs">Next</div>
+                        <div className="hidden text-right md:block">
                           <div className="text-sm">
                             Chapter {nextChapter.chapter_number}
                           </div>
