@@ -85,13 +85,17 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const handleStartReading = () => {
     if (novel.chapters && novel.chapters.length > 0) {
       const firstChapter = novel.chapters[0];
-      router.push(`/novels/${novel.slug}/chapters/${firstChapter.chapter_number}`);
+      router.push(
+        `/novels/${novel.slug}/chapters/${firstChapter.chapter_number}`,
+      );
     }
   };
 
   const handleContinueReading = () => {
     if (readingProgress?.current_chapter) {
-      router.push(`/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`);
+      router.push(
+        `/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`,
+      );
     } else {
       handleStartReading();
     }

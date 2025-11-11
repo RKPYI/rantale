@@ -18,6 +18,7 @@ import {
   Shield,
   PenTool,
   Download,
+  Library,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,8 @@ import { getUserRole } from "@/lib/user-utils";
 import { SearchSpinner } from "@/components/ui/spinner";
 import { Novel } from "@/types/api";
 import { AuthModal } from "@/components/auth-modal";
+import { SearchSheet } from "@/components/search-sheet";
+import { MobileSettingsSheet } from "@/components/mobile-settings-sheet";
 
 export function Navbar() {
   const { user, isAuthenticated, logout, loading, sendEmailVerification } =
@@ -113,18 +116,18 @@ export function Navbar() {
 
   return (
     <nav
-      className={`bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 border-b backdrop-blur ${showResults ? "z-[100]" : "z-50"}`}
+      className={`bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 border-b backdrop-blur ${showResults ? "z-[100]" : "z-50"}`}
     >
-      <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
-        {/* Left side - Logo and Navigation */}
-        <div className="flex items-center space-x-6">
+      <div className="flex h-14 items-center justify-between px-4 md:h-16 md:px-6 lg:px-8">
+        {/* Left side - Logo */}
+        <div className="flex items-center space-x-4 md:space-x-6">
           <Link
             href="/"
             className="flex items-center transition-opacity hover:opacity-80"
           >
             {/* Render a placeholder during hydration, then the actual logo */}
             {!mounted ? (
-              <div className="bg-muted h-8 w-[120px] animate-pulse rounded" />
+              <div className="bg-muted h-7 w-[100px] animate-pulse rounded md:h-8 md:w-[120px]" />
             ) : (
               <Image
                 src={
@@ -135,14 +138,14 @@ export function Navbar() {
                 alt="Rantale"
                 width={120}
                 height={40}
-                className="h-8 w-auto"
+                className="h-7 w-auto md:h-8"
                 priority
               />
             )}
           </Link>
 
-          {/* Navigation Links */}
-          <div className="hidden items-center space-x-4 md:flex">
+          {/* Navigation Links - Desktop only */}
+          <div className="hidden items-center space-x-4 lg:flex">
             <Link
               href="/search"
               className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
@@ -164,8 +167,11 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Middle - Enhanced Search bar */}
-        <div className="relative mx-4 max-w-md flex-1 md:mx-8" ref={searchRef}>
+        {/* Middle - Enhanced Search bar (Desktop only) */}
+        <div
+          className="relative mx-4 hidden max-w-md flex-1 md:mx-8 md:block"
+          ref={searchRef}
+        >
           <div className="relative">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
@@ -310,133 +316,147 @@ export function Navbar() {
           )}
         </div>
 
-        {/* Right side - Auth section */}
-        <div className="flex items-center space-x-4">
-          <ModeToggle />
+        {/* Right side - Actions */}
+        <div className="flex items-center space-x-2 md:space-x-3">
+          {/* Search Sheet - Mobile only */}
+          <div className="md:hidden">
+            <SearchSheet
+              trigger={
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Search className="h-4 w-4" />
+                </Button>
+              }
+            />
+          </div>
 
-          {/* Offline Downloads Link - Always accessible */}
-          <Link href="/offline/downloads">
-            <Button variant="ghost" size="icon" title="Offline Downloads">
-              <Download className="h-4 w-4" />
-            </Button>
-          </Link>
+          {/* Theme Toggle - Desktop & Mobile */}
+          <div>
+            <ModeToggle />
+          </div>
 
           {loading ? (
             <div className="bg-muted h-8 w-8 animate-pulse rounded-full" />
           ) : isAuthenticated && user ? (
             <>
-              <NotificationBell />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full p-0"
-                  >
-                    <UserAvatar user={user} size="md" showBadge={true} />
-                    {!user.email_verified && (
-                      <div className="absolute -top-1 -left-1">
-                        <Badge
-                          variant="destructive"
-                          className="flex h-3 w-3 items-center justify-center p-0"
-                        >
-                          <Mail className="h-2 w-2" />
-                        </Badge>
-                      </div>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64" align="end" forceMount>
-                  <div className="px-2 py-1.5">
-                    <UserInfo
-                      user={user}
-                      showRole={true}
-                      showVerificationStatus={false}
-                      className="mb-1"
-                    />
-                    <p className="text-muted-foreground text-xs">
-                      {user.email}
-                    </p>
-                    {!user.email_verified && (
-                      <div className="mt-1 flex items-center gap-1">
-                        <Mail className="text-destructive h-3 w-3" />
-                        <span className="text-destructive text-xs">
-                          Email not verified
-                        </span>
-                      </div>
-                    )}
-                  </div>
+              {/* Notifications - Desktop only */}
+              <div className="hidden md:block">
+                <NotificationBell />
+              </div>
 
-                  <DropdownMenuSeparator />
+              {/* User Menu - Desktop & Mobile */}
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full p-0"
+                    >
+                      <UserAvatar user={user} size="md" showBadge={true} />
+                      {!user.email_verified && (
+                        <div className="absolute -top-1 -left-1">
+                          <Badge
+                            variant="destructive"
+                            className="flex h-3 w-3 items-center justify-center p-0"
+                          >
+                            <Mail className="h-2 w-2" />
+                          </Badge>
+                        </div>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64" align="end" forceMount>
+                    <div className="px-2 py-1.5">
+                      <UserInfo
+                        user={user}
+                        showRole={true}
+                        showVerificationStatus={false}
+                        className="mb-1"
+                      />
+                      <p className="text-muted-foreground text-xs">
+                        {user.email}
+                      </p>
+                      {!user.email_verified && (
+                        <div className="mt-1 flex items-center gap-1">
+                          <Mail className="text-destructive h-3 w-3" />
+                          <span className="text-destructive text-xs">
+                            Email not verified
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                  {!user.email_verified && (
-                    <>
-                      <DropdownMenuItem onClick={sendEmailVerification}>
-                        <MailCheck className="mr-2 h-4 w-4" />
-                        Verify Email
+                    <DropdownMenuSeparator />
+
+                    {!user.email_verified && (
+                      <>
+                        <DropdownMenuItem onClick={sendEmailVerification}>
+                          <MailCheck className="mr-2 h-4 w-4" />
+                          Verify Email
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="hidden md:block">
+                      <Link href="/library">
+                        <Library className="mr-2 h-4 w-4" />
+                        My Library
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="hidden md:block">
+                      <Link href="/profile/downloads">
+                        <Download className="mr-2 h-4 w-4" />
+                        Downloads
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/notifications">
+                        <Star className="mr-2 h-4 w-4" />
+                        Notifications
+                      </Link>
+                    </DropdownMenuItem>
+
+                    {/* Author Dashboard Link */}
+                    {(getUserRole(user) === "author" ||
+                      getUserRole(user) === "moderator" ||
+                      getUserRole(user) === "admin") && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/author">
+                          <PenTool className="mr-2 h-4 w-4" />
+                          Author Dashboard
+                        </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
+                    )}
 
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/library">
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      My Library
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile/downloads">
-                      <Download className="mr-2 h-4 w-4" />
-                      Downloads
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/notifications">
-                      <Star className="mr-2 h-4 w-4" />
-                      Notifications
-                    </Link>
-                  </DropdownMenuItem>
+                    {/* Admin Dashboard Link */}
+                    {(getUserRole(user) === "admin" ||
+                      getUserRole(user) === "moderator") && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin">
+                          <Shield className="mr-2 h-4 w-4" />
+                          Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
 
-                  {/* Author Dashboard Link */}
-                  {(getUserRole(user) === "author" ||
-                    getUserRole(user) === "moderator" ||
-                    getUserRole(user) === "admin") && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/author">
-                        <PenTool className="mr-2 h-4 w-4" />
-                        Author Dashboard
-                      </Link>
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign out
                     </DropdownMenuItem>
-                  )}
-
-                  {/* Admin Dashboard Link */}
-                  {(getUserRole(user) === "admin" ||
-                    getUserRole(user) === "moderator") && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Admin Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    onClick={logout}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </>
           ) : (
             <div className="flex items-center space-x-2">

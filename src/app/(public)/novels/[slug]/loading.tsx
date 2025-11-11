@@ -35,7 +35,7 @@ export default function NovelLoading() {
             <div>
               <Skeleton className="mb-2 h-10 w-3/4" />
               <div className="mb-4 flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
+                <User className="text-muted-foreground h-4 w-4" />
                 <Skeleton className="h-5 w-32" />
               </div>
             </div>
@@ -74,11 +74,11 @@ export default function NovelLoading() {
             {/* Metadata */}
             <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="text-muted-foreground h-4 w-4" />
                 <Skeleton className="h-4 w-32" />
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="text-muted-foreground h-4 w-4" />
                 <Skeleton className="h-4 w-32" />
               </div>
             </div>
