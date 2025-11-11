@@ -47,10 +47,11 @@ interface NovelDetailViewProps {
 }
 
 export function NovelDetailView({ novel }: NovelDetailViewProps) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data: readingProgress } = useNovelProgress(novel.slug);
+  const { data: readingProgress, loading: progressLoading } = useNovelProgress(novel.slug);
+  const isLoading = authLoading || progressLoading;
 
   // Handle URL hash to open specific tab (e.g., #reviews)
   useEffect(() => {
@@ -149,6 +150,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   onClick={handleContinueReading}
                   className="w-full"
                   size="lg"
+                  disabled={isLoading}
                 >
                   <Play className="mr-2 h-4 w-4" />
                   Continue Reading
@@ -158,7 +160,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   onClick={handleStartReading}
                   className="w-full"
                   size="lg"
-                  disabled={!novel.chapters || novel.chapters.length === 0}
+                  disabled={isLoading || !novel.chapters || novel.chapters.length === 0}
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Start Reading
