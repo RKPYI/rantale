@@ -3,7 +3,7 @@
 import { AuthorApplicationForm, AuthorDashboard } from "@/components/author";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { getUserRole } from "@/lib/user-utils";
 
 export default function AuthorPage() {

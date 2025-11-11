@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 import { useNovelComments, useChapterComments } from "@/hooks/use-comments";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { commentService } from "@/services/comments";
 import { useAsync } from "@/hooks/use-api";
 

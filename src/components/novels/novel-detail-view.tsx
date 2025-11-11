@@ -30,7 +30,7 @@ import { RatingSection } from "@/components/rating-section";
 import { ReadingProgress } from "@/components/reading-progress";
 import { LibraryActionButton } from "@/components/library";
 import { ShareButton } from "@/components/ui/share-button";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useNovelProgress } from "@/hooks/use-reading-progress";
 import {
   formatRating,

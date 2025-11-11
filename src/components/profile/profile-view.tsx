@@ -26,7 +26,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useLibrary } from "@/hooks/use-library";
 import { UserAvatar, UserInfo } from "@/components/ui/user-avatar";
 import { formatDate } from "@/lib/novel-utils";

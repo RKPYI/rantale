@@ -38,7 +38,7 @@ import { CommentSection } from "@/components/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
 import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { useOfflineStatus } from "@/hooks/use-offline-chapter";
 import { readingProgressService } from "@/services/reading-progress";

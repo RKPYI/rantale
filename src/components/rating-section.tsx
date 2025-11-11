@@ -11,7 +11,7 @@ import { Star, Edit, Trash2, TrendingUp, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useNovelRatings, useUserRatingForNovel } from "@/hooks/use-ratings";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { ratingService } from "@/services/ratings";
 import { useAsync } from "@/hooks/use-api";
 

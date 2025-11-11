@@ -35,7 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ModeToggle from "@/components/mode-toggle";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/auth-context";
 import { useSearchNovels } from "@/hooks/use-novels";
 import { formatRating, truncateDescription } from "@/lib/novel-utils";
 import { getUserRole } from "@/lib/user-utils";
