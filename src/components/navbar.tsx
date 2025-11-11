@@ -44,7 +44,6 @@ import { SearchSpinner } from "@/components/ui/spinner";
 import { Novel } from "@/types/api";
 import { AuthModal } from "@/components/auth-modal";
 import { SearchSheet } from "@/components/search-sheet";
-import { MobileSettingsSheet } from "@/components/mobile-settings-sheet";
 
 export function Navbar() {
   const { user, isAuthenticated, logout, loading, sendEmailVerification } =
