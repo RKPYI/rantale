@@ -48,6 +48,8 @@ import {
   UpdateCommentRequest,
 } from "@/types/api";
 import { AuthModal } from "@/components/auth-modal";
+import { LoadingSpinner } from "./ui/loading-spinner";
+import { Skeleton } from "./ui/skeleton";
 
 interface CommentSectionProps {
   novelSlug: string;
@@ -81,7 +83,7 @@ export function CommentSection({
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
 
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
 
   // Fetch comments - use different hooks for novel vs chapter comments
   const novelCommentsResult = useNovelComments(novelSlug);
@@ -668,6 +670,22 @@ export function CommentSection({
                   {submittingComment ? "Posting..." : "Post Comment"}
                 </Button>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : authLoading ? (
+        <Card>
+          <CardContent className="p-4 space-y-3">
+            {/* Textarea skeleton */}
+            <Skeleton className="h-24 w-full rounded-md" />
+
+            {/* Checkbox + button row skeleton */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-4 rounded-sm" /> {/* checkbox */}
+                <Skeleton className="h-4 w-40" /> {/* label */}
+              </div>
+              <Skeleton className="h-9 w-28 rounded-md" /> {/* button */}
             </div>
           </CardContent>
         </Card>
