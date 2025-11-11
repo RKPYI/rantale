@@ -52,7 +52,7 @@ const READING_SETTINGS_KEY = "chapter-reading-settings";
 
 // Default settings
 const DEFAULT_SETTINGS = {
-  fontSize: 16,
+  fontSize: 20,
   lineHeight: 1.6,
   maxWidth: 800,
 };
@@ -242,7 +242,7 @@ export function ChapterReadingView({
             </div>
 
             {/* Center: Chapter Info */}
-            <div className="flex-1 px-2 text-center md:px-4">
+            <div className="min-w-0 flex-1 px-2 text-center md:px-4">
               <div className="truncate text-xs font-medium sm:text-sm">
                 {novel.title}
               </div>
