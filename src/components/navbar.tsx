@@ -402,13 +402,13 @@ export function Navbar() {
                         Profile
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hidden md:block">
+                    <DropdownMenuItem asChild className="hidden md:flex">
                       <Link href="/library">
                         <Library className="mr-2 h-4 w-4" />
                         My Library
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hidden md:block">
+                    <DropdownMenuItem asChild className="hidden md:flex">
                       <Link href="/profile/downloads">
                         <Download className="mr-2 h-4 w-4" />
                         Downloads
