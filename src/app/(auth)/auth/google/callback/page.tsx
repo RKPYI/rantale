@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api-client";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function GoogleCallbackPage() {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -16,6 +17,7 @@ export default function GoogleCallbackPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshProfile } = useAuth();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -39,6 +41,9 @@ export default function GoogleCallbackPage() {
         // Store the token
         apiClient.setAuthToken(token, true); // Remember the user
 
+        // Refresh the auth context to load user profile
+        await refreshProfile();
+
         setStatus("success");
         setMessage("Successfully signed in with Google!");
 
@@ -53,7 +58,7 @@ export default function GoogleCallbackPage() {
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, [searchParams, router, refreshProfile]);
 
   return (
     <div className="relative container grid min-h-screen flex-col items-center justify-center lg:max-w-none lg:px-0">

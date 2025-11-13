@@ -168,13 +168,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const refreshProfile = useCallback(async (): Promise<void> => {
-    if (!authService.isAuthenticated()) return;
+    if (!authService.isAuthenticated()) {
+      setUser(null);
+      return;
+    }
 
     try {
+      setLoading(true);
       const profile = await authService.getProfile();
       setUser(profile);
+      setError(null);
     } catch (err) {
       setError(handleApiError(err));
+      // If profile fetch fails, token might be invalid
+      authService.logout();
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
