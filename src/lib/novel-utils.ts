@@ -55,9 +55,9 @@ export function getStatusColor(
 
 // Format chapter count for display
 export function formatChapterCount(count: number | undefined | null): string {
-  if (!count || count === 0) return "No chapters";
-  if (count === 1) return "1 chapter";
-  return `${count.toLocaleString()} chapters`;
+  if (!count || count === 0) return "No Chapters";
+  if (count === 1) return "1 Chapter";
+  return `${count.toLocaleString()} Chapters`;
 }
 
 // Format view count for display
@@ -244,4 +244,123 @@ export function formatNumber(num: number): string {
   if (num < 1000000) return `${(num / 1000).toFixed(1)}K`;
   if (num < 1000000000) return `${(num / 1000000).toFixed(1)}M`;
   return `${(num / 1000000000).toFixed(1)}B`;
+}
+
+// Badge configuration types
+export interface BadgeConfig {
+  variant: "featured" | "trending" | null;
+  label: string;
+  className: string;
+  show: boolean;
+}
+
+export interface NovelStyling {
+  containerClass: string;
+  coverClass: string;
+  titleClass: string;
+  badge: BadgeConfig;
+  showCornerIcon: boolean;
+  cornerIconClass: string;
+}
+
+// Get badge configuration for featured/trending novels (normal size - for novel cards)
+export function getNovelBadgeConfig(novel: Novel): BadgeConfig {
+  if (novel.is_featured) {
+    return {
+      variant: "featured",
+      label: "Featured",
+      className:
+        "text-xs bg-gradient-to-r from-amber-500 to-orange-500 border-0",
+      show: true,
+    };
+  }
+
+  if (novel.is_trending) {
+    return {
+      variant: "trending",
+      label: "Trending",
+      className: "text-xs bg-gradient-to-r from-blue-500 to-cyan-500 border-0",
+      show: true,
+    };
+  }
+
+  return {
+    variant: null,
+    label: "",
+    className: "",
+    show: false,
+  };
+}
+
+// Get compact badge configuration for featured/trending novels (smaller - for search results)
+export function getNovelBadgeConfigCompact(novel: Novel): BadgeConfig {
+  if (novel.is_featured) {
+    return {
+      variant: "featured",
+      label: "Featured",
+      className:
+        "h-4 text-[10px] px-1.5 bg-gradient-to-r from-amber-500 to-orange-500 border-0",
+      show: true,
+    };
+  }
+
+  if (novel.is_trending) {
+    return {
+      variant: "trending",
+      label: "Trending",
+      className:
+        "h-4 text-[10px] px-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 border-0",
+      show: true,
+    };
+  }
+
+  return {
+    variant: null,
+    label: "",
+    className: "",
+    show: false,
+  };
+}
+
+// Get comprehensive styling configuration for novel display
+export function getNovelStyling(
+  novel: Novel,
+  size: "normal" | "compact" = "normal",
+): NovelStyling {
+  const badge =
+    size === "compact"
+      ? getNovelBadgeConfigCompact(novel)
+      : getNovelBadgeConfig(novel);
+
+  if (novel.is_featured) {
+    return {
+      containerClass:
+        "bg-gradient-to-r from-amber-500/5 via-transparent to-rose-500/5 hover:from-amber-500/10 hover:to-rose-500/10",
+      coverClass: "ring-2 ring-amber-500/50 shadow-md shadow-amber-500/20",
+      titleClass: "font-semibold",
+      badge,
+      showCornerIcon: true,
+      cornerIconClass: "bg-gradient-to-br from-amber-500 to-orange-500",
+    };
+  }
+
+  if (novel.is_trending) {
+    return {
+      containerClass: "bg-blue-500/5 hover:bg-blue-500/10",
+      coverClass: "ring-2 ring-blue-500/50 shadow-md shadow-blue-500/20",
+      titleClass: "",
+      badge,
+      showCornerIcon: true,
+      cornerIconClass: "bg-gradient-to-br from-blue-500 to-cyan-500",
+    };
+  }
+
+  return {
+    containerClass: "",
+    coverClass: "",
+    titleClass: "",
+    badge,
+    showCornerIcon: false,
+    cornerIconClass: "",
+  };
 }

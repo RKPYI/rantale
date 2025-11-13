@@ -19,6 +19,8 @@ import {
   PenTool,
   Download,
   Library,
+  TrendingUp,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,12 +40,18 @@ import {
 import ModeToggle from "@/components/mode-toggle";
 import { useAuth } from "@/contexts/auth-context";
 import { useSearchNovels } from "@/hooks/use-novels";
-import { formatRating, truncateDescription } from "@/lib/novel-utils";
+import {
+  formatRating,
+  getStatusColor,
+  truncateDescription,
+  getNovelStyling,
+} from "@/lib/novel-utils";
 import { getUserRole } from "@/lib/user-utils";
 import { SearchSpinner } from "@/components/ui/spinner";
 import { Novel } from "@/types/api";
 import { AuthModal } from "@/components/auth-modal";
 import { SearchSheet } from "@/components/search-sheet";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const { user, isAuthenticated, logout, loading, sendEmailVerification } =
@@ -210,80 +218,129 @@ export function Navbar() {
                       {searchResults.length} result
                       {searchResults.length !== 1 ? "s" : ""} found
                     </div>
-                    {searchResults.slice(0, 8).map((novel: Novel) => (
-                      <Link
-                        key={novel.id}
-                        href={`/novels/${novel.slug}`}
-                        className="hover:bg-muted/50 block transition-colors"
-                        onClick={handleResultClick}
-                      >
-                        <div className="flex items-center gap-3 p-3">
-                          {/* Novel Cover */}
-                          <div className="flex-shrink-0">
-                            {novel.cover_image ? (
-                              <Image
-                                src={novel.cover_image}
-                                alt={novel.title}
-                                width={48}
-                                height={64}
-                                className="bg-muted rounded object-cover"
-                              />
-                            ) : (
-                              <div className="bg-muted flex h-16 w-12 items-center justify-center rounded">
-                                <BookOpen className="text-muted-foreground h-6 w-6" />
-                              </div>
-                            )}
-                          </div>
+                    {searchResults.slice(0, 8).map((novel: Novel) => {
+                      const styling = getNovelStyling(novel, "compact");
 
-                          {/* Novel Info */}
-                          <div className="min-w-0 flex-1">
-                            <h4 className="truncate text-sm font-medium">
-                              {novel.title}
-                            </h4>
-                            <p className="text-muted-foreground truncate text-xs">
-                              by {novel.author}
-                            </p>
-
-                            {/* Novel Stats */}
-                            <div className="mt-1 flex items-center gap-3">
-                              <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 fill-current text-yellow-400" />
-                                <span className="text-xs">
-                                  {formatRating(novel.rating)}
-                                </span>
-                              </div>
-                              <Badge variant="outline" className="h-4 text-xs">
-                                {novel.status}
-                              </Badge>
-                              <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                                <Clock className="h-3 w-3" />
-                                {novel.total_chapters} ch
-                              </div>
+                      return (
+                        <Link
+                          key={novel.id}
+                          href={`/novels/${novel.slug}`}
+                          className={cn(
+                            "hover:bg-muted/50 relative block transition-all",
+                            styling.containerClass,
+                          )}
+                          onClick={handleResultClick}
+                        >
+                          <div className="flex items-center gap-3 p-3">
+                            {/* Novel Cover */}
+                            <div className="relative flex-shrink-0">
+                              {novel.cover_image ? (
+                                <Image
+                                  src={novel.cover_image}
+                                  alt={novel.title}
+                                  width={48}
+                                  height={64}
+                                  className={cn(
+                                    "bg-muted rounded object-cover",
+                                    styling.coverClass,
+                                  )}
+                                />
+                              ) : (
+                                <div
+                                  className={cn(
+                                    "bg-muted flex h-16 w-12 items-center justify-center rounded",
+                                    styling.coverClass,
+                                  )}
+                                >
+                                  <BookOpen className="text-muted-foreground h-6 w-6" />
+                                </div>
+                              )}
+                              {/* Corner badge icon */}
+                              {styling.showCornerIcon && (
+                                <div
+                                  className={cn(
+                                    "absolute -top-1 -right-1 rounded-full p-0.5 shadow-lg",
+                                    styling.cornerIconClass,
+                                  )}
+                                >
+                                  {novel.is_featured ? (
+                                    <Crown className="h-3 w-3 text-white" />
+                                  ) : (
+                                    <TrendingUp className="h-3 w-3 text-white" />
+                                  )}
+                                </div>
+                              )}
                             </div>
 
-                            {/* Genres */}
-                            {novel.genres.length > 0 && (
-                              <div className="mt-1 flex flex-wrap gap-1">
-                                {novel.genres.slice(0, 2).map((genre) => (
+                            {/* Novel Info */}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <h4
+                                  className={cn(
+                                    "truncate text-sm font-medium",
+                                    styling.titleClass,
+                                  )}
+                                >
+                                  {novel.title}
+                                </h4>
+                                {styling.badge.show && (
                                   <Badge
-                                    key={genre.id}
-                                    variant="secondary"
-                                    className="h-4 text-xs"
+                                    variant="default"
+                                    className={styling.badge.className}
                                   >
-                                    {genre.name}
+                                    {styling.badge.label}
                                   </Badge>
-                                ))}
-                                {novel.genres.length > 2 && (
-                                  <span className="text-muted-foreground text-xs">
-                                    +{novel.genres.length - 2}
-                                  </span>
                                 )}
                               </div>
-                            )}
+                              <p className="text-muted-foreground truncate text-xs">
+                                by {novel.author}
+                              </p>
+
+                              {/* Novel Stats */}
+                              <div className="mt-1 flex items-center gap-3">
+                                <div className="flex items-center gap-1">
+                                  <Star className="h-3 w-3 fill-current text-yellow-400" />
+                                  <span className="text-xs">
+                                    {formatRating(novel.rating)}
+                                  </span>
+                                </div>
+                                <Badge
+                                  variant={getStatusColor(novel.status)}
+                                  className="h-4 text-xs"
+                                >
+                                  {novel.status.charAt(0).toUpperCase() +
+                                    novel.status.slice(1)}
+                                </Badge>
+                                <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                                  <BookOpen className="h-3 w-3" />
+                                  {novel.total_chapters} ch
+                                </div>
+                              </div>
+
+                              {/* Genres */}
+                              {novel.genres.length > 0 && (
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  {novel.genres.slice(0, 2).map((genre) => (
+                                    <Badge
+                                      key={genre.id}
+                                      variant="secondary"
+                                      className="h-4 text-xs"
+                                    >
+                                      {genre.name}
+                                    </Badge>
+                                  ))}
+                                  {novel.genres.length > 2 && (
+                                    <span className="text-muted-foreground text-xs">
+                                      +{novel.genres.length - 2}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      );
+                    })}
 
                     <div className="border-t p-3 text-center">
                       <Link

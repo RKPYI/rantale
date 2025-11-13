@@ -37,6 +37,7 @@ import {
   getStatusColor,
   formatDate,
   formatNumber,
+  getNovelBadgeConfig,
 } from "@/lib/novel-utils";
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
@@ -138,17 +139,20 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
               </Badge>
 
               {/* Featured/Trending Badges */}
-              {novel.is_featured && (
-                <Badge variant="default" className="absolute top-4 right-4">
-                  Featured
-                </Badge>
-              )}
-              {novel.is_trending && !novel.is_featured && (
-                <Badge className="absolute top-4 right-4 bg-orange-500 hover:bg-orange-600">
-                  <TrendingUp className="mr-1 h-3 w-3" />
-                  Trending
-                </Badge>
-              )}
+              {(() => {
+                const badgeConfig = getNovelBadgeConfig(novel);
+                return badgeConfig.show ? (
+                  <Badge
+                    variant="default"
+                    className={cn(
+                      "absolute top-4 right-4",
+                      badgeConfig.className,
+                    )}
+                  >
+                    {badgeConfig.label}
+                  </Badge>
+                ) : null;
+              })()}
             </div>
 
             {/* Action Buttons */}

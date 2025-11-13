@@ -9,6 +9,8 @@ import {
   formatRating,
   getStatusColor,
   truncateDescription,
+  getNovelBadgeConfig,
+  getNovelStyling,
 } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Novel } from "@/types/api";
@@ -26,6 +28,7 @@ export function NovelCard({
 }: NovelCardProps) {
   const isCompact = size === "compact";
   const isFeatured = size === "featured";
+  const styling = getNovelStyling(novel, "normal");
 
   return (
     <Link
@@ -35,7 +38,6 @@ export function NovelCard({
       <Card
         className={cn(
           "group relative overflow-hidden pt-0 transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-lg hover:scale-[1.02] hover:shadow-lg",
-          isFeatured && "border-primary/20",
           isCompact ? "h-auto" : "h-full",
           className,
         )}
@@ -75,24 +77,18 @@ export function NovelCard({
           </Badge>
 
           {/* Featured/Trending Badges */}
-          {novel.is_featured && (
-            <Badge
-              variant="default"
-              className="absolute top-2 right-2 text-xs"
-              tabIndex={-1}
-            >
-              Featured
-            </Badge>
-          )}
-          {novel.is_trending && !novel.is_featured && (
-            <Badge
-              className="absolute top-2 right-2 bg-orange-500 text-xs hover:bg-orange-600"
-              tabIndex={-1}
-            >
-              <TrendingUp className="mr-1 h-3 w-3" />
-              Trending
-            </Badge>
-          )}
+          {(() => {
+            const badgeConfig = getNovelBadgeConfig(novel);
+            return badgeConfig.show ? (
+              <Badge
+                variant="default"
+                className={cn("absolute top-2 right-2", badgeConfig.className)}
+                tabIndex={-1}
+              >
+                {badgeConfig.label}
+              </Badge>
+            ) : null;
+          })()}
 
           {/* Overlay for featured cards */}
           {isFeatured && (

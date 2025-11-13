@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Filter, SortAsc, BookOpen, Star, Clock } from "lucide-react";
+import {
+  Search,
+  Filter,
+  SortAsc,
+  BookOpen,
+  Star,
+  Clock,
+  Crown,
+  TrendingUp,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +28,8 @@ import {
   formatViewCount,
   truncateDescription,
   getStatusColor,
+  getNovelStyling,
+  getNovelBadgeConfig,
 } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import {
@@ -119,73 +130,136 @@ export default function SearchPage() {
         })
     : [];
 
-  const NovelCard = ({ novel }: { novel: Novel }) => (
-    <Link href={`/novels/${novel.slug}`}>
-      <Card className="transition-all duration-200 hover:scale-[1.02] hover:shadow-lg">
-        <CardContent className="p-4">
-          <div className="flex gap-4">
-            {/* Cover Image */}
-            <div className="flex-shrink-0">
-              {novel.cover_image ? (
-                <Image
-                  src={novel.cover_image}
-                  alt={novel.title}
-                  width={80}
-                  height={120}
-                  className="bg-muted rounded object-cover"
-                />
-              ) : (
-                <div className="bg-muted flex h-30 w-20 items-center justify-center rounded">
-                  <BookOpen className="text-muted-foreground h-8 w-8" />
-                </div>
-              )}
-            </div>
+  const NovelCard = ({ novel }: { novel: Novel }) => {
+    const styling = getNovelStyling(novel, "normal");
+    const badgeConfig = getNovelBadgeConfig(novel);
 
-            {/* Novel Info */}
-            <div className="min-w-0 flex-1 space-y-2">
-              <div>
-                <h3 className="line-clamp-2 text-lg font-semibold">
-                  {novel.title}
-                </h3>
-                <p className="text-muted-foreground">by {novel.author}</p>
-              </div>
+    return (
+      <Link href={`/novels/${novel.slug}`}>
+        <Card
+          className={cn(
+            "transition-all duration-200 hover:scale-[1.02] hover:shadow-lg",
+            // Add featured/trending border styling
+            novel.is_featured &&
+              "border-2 border-amber-500/30 shadow-lg shadow-amber-500/10",
+            novel.is_trending &&
+              !novel.is_featured &&
+              "border-2 border-blue-500/30 shadow-lg shadow-blue-500/10",
+            // Add container gradient background
+            styling.containerClass,
+          )}
+        >
+          <CardContent className="p-4">
+            <div className="flex gap-4">
+              {/* Cover Image */}
+              <div className="relative flex-shrink-0">
+                {novel.cover_image ? (
+                  <Image
+                    src={novel.cover_image}
+                    alt={novel.title}
+                    width={80}
+                    height={120}
+                    className={cn(
+                      "bg-muted rounded object-cover",
+                      styling.coverClass,
+                    )}
+                  />
+                ) : (
+                  <div
+                    className={cn(
+                      "bg-muted flex h-30 w-20 items-center justify-center rounded",
+                      styling.coverClass,
+                    )}
+                  >
+                    <BookOpen className="text-muted-foreground h-8 w-8" />
+                  </div>
+                )}
 
-              <p className="text-muted-foreground line-clamp-3 text-sm">
-                {truncateDescription(novel.description, 200)}
-              </p>
-
-              {/* Genres */}
-              <div className="flex flex-wrap gap-1">
-                {novel.genres.slice(0, 3).map((genre) => (
-                  <Badge key={genre.id} variant="secondary" className="text-xs">
-                    {genre.name}
-                  </Badge>
-                ))}
-                {novel.genres.length > 3 && (
-                  <Badge variant="secondary" className="text-xs">
-                    +{novel.genres.length - 3}
-                  </Badge>
+                {/* Corner badge icon */}
+                {styling.showCornerIcon && (
+                  <div
+                    className={cn(
+                      "absolute -top-1 -right-1 rounded-full p-0.5 shadow-lg",
+                      styling.cornerIconClass,
+                    )}
+                  >
+                    {novel.is_featured ? (
+                      <Crown className="h-3 w-3 text-white" />
+                    ) : (
+                      <TrendingUp className="h-3 w-3 text-white" />
+                    )}
+                  </div>
                 )}
               </div>
 
-              {/* Stats */}
-              <div className="text-muted-foreground flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-current text-yellow-400" />
-                  <span>{formatRating(novel.rating)}</span>
+              {/* Novel Info */}
+              <div className="min-w-0 flex-1 space-y-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3
+                      className={cn(
+                        "line-clamp-2 text-lg font-semibold",
+                        styling.titleClass,
+                      )}
+                    >
+                      {novel.title}
+                    </h3>
+                    {badgeConfig.show && (
+                      <Badge
+                        variant="default"
+                        className={badgeConfig.className}
+                      >
+                        {badgeConfig.label}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-muted-foreground">by {novel.author}</p>
                 </div>
-                <Badge variant={getStatusColor(novel.status)}>
-                  {novel.status}
-                </Badge>
-                <span>{formatChapterCount(novel.total_chapters)}</span>
-                <span>{formatViewCount(novel.views)} views</span>
+
+                <p className="text-muted-foreground line-clamp-3 text-sm">
+                  {truncateDescription(novel.description, 200)}
+                </p>
+
+                {/* Genres */}
+                <div className="flex flex-wrap gap-1">
+                  {novel.genres.slice(0, 3).map((genre) => (
+                    <Badge
+                      key={genre.id}
+                      variant="secondary"
+                      className="text-xs"
+                    >
+                      {genre.name}
+                    </Badge>
+                  ))}
+                  {novel.genres.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{novel.genres.length - 3}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Stats */}
+                <div className="text-muted-foreground flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-4 w-4 fill-current text-yellow-400" />
+                    <span>
+                      {formatRating(novel.rating)} ({novel.rating_count})
+                    </span>
+                  </div>
+                  <Badge variant={getStatusColor(novel.status)}>
+                    {novel.status.charAt(0).toUpperCase() +
+                      novel.status.slice(1)}
+                  </Badge>
+                  <span>{formatChapterCount(novel.total_chapters)}</span>
+                  <span>{formatViewCount(novel.views)} Views</span>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
