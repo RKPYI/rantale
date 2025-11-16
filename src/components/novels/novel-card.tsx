@@ -2,16 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, TrendingUp, Star, Eye, Heart } from "lucide-react";
+import { BookOpen, TrendingUp, Star, Eye, Heart, Crown } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   formatRating,
   getStatusColor,
   truncateDescription,
+  getNovelBadgeConfig,
+  getNovelStyling,
+  formatNumber,
+  formatViewCount,
 } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Novel } from "@/types/api";
+import { NovelRating } from "./ui/novel-rating";
+import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelCardProps {
   novel: Novel;
@@ -26,6 +32,7 @@ export function NovelCard({
 }: NovelCardProps) {
   const isCompact = size === "compact";
   const isFeatured = size === "featured";
+  const styling = getNovelStyling(novel, "normal");
 
   return (
     <Link
@@ -35,7 +42,6 @@ export function NovelCard({
       <Card
         className={cn(
           "group relative overflow-hidden pt-0 transition-all duration-300 focus-within:scale-[1.02] focus-within:shadow-lg hover:scale-[1.02] hover:shadow-lg",
-          isFeatured && "border-primary/20",
           isCompact ? "h-auto" : "h-full",
           className,
         )}
@@ -75,24 +81,7 @@ export function NovelCard({
           </Badge>
 
           {/* Featured/Trending Badges */}
-          {novel.is_featured && (
-            <Badge
-              variant="default"
-              className="absolute top-2 right-2 text-xs"
-              tabIndex={-1}
-            >
-              Featured
-            </Badge>
-          )}
-          {novel.is_trending && !novel.is_featured && (
-            <Badge
-              className="absolute top-2 right-2 bg-orange-500 text-xs hover:bg-orange-600"
-              tabIndex={-1}
-            >
-              <TrendingUp className="mr-1 h-3 w-3" />
-              Trending
-            </Badge>
-          )}
+          <NovelBadge novel={novel} />
 
           {/* Overlay for featured cards */}
           {isFeatured && (
@@ -157,14 +146,7 @@ export function NovelCard({
         >
           <div className="text-muted-foreground flex items-center gap-3 text-xs">
             {novel.rating !== null && novel.rating !== undefined && (
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 fill-current text-yellow-400" />
-                <span>{formatRating(novel.rating)}</span>
-                {novel.rating_count !== null &&
-                  novel.rating_count !== undefined && (
-                    <span>({novel.rating_count})</span>
-                  )}
-              </div>
+              <NovelRating novel={novel} />
             )}
 
             {novel.total_chapters !== null &&
@@ -178,11 +160,7 @@ export function NovelCard({
             {novel.views !== null && novel.views !== undefined && (
               <div className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
-                <span>
-                  {novel.views > 1000
-                    ? `${Math.floor(novel.views / 1000)}k`
-                    : novel.views}
-                </span>
+                {formatNumber(novel.views)}
               </div>
             )}
           </div>

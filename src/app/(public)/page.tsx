@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Script from "next/script";
-import { TrendingUp } from "lucide-react";
+import { Crown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   HeroSection,
@@ -56,7 +56,7 @@ export default function Home() {
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
               title="Featured Novels"
-              icon={TrendingUp}
+              icon={Crown}
               viewAllHref="/top-rated"
             />
 

@@ -37,11 +37,13 @@ import {
   getStatusColor,
   formatDate,
   formatNumber,
+  getNovelBadgeConfig,
 } from "@/lib/novel-utils";
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
 import { NovelWithChapters } from "@/types/api";
 import { useRouter } from "next/navigation";
+import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
@@ -138,17 +140,11 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
               </Badge>
 
               {/* Featured/Trending Badges */}
-              {novel.is_featured && (
-                <Badge variant="default" className="absolute top-4 right-4">
-                  Featured
-                </Badge>
-              )}
-              {novel.is_trending && !novel.is_featured && (
-                <Badge className="absolute top-4 right-4 bg-orange-500 hover:bg-orange-600">
-                  <TrendingUp className="mr-1 h-3 w-3" />
-                  Trending
-                </Badge>
-              )}
+              <NovelBadge
+                novel={novel}
+                className="absolute top-4 right-4"
+                positioned={false}
+              />
             </div>
 
             {/* Action Buttons */}
