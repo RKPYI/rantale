@@ -43,6 +43,7 @@ import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
 import { NovelWithChapters } from "@/types/api";
 import { useRouter } from "next/navigation";
+import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
@@ -139,20 +140,11 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
               </Badge>
 
               {/* Featured/Trending Badges */}
-              {(() => {
-                const badgeConfig = getNovelBadgeConfig(novel);
-                return badgeConfig.show ? (
-                  <Badge
-                    variant="default"
-                    className={cn(
-                      "absolute top-4 right-4",
-                      badgeConfig.className,
-                    )}
-                  >
-                    {badgeConfig.label}
-                  </Badge>
-                ) : null;
-              })()}
+              <NovelBadge
+                novel={novel}
+                className="absolute top-4 right-4"
+                positioned={false}
+              />
             </div>
 
             {/* Action Buttons */}

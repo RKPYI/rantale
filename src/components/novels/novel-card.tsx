@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, TrendingUp, Star, Eye, Heart } from "lucide-react";
+import { BookOpen, TrendingUp, Star, Eye, Heart, Crown } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,9 +11,13 @@ import {
   truncateDescription,
   getNovelBadgeConfig,
   getNovelStyling,
+  formatNumber,
+  formatViewCount,
 } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Novel } from "@/types/api";
+import { NovelRating } from "./ui/novel-rating";
+import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelCardProps {
   novel: Novel;
@@ -77,18 +81,7 @@ export function NovelCard({
           </Badge>
 
           {/* Featured/Trending Badges */}
-          {(() => {
-            const badgeConfig = getNovelBadgeConfig(novel);
-            return badgeConfig.show ? (
-              <Badge
-                variant="default"
-                className={cn("absolute top-2 right-2", badgeConfig.className)}
-                tabIndex={-1}
-              >
-                {badgeConfig.label}
-              </Badge>
-            ) : null;
-          })()}
+          <NovelBadge novel={novel} />
 
           {/* Overlay for featured cards */}
           {isFeatured && (
@@ -153,14 +146,7 @@ export function NovelCard({
         >
           <div className="text-muted-foreground flex items-center gap-3 text-xs">
             {novel.rating !== null && novel.rating !== undefined && (
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3 fill-current text-yellow-400" />
-                <span>{formatRating(novel.rating)}</span>
-                {novel.rating_count !== null &&
-                  novel.rating_count !== undefined && (
-                    <span>({novel.rating_count})</span>
-                  )}
-              </div>
+              <NovelRating novel={novel} />
             )}
 
             {novel.total_chapters !== null &&
@@ -174,11 +160,7 @@ export function NovelCard({
             {novel.views !== null && novel.views !== undefined && (
               <div className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
-                <span>
-                  {novel.views > 1000
-                    ? `${Math.floor(novel.views / 1000)}k`
-                    : novel.views}
-                </span>
+                {formatNumber(novel.views)}
               </div>
             )}
           </div>

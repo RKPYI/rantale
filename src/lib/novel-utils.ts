@@ -55,9 +55,8 @@ export function getStatusColor(
 
 // Format chapter count for display
 export function formatChapterCount(count: number | undefined | null): string {
-  if (!count || count === 0) return "No Chapters";
-  if (count === 1) return "1 Chapter";
-  return `${count.toLocaleString()} Chapters`;
+  if (!count || count === 0) return "0";
+  return `${count.toLocaleString("id")}`;
 }
 
 // Format view count for display

@@ -32,6 +32,8 @@ import {
 } from "@/lib/novel-utils";
 import { Novel } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { NovelRating } from "./novels";
+import { NovelBadge } from "./novels/ui/novel-badge";
 
 interface SearchSheetProps {
   trigger?: React.ReactNode;
@@ -184,12 +186,11 @@ export function SearchSheet({ trigger }: SearchSheetProps) {
                               {novel.title}
                             </h4>
                             {styling.badge.show && (
-                              <Badge
-                                variant="default"
+                              <NovelBadge
+                                novel={novel}
+                                positioned={false}
                                 className={styling.badge.className}
-                              >
-                                {styling.badge.label}
-                              </Badge>
+                              />
                             )}
                           </div>
                           <p className="text-muted-foreground mb-2 text-xs">
@@ -199,10 +200,10 @@ export function SearchSheet({ trigger }: SearchSheetProps) {
                           {/* Novel Stats */}
                           <div className="mb-2 flex flex-wrap items-center gap-2">
                             <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3 fill-current text-yellow-400" />
-                              <span className="text-xs">
-                                {formatRating(novel.rating)}
-                              </span>
+                              {novel.rating !== null &&
+                                novel.rating !== undefined && (
+                                  <NovelRating novel={novel} type="small" />
+                                )}
                             </div>
                             <Badge
                               variant={getStatusColor(novel.status)}

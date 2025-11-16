@@ -52,6 +52,8 @@ import { Novel } from "@/types/api";
 import { AuthModal } from "@/components/auth-modal";
 import { SearchSheet } from "@/components/search-sheet";
 import { cn } from "@/lib/utils";
+import { NovelRating } from "./novels";
+import { NovelBadge } from "./novels/ui/novel-badge";
 
 export function Navbar() {
   const { user, isAuthenticated, logout, loading, sendEmailVerification } =
@@ -159,12 +161,12 @@ export function Navbar() {
             >
               Browse
             </Link>
-            <Link
+            {/* <Link
               href="/genres"
               className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
             >
               Genres
-            </Link>
+            </Link> */}
             <Link
               href="/top-rated"
               className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
@@ -284,12 +286,11 @@ export function Navbar() {
                                   {novel.title}
                                 </h4>
                                 {styling.badge.show && (
-                                  <Badge
-                                    variant="default"
+                                  <NovelBadge
+                                    novel={novel}
+                                    positioned={false}
                                     className={styling.badge.className}
-                                  >
-                                    {styling.badge.label}
-                                  </Badge>
+                                  />
                                 )}
                               </div>
                               <p className="text-muted-foreground truncate text-xs">
@@ -299,10 +300,10 @@ export function Navbar() {
                               {/* Novel Stats */}
                               <div className="mt-1 flex items-center gap-3">
                                 <div className="flex items-center gap-1">
-                                  <Star className="h-3 w-3 fill-current text-yellow-400" />
-                                  <span className="text-xs">
-                                    {formatRating(novel.rating)}
-                                  </span>
+                                  {novel.rating !== null &&
+                                    novel.rating !== undefined && (
+                                      <NovelRating novel={novel} type="small" />
+                                    )}
                                 </div>
                                 <Badge
                                   variant={getStatusColor(novel.status)}

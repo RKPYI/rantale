@@ -3,3 +3,4 @@ export { NovelCardSkeleton } from "./novel-card-skeleton";
 export { NovelGrid } from "./novel-grid";
 export { NovelsTabs } from "./novels-tabs";
 export { NovelDetailView } from "./novel-detail-view";
+export { NovelRating } from "./ui/novel-rating";

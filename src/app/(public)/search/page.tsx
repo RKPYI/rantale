@@ -11,6 +11,7 @@ import {
   Clock,
   Crown,
   TrendingUp,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ import {
   getStatusColor,
   getNovelStyling,
   getNovelBadgeConfig,
+  formatNumber,
 } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import {
@@ -38,6 +40,8 @@ import {
 } from "@/components/ui/loading-spinner";
 import { SearchSpinner, LoadingThrobber } from "@/components/ui/spinner";
 import { Novel, Genre } from "@/types/api";
+import { NovelRating } from "@/components/novels";
+import { NovelBadge } from "@/components/novels/ui/novel-badge";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -195,7 +199,7 @@ export default function SearchPage() {
               {/* Novel Info */}
               <div className="min-w-0 flex-1 space-y-2">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h3
                       className={cn(
                         "line-clamp-2 text-lg font-semibold",
@@ -205,12 +209,11 @@ export default function SearchPage() {
                       {novel.title}
                     </h3>
                     {badgeConfig.show && (
-                      <Badge
-                        variant="default"
-                        className={badgeConfig.className}
-                      >
-                        {badgeConfig.label}
-                      </Badge>
+                      <NovelBadge
+                        novel={novel}
+                        positioned={false}
+                        className={styling.badge.className}
+                      />
                     )}
                   </div>
                   <p className="text-muted-foreground">by {novel.author}</p>
@@ -239,19 +242,24 @@ export default function SearchPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="text-muted-foreground flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-current text-yellow-400" />
-                    <span>
-                      {formatRating(novel.rating)} ({novel.rating_count})
-                    </span>
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1 font-medium text-yellow-600">
+                    {novel.rating !== null && novel.rating !== undefined && (
+                      <NovelRating novel={novel} />
+                    )}
                   </div>
-                  <Badge variant={getStatusColor(novel.status)}>
+                  <Badge variant={getStatusColor(novel.status)} className="text-xs">
                     {novel.status.charAt(0).toUpperCase() +
                       novel.status.slice(1)}
                   </Badge>
-                  <span>{formatChapterCount(novel.total_chapters)}</span>
-                  <span>{formatViewCount(novel.views)} Views</span>
+                  <div className="text-muted-foreground flex items-center gap-1">
+                    <BookOpen className="h-4 w-4" />
+                    <span>{formatChapterCount(novel.total_chapters)} ch</span>
+                  </div>
+                  <div className="text-muted-foreground flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    <span>{formatNumber(novel.views || 0)}</span>
+                  </div>
                 </div>
               </div>
             </div>

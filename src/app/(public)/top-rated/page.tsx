@@ -32,6 +32,8 @@ import {
 } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Novel } from "@/types/api";
+import { NovelRating } from "@/components/novels";
+import { NovelBadge } from "@/components/novels/ui/novel-badge";
 
 export default function TopRatedPage() {
   const [activeTab, setActiveTab] = useState("rating");
@@ -158,12 +160,11 @@ export default function TopRatedPage() {
                       {novel.title}
                     </h3>
                     {badgeConfig.show && (
-                      <Badge
-                        variant="default"
-                        className={badgeConfig.className}
-                      >
-                        {badgeConfig.label}
-                      </Badge>
+                      <NovelBadge
+                        novel={novel}
+                        positioned={false}
+                        className={styling.badge.className}
+                      />
                     )}
                   </div>
                   <p className="text-muted-foreground">by {novel.author}</p>
@@ -194,12 +195,8 @@ export default function TopRatedPage() {
                 {/* Stats */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <div className="flex items-center gap-1 font-medium text-yellow-600">
-                    <Star className="h-4 w-4 fill-current" />
-                    <span>{formatRating(novel.rating)}</span>
-                    {novel.rating_count && (
-                      <span className="text-muted-foreground text-xs">
-                        ({formatViewCount(novel.rating_count)})
-                      </span>
+                    {novel.rating !== null && novel.rating !== undefined && (
+                      <NovelRating novel={novel} />
                     )}
                   </div>
                   <Badge
