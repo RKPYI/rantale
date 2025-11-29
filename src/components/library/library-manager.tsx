@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DeleteModal } from "@/components/ui/delete-modal";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -56,6 +58,10 @@ type LibraryStatus =
 
 export function LibraryManager() {
   const [activeStatus, setActiveStatus] = useState<LibraryStatus>("all");
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    entry: LibraryEntry | null;
+  }>({ isOpen: false, entry: null });
 
   const {
     data: library,
@@ -144,16 +150,26 @@ export function LibraryManager() {
     }
   };
 
-  const handleRemove = async (entryId: number) => {
-    if (
-      confirm("Are you sure you want to remove this novel from your library?")
-    ) {
-      try {
-        await removeFromLibrary(libraryService.removeFromLibrary, entryId);
-        refetch();
-      } catch (error) {
-        console.error("Error removing from library:", error);
-      }
+  const handleRemove = async () => {
+    if (!deleteDialog.entry) return;
+
+    const novelTitle = deleteDialog.entry.novel.title;
+
+    try {
+      await removeFromLibrary(
+        libraryService.removeFromLibrary,
+        deleteDialog.entry.id,
+      );
+      setDeleteDialog({ isOpen: false, entry: null });
+      refetch();
+      toast.success(`"${novelTitle}" has been removed from your library.`);
+    } catch (error) {
+      console.error("Error removing from library:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to remove from library";
+      toast.error(message);
     }
   };
 
@@ -466,7 +482,9 @@ export function LibraryManager() {
                           Dropped
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleRemove(entry.id)}
+                          onClick={() =>
+                            setDeleteDialog({ isOpen: true, entry })
+                          }
                           className="text-red-600"
                         >
                           <X className="mr-2 h-4 w-4" />
@@ -500,6 +518,24 @@ export function LibraryManager() {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        open={deleteDialog.isOpen}
+        onOpenChange={(isOpen) =>
+          setDeleteDialog({ isOpen, entry: deleteDialog.entry })
+        }
+        onConfirm={handleRemove}
+        title="Remove from Library"
+        description={
+          deleteDialog.entry
+            ? `Are you sure you want to remove "${deleteDialog.entry.novel.title}" from your library? This action cannot be undone.`
+            : "Are you sure you want to remove this novel from your library?"
+        }
+        confirmText="Remove"
+        isLoading={removing}
+        variant="danger"
+      />
     </div>
   );
 }
