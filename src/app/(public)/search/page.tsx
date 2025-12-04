@@ -248,7 +248,10 @@ export default function SearchPage() {
                       <NovelRating novel={novel} />
                     )}
                   </div>
-                  <Badge variant={getStatusColor(novel.status)} className="text-xs">
+                  <Badge
+                    variant={getStatusColor(novel.status)}
+                    className="text-xs"
+                  >
                     {novel.status.charAt(0).toUpperCase() +
                       novel.status.slice(1)}
                   </Badge>
