@@ -84,14 +84,14 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="text-sm font-semibold">Browse</h3>
             <ul className="space-y-3 text-sm">
-              <li>
+              {/* <li>
                 <Link
                   href="/search"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   All Novels
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   href="/genres"
@@ -202,14 +202,14 @@ export function Footer() {
                   Terms of Service
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href="/api"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   API Documentation
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>

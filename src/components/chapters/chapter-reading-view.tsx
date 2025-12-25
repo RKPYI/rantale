@@ -585,6 +585,36 @@ export function ChapterReadingView({
                           />
                         );
                       },
+                      // Customize tables
+                      table: ({ node, ...props }) => (
+                        <div className="my-6 overflow-x-auto">
+                          <table
+                            className="w-full border-collapse border border-border"
+                            {...props}
+                          />
+                        </div>
+                      ),
+                      thead: ({ node, ...props }) => (
+                        <thead className="bg-muted" {...props} />
+                      ),
+                      tbody: ({ node, ...props }) => (
+                        <tbody {...props} />
+                      ),
+                      tr: ({ node, ...props }) => (
+                        <tr className="border-b border-border" {...props} />
+                      ),
+                      th: ({ node, ...props }) => (
+                        <th
+                          className="border border-border px-4 py-3 text-left font-semibold"
+                          {...props}
+                        />
+                      ),
+                      td: ({ node, ...props }) => (
+                        <td
+                          className="border border-border px-4 py-3"
+                          {...props}
+                        />
+                      ),
                     }}
                   >
                     {chapter.content}

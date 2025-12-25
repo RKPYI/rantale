@@ -4,6 +4,7 @@ import { BookOpen, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WipBanner } from "@/components/ui/wip-banner";
 import Link from "next/link";
 
 import { useGenres } from "@/hooks/use-novels";
@@ -70,6 +71,13 @@ export default function GenresPage() {
           </p>
         </div>
 
+        {/* WIP Banner */}
+        <WipBanner
+          title="Page Under Development"
+          message="The genres page is currently being developed. Some features and filters may not be available yet."
+          variant="info"
+        />
+
         {/* Genres Grid */}
         {loading ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -116,14 +124,14 @@ export default function GenresPage() {
             <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6">
               {genres
                 .sort((a, b) => (b.novels_count || 0) - (a.novels_count || 0))
-                .slice(0, 12)
+                .slice(0, 6)
                 .map((genre) => (
                   <Link key={genre.id} href={`/search?genre=${genre.slug}`}>
                     <Badge
                       variant="outline"
                       className="hover:bg-muted w-full cursor-pointer justify-center py-2 transition-colors"
                     >
-                      {genre.name}
+                      {genre.name} ({genre.novels_count || 0})
                     </Badge>
                   </Link>
                 ))}

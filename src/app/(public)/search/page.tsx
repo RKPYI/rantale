@@ -157,27 +157,30 @@ export default function SearchPage() {
             <div className="flex gap-4">
               {/* Cover Image */}
               <div className="relative flex-shrink-0">
-                {novel.cover_image ? (
-                  <Image
-                    src={novel.cover_image}
-                    alt={novel.title}
-                    width={80}
-                    height={120}
-                    className={cn(
-                      "bg-muted rounded object-cover",
-                      styling.coverClass,
-                    )}
-                  />
-                ) : (
-                  <div
-                    className={cn(
-                      "bg-muted flex h-30 w-20 items-center justify-center rounded",
-                      styling.coverClass,
-                    )}
-                  >
-                    <BookOpen className="text-muted-foreground h-8 w-8" />
-                  </div>
-                )}
+                <div className="w-[80px] h-[120px] rounded overflow-hidden flex-shrink-0">
+
+                  {novel.cover_image ? (
+                    <Image
+                      src={novel.cover_image}
+                      alt={novel.title}
+                      width={80}
+                      height={120}
+                      className={cn(
+                        "bg-muted rounded object-cover",
+                        styling.coverClass,
+                      )}
+                    />
+                  ) : (
+                    <div
+                      className={cn(
+                        "bg-muted flex h-30 w-20 items-center justify-center rounded",
+                        styling.coverClass,
+                      )}
+                    >
+                      <BookOpen className="text-muted-foreground h-8 w-8" />
+                    </div>
+                  )}
+                </div>
 
                 {/* Corner badge icon */}
                 {styling.showCornerIcon && (

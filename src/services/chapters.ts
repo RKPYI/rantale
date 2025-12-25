@@ -67,4 +67,17 @@ export const chapterService = {
   async deleteChapter(novelSlug: string, chapterId: number): Promise<void> {
     await apiClient.delete(`/novels/${novelSlug}/chapters/${chapterId}`);
   },
+
+  async bulkDeleteChapters(
+    novelSlug: string,
+    chapterIds: number[],
+  ): Promise<{ deleted_count: number }> {
+    const response = await apiClient.post<{
+      message: string;
+      deleted_count: number;
+    }>(`/novels/${novelSlug}/chapters/bulk-delete`, {
+      chapter_ids: chapterIds,
+    });
+    return { deleted_count: response.data.deleted_count };
+  },
 };
