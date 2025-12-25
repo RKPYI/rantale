@@ -291,12 +291,7 @@ export function NovelCard({
               novel.total_chapters !== undefined && (
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-3 w-3" />
-                  <span className={cn(isCompact && "hidden sm:inline")}>
-                    {novel.total_chapters} ch
-                  </span>
-                  <span className={cn(isCompact && "sm:hidden")}>
-                    {novel.total_chapters}
-                  </span>
+                  <span>{novel.total_chapters} ch</span>
                 </div>
               )}
 
