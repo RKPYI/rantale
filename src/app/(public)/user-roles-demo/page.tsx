@@ -1,4 +1,4 @@
-import { CommentSection } from "@/components/comment-section";
+import { CommentSection } from "@/components/comments/comment-section";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserAvatar, UserInfo } from "@/components/ui/user-avatar";
 import { Badge } from "@/components/ui/badge";

@@ -8,6 +8,7 @@ export interface UseApiState<T> {
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
+  silentRefetch: () => Promise<void>;
 }
 
 export function useApi<T>(
@@ -18,21 +19,25 @@ export function useApi<T>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) {
+        setLoading(true);
+      }
       setError(null);
       const result = await apiCall();
       setData(result);
     } catch (err) {
       setError(handleApiError(err));
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
@@ -40,7 +45,8 @@ export function useApi<T>(
     data,
     loading,
     error,
-    refetch: fetchData,
+    refetch: () => fetchData(false),
+    silentRefetch: () => fetchData(true),
   };
 }
 

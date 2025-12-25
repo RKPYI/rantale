@@ -25,7 +25,7 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CommentSection } from "@/components/comment-section";
+import { CommentSection } from "@/components/comments/comment-section";
 import { RatingSection } from "@/components/rating-section";
 import { ReadingProgress } from "@/components/reading-progress";
 import { LibraryActionButton } from "@/components/library";

@@ -35,7 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CommentSection } from "@/components/comment-section";
+import { CommentSection } from "@/components/comments/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
 import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
