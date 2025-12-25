@@ -91,6 +91,21 @@ export const novelService = {
     await apiClient.delete(`/novels/${slug}`);
   },
 
+  async bulkDeleteNovels(
+    novelIds: number[],
+  ): Promise<{ deleted_count: number; unauthorized_novels?: unknown[] }> {
+    const response = await apiClient.post<{
+      message: string;
+      deleted_count: number;
+      unauthorized_novels?: unknown[];
+      unauthorized_count?: number;
+    }>("/novels/bulk-delete", { novel_ids: novelIds });
+    return {
+      deleted_count: response.data.deleted_count,
+      unauthorized_novels: response.data.unauthorized_novels,
+    };
+  },
+
   // Helper methods for filtering
   async getNovelsByGenre(
     genreSlug: string,

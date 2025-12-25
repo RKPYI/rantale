@@ -113,8 +113,8 @@ export default function RootLayout({
             {children}
             <Toaster />
             <Analytics />
-            <OfflineIndicator />
-            <PWAInstallPrompt />
+            {/* <OfflineIndicator /> */}
+            {/* <PWAInstallPrompt /> */}
           </AuthProvider>
         </ThemeProvider>
       </body>

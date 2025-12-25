@@ -106,28 +106,31 @@ export default function TopRatedPage() {
 
                 {/* Cover Image */}
                 <div className="relative">
-                  {novel.cover_image ? (
-                    <Image
-                      src={novel.cover_image}
-                      alt={novel.title}
-                      width={80}
-                      height={120}
-                      className={cn(
-                        "bg-muted rounded object-cover transition-transform duration-300 group-hover:scale-105",
-                        styling.coverClass,
-                        isTopThree && "shadow-md",
-                      )}
-                    />
-                  ) : (
-                    <div
-                      className={cn(
-                        "bg-muted flex h-30 w-20 items-center justify-center rounded",
-                        styling.coverClass,
-                      )}
-                    >
-                      <BookOpen className="text-muted-foreground h-8 w-8" />
-                    </div>
-                  )}
+                  <div className="w-[80px] h-[120px] rounded overflow-hidden flex-shrink-0">
+
+                    {novel.cover_image ? (
+                      <Image
+                        src={novel.cover_image}
+                        alt={novel.title}
+                        width={80}
+                        height={120}
+                        className={cn(
+                          "bg-muted rounded object-cover transition-transform duration-300 group-hover:scale-105",
+                          styling.coverClass,
+                          isTopThree && "shadow-md",
+                        )}
+                      />
+                    ) : (
+                      <div
+                        className={cn(
+                          "bg-muted flex h-30 w-20 items-center justify-center rounded",
+                          styling.coverClass,
+                        )}
+                      >
+                        <BookOpen className="text-muted-foreground h-8 w-8" />
+                      </div>
+                    )}
+                  </div>
 
                   {/* Corner badge icon */}
                   {styling.showCornerIcon && (

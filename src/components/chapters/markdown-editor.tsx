@@ -271,6 +271,31 @@ export function MarkdownEditor({
                 />
               );
             },
+            // Customize tables
+            table: ({ node, ...props }) => (
+              <div className="my-6 overflow-x-auto">
+                <table
+                  className="w-full border-collapse border border-border"
+                  {...props}
+                />
+              </div>
+            ),
+            thead: ({ node, ...props }) => (
+              <thead className="bg-muted" {...props} />
+            ),
+            tbody: ({ node, ...props }) => <tbody {...props} />,
+            tr: ({ node, ...props }) => (
+              <tr className="border-b border-border" {...props} />
+            ),
+            th: ({ node, ...props }) => (
+              <th
+                className="border border-border px-4 py-3 text-left font-semibold"
+                {...props}
+              />
+            ),
+            td: ({ node, ...props }) => (
+              <td className="border border-border px-4 py-3" {...props} />
+            ),
           }}
         >
           {value}
@@ -446,6 +471,15 @@ export function MarkdownEditor({
               <code className="bg-muted rounded px-1">~~strike~~</code> -
               Strikethrough
             </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-border">
+            <p className="font-semibold mb-2">Table Example:</p>
+            <code className="bg-muted rounded px-2 py-1 block text-xs overflow-x-auto">
+              | Name | Type | Description |<br />
+              | --- | --- | --- |<br />
+              | Item 1 | Type A | Description here |<br />
+              | Item 2 | Type B | Another description |
+            </code>
           </div>
         </CardContent>
       </Card>
