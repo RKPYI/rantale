@@ -13,14 +13,14 @@ import {
 interface NovelsTabsProps {
   defaultTab?: "popular" | "latest" | "recommended";
   maxItems?: number;
-  size?: "default" | "compact" | "featured";
+  size?: "default" | "compact" | "featured" | "horizontal";
   className?: string;
 }
 
 export function NovelsTabs({
   defaultTab = "popular",
   maxItems = 10,
-  size = "default",
+  size = "compact",
   className,
 }: NovelsTabsProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab);

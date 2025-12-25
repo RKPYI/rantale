@@ -106,8 +106,7 @@ export default function TopRatedPage() {
 
                 {/* Cover Image */}
                 <div className="relative">
-                  <div className="w-[80px] h-[120px] rounded overflow-hidden flex-shrink-0">
-
+                  <div className="h-[120px] w-[80px] flex-shrink-0 overflow-hidden rounded">
                     {novel.cover_image ? (
                       <Image
                         src={novel.cover_image}

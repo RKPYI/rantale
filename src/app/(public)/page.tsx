@@ -73,7 +73,7 @@ export default function Home() {
         {/* Main Content Tabs */}
         <section className="bg-muted/20 py-12 lg:py-16">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <NovelsTabs maxItems={10} />
+            <NovelsTabs maxItems={12} />
 
             <div className="mt-8 text-center">
               <Link href="/search">

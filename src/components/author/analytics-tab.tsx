@@ -40,22 +40,20 @@ export function AnalyticsTab({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm">Total Views</span>
-                <span className="font-medium text-sm sm:text-base">
+                <span className="text-sm font-medium sm:text-base">
                   {formatNumber(stats.total_views)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm">Monthly Views</span>
-                <span className="font-medium text-sm sm:text-base">
+                <span className="text-sm font-medium sm:text-base">
                   {formatNumber(stats.monthly_views || 0)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm">Average Rating</span>
-                <span className="font-medium text-sm sm:text-base">
-                  {stats.average_rating
-                    ? stats.average_rating.toFixed(1)
-                    : "—"}
+                <span className="text-sm font-medium sm:text-base">
+                  {stats.average_rating ? stats.average_rating.toFixed(1) : "—"}
                 </span>
               </div>
             </div>

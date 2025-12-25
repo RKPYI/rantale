@@ -73,6 +73,11 @@ export interface NovelWithChapters extends Novel {
   chapters: ChapterSummary[];
 }
 
+// Related Novel with Similarity Score
+export interface RelatedNovel extends Novel {
+  similarity_score: number;
+}
+
 // API Responses
 export interface NovelApiResponse {
   message: string;
@@ -87,6 +92,17 @@ export interface SearchApiResponse {
 export interface GenresApiResponse {
   message: string;
   genres: Genre[];
+}
+
+export interface RelatedNovelsApiResponse {
+  message: string;
+  data: RelatedNovel[];
+  current_novel: {
+    id: number;
+    title: string;
+    slug: string;
+  };
+  algorithm_used?: string;
 }
 
 export interface ChapterListResponse {

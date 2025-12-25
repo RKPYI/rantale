@@ -20,6 +20,14 @@ export function useNovel(slug: string) {
   return useApi(() => novelService.getNovelBySlug(slug), [slug]);
 }
 
+// Hook for getting related novels
+export function useRelatedNovels(slug: string) {
+  return useApi(
+    () => (slug ? novelService.getRelatedNovels(slug) : Promise.resolve([])),
+    [slug],
+  );
+}
+
 // Hook for searching novels
 export function useSearchNovels(query: string) {
   return useApi(

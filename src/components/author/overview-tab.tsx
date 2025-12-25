@@ -6,14 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  BookOpen,
-  PlusCircle,
-  Eye,
-  Star,
-  Users,
-  Edit,
-} from "lucide-react";
+import { BookOpen, PlusCircle, Eye, Star, Users, Edit } from "lucide-react";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { AuthorNovel, AuthorStats } from "@/types/api";
 import { cn } from "@/lib/utils";
@@ -116,7 +109,9 @@ export function OverviewTab({
             />
             <StatCard
               title="Avg. Rating"
-              value={stats.average_rating ? stats.average_rating.toFixed(1) : "—"}
+              value={
+                stats.average_rating ? stats.average_rating.toFixed(1) : "—"
+              }
               icon={Star}
             />
             <StatCard title="Total Followers" value="—" icon={Users} />
@@ -175,11 +170,16 @@ export function OverviewTab({
                       className="h-12 w-9 flex-shrink-0 rounded object-cover sm:h-16 sm:w-12"
                     />
                     <div className="min-w-0 flex-1">
-                      <h4 className="truncate font-medium text-sm sm:text-base">
+                      <h4 className="truncate text-sm font-medium sm:text-base">
                         {novel.title}
                       </h4>
                       <div className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs sm:gap-2 sm:text-sm">
-                        <Badge className={cn(getStatusColor(novel.status), "text-xs")}>
+                        <Badge
+                          className={cn(
+                            getStatusColor(novel.status),
+                            "text-xs",
+                          )}
+                        >
                           {novel.status.charAt(0).toUpperCase() +
                             novel.status.slice(1)}
                         </Badge>
@@ -214,7 +214,9 @@ export function OverviewTab({
           ) : (
             <div className="py-8 text-center">
               <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-              <h3 className="text-base font-medium sm:text-lg">No novels yet</h3>
+              <h3 className="text-base font-medium sm:text-lg">
+                No novels yet
+              </h3>
               <p className="text-muted-foreground mb-4 text-sm sm:text-base">
                 Start your writing journey by creating your first novel.
               </p>

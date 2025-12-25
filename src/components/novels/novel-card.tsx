@@ -21,7 +21,7 @@ import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelCardProps {
   novel: Novel;
-  size?: "default" | "compact" | "featured";
+  size?: "default" | "compact" | "featured" | "horizontal";
   className?: string;
 }
 
@@ -32,8 +32,127 @@ export function NovelCard({
 }: NovelCardProps) {
   const isCompact = size === "compact";
   const isFeatured = size === "featured";
+  const isHorizontal = size === "horizontal";
   const styling = getNovelStyling(novel, "normal");
 
+  // Horizontal layout (cover left, content right)
+  if (isHorizontal) {
+    return (
+      <Link
+        href={`/novels/${novel.slug}`}
+        className="focus-visible:ring-ring block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      >
+        <Card
+          className={cn(
+            "group relative overflow-hidden py-0 transition-all duration-300 hover:shadow-lg",
+            // Add featured/trending border styling
+            novel.is_featured &&
+              "border-2 border-amber-500/30 shadow-lg shadow-amber-500/10",
+            novel.is_trending &&
+              !novel.is_featured &&
+              "border-2 border-blue-500/30 shadow-lg shadow-blue-500/10",
+            // Add container gradient background
+            styling.containerClass,
+            className,
+          )}
+        >
+          <div className="flex gap-3 p-3">
+            {/* Cover Image - Left Side */}
+            <div className="relative h-24 w-16 flex-shrink-0 overflow-hidden rounded">
+              {novel.cover_image ? (
+                <Image
+                  src={novel.cover_image}
+                  alt={novel.title}
+                  fill
+                  className={cn(
+                    "object-cover transition-transform duration-300 group-hover:scale-110",
+                    styling.coverClass,
+                  )}
+                  sizes="64px"
+                />
+              ) : (
+                <div className="from-muted to-muted/50 flex h-full w-full items-center justify-center bg-gradient-to-br">
+                  <BookOpen className="text-muted-foreground h-6 w-6" />
+                </div>
+              )}
+
+              {/* Corner badge icon */}
+              {(novel.is_featured || novel.is_trending) && (
+                <div
+                  className={cn(
+                    "absolute -top-0.5 -right-0.5 rounded-full p-0.5 shadow-lg",
+                    novel.is_featured
+                      ? "bg-gradient-to-br from-amber-400 to-amber-600"
+                      : "bg-gradient-to-br from-blue-400 to-blue-600",
+                  )}
+                >
+                  {novel.is_featured ? (
+                    <Crown className="h-3 w-3 text-white" />
+                  ) : (
+                    <TrendingUp className="h-3 w-3 text-white" />
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Content - Right Side */}
+            <div className="flex min-w-0 flex-1 flex-col justify-between">
+              <div className="space-y-1">
+                <h3 className="group-hover:text-primary line-clamp-2 text-sm font-semibold transition-colors">
+                  {novel.title}
+                </h3>
+                <p
+                  className={cn(
+                    "text-muted-foreground",
+                    isCompact ? "text-xs" : "text-sm",
+                  )}
+                >
+                  by {novel.author ?? "Anonymous"}
+                </p>
+                {/* Genres */}
+                <div className="flex flex-wrap gap-1">
+                  {novel.genres.slice(0, 4).map((genre) => (
+                    <Badge
+                      key={genre.id}
+                      variant="outline"
+                      className="h-4 px-1.5 text-[10px]"
+                      tabIndex={-1}
+                    >
+                      {genre.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer Stats */}
+              <div className="text-muted-foreground flex items-center gap-3 text-xs">
+                {novel.rating !== null && novel.rating !== undefined && (
+                  <NovelRating novel={novel} />
+                )}
+
+                {novel.total_chapters !== null &&
+                  novel.total_chapters !== undefined && (
+                    <div className="flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" />
+                      <span>{novel.total_chapters}</span>
+                    </div>
+                  )}
+
+                {novel.views !== null && novel.views !== undefined && (
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    {formatNumber(novel.views)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+      </Link>
+    );
+  }
+
+  // Vertical layout (original design)
   return (
     <Link
       href={`/novels/${novel.slug}`}
@@ -49,7 +168,7 @@ export function NovelCard({
         <div
           className={cn(
             "relative overflow-hidden",
-            isCompact ? "aspect-[3/2]" : "aspect-[2/3]",
+            isCompact ? "aspect-[3/4]" : "aspect-[2/3]",
             isFeatured && "aspect-[2/3]",
           )}
         >
@@ -71,17 +190,23 @@ export function NovelCard({
             </div>
           )}
 
-          {/* Status Badge */}
+          {/* Status Badge - hidden on mobile in compact mode */}
           <Badge
             variant={getStatusColor(novel.status)}
-            className="absolute top-2 left-2 text-xs"
+            className={cn(
+              "absolute top-2 left-2 text-xs",
+              isCompact && "hidden md:flex",
+            )}
             tabIndex={-1}
           >
             {novel.status.charAt(0).toUpperCase() + novel.status.slice(1)}
           </Badge>
 
-          {/* Featured/Trending Badges */}
-          <NovelBadge novel={novel} />
+          {/* Featured/Trending Badges - hidden on mobile in compact mode */}
+          <NovelBadge
+            novel={novel}
+            className={cn(isCompact && "hidden md:flex")}
+          />
 
           {/* Overlay for featured cards */}
           {isFeatured && (
@@ -89,7 +214,7 @@ export function NovelCard({
           )}
         </div>
 
-        <CardContent className={cn("p-4", isCompact && "p-3")}>
+        <CardContent className={cn("p-4", isCompact && "p-2")}>
           <div className="space-y-2">
             <div>
               <h3
@@ -101,14 +226,16 @@ export function NovelCard({
               >
                 {novel.title}
               </h3>
-              <p
-                className={cn(
-                  "text-muted-foreground",
-                  isCompact ? "text-xs" : "text-sm",
-                )}
-              >
-                by {novel.author}
-              </p>
+              {!isCompact && (
+                <p
+                  className={cn(
+                    "text-muted-foreground",
+                    isCompact ? "text-xs" : "text-sm",
+                  )}
+                >
+                  by {novel.author ?? "Anonymous"}
+                </p>
+              )}
             </div>
 
             {!isCompact && novel.description && (
@@ -117,34 +244,45 @@ export function NovelCard({
               </p>
             )}
 
-            {/* Genres */}
-            <div className="flex flex-wrap gap-1">
-              {novel.genres.slice(0, isCompact ? 2 : 3).map((genre) => (
-                <Badge
-                  key={genre.id}
-                  variant="outline"
-                  className="h-5 text-xs"
-                  tabIndex={-1}
-                >
-                  {genre.name}
-                </Badge>
-              ))}
-              {novel.genres.length > (isCompact ? 2 : 3) && (
-                <Badge variant="outline" className="h-5 text-xs" tabIndex={-1}>
-                  +{novel.genres.length - (isCompact ? 2 : 3)}
-                </Badge>
-              )}
-            </div>
+            {/* Genres - hidden in compact mode */}
+            {!isCompact && (
+              <div className="flex flex-wrap gap-1">
+                {novel.genres.slice(0, 3).map((genre) => (
+                  <Badge
+                    key={genre.id}
+                    variant="outline"
+                    className="h-5 text-xs"
+                    tabIndex={-1}
+                  >
+                    {genre.name}
+                  </Badge>
+                ))}
+                {novel.genres.length > 3 && (
+                  <Badge
+                    variant="outline"
+                    className="h-5 text-xs"
+                    tabIndex={-1}
+                  >
+                    +{novel.genres.length - 3}
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
 
         <CardFooter
           className={cn(
             "flex items-center justify-between px-4 pt-0 pb-4",
-            isCompact && "px-3 pb-3",
+            isCompact && "px-2 pt-0 pb-0",
           )}
         >
-          <div className="text-muted-foreground flex items-center gap-3 text-xs">
+          <div
+            className={cn(
+              "text-muted-foreground flex items-center gap-3 text-xs",
+              isCompact && "flex-wrap gap-2",
+            )}
+          >
             {novel.rating !== null && novel.rating !== undefined && (
               <NovelRating novel={novel} />
             )}
@@ -153,7 +291,12 @@ export function NovelCard({
               novel.total_chapters !== undefined && (
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-3 w-3" />
-                  <span>{novel.total_chapters} ch</span>
+                  <span className={cn(isCompact && "hidden sm:inline")}>
+                    {novel.total_chapters} ch
+                  </span>
+                  <span className={cn(isCompact && "sm:hidden")}>
+                    {novel.total_chapters}
+                  </span>
                 </div>
               )}
 

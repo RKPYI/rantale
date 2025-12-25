@@ -4,3 +4,5 @@ export { NovelGrid } from "./novel-grid";
 export { NovelsTabs } from "./novels-tabs";
 export { NovelDetailView } from "./novel-detail-view";
 export { NovelRating } from "./ui/novel-rating";
+export { LatestUpdates } from "./latest-updates";
+export { RelatedNovels } from "./related-novels";

@@ -589,7 +589,7 @@ export function ChapterReadingView({
                       table: ({ node, ...props }) => (
                         <div className="my-6 overflow-x-auto">
                           <table
-                            className="w-full border-collapse border border-border"
+                            className="border-border w-full border-collapse border"
                             {...props}
                           />
                         </div>
@@ -597,21 +597,19 @@ export function ChapterReadingView({
                       thead: ({ node, ...props }) => (
                         <thead className="bg-muted" {...props} />
                       ),
-                      tbody: ({ node, ...props }) => (
-                        <tbody {...props} />
-                      ),
+                      tbody: ({ node, ...props }) => <tbody {...props} />,
                       tr: ({ node, ...props }) => (
-                        <tr className="border-b border-border" {...props} />
+                        <tr className="border-border border-b" {...props} />
                       ),
                       th: ({ node, ...props }) => (
                         <th
-                          className="border border-border px-4 py-3 text-left font-semibold"
+                          className="border-border border px-4 py-3 text-left font-semibold"
                           {...props}
                         />
                       ),
                       td: ({ node, ...props }) => (
                         <td
-                          className="border border-border px-4 py-3"
+                          className="border-border border px-4 py-3"
                           {...props}
                         />
                       ),

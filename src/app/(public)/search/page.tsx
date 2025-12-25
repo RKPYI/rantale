@@ -157,8 +157,7 @@ export default function SearchPage() {
             <div className="flex gap-4">
               {/* Cover Image */}
               <div className="relative flex-shrink-0">
-                <div className="w-[80px] h-[120px] rounded overflow-hidden flex-shrink-0">
-
+                <div className="h-[120px] w-[80px] flex-shrink-0 overflow-hidden rounded">
                   {novel.cover_image ? (
                     <Image
                       src={novel.cover_image}

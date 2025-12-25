@@ -8,6 +8,8 @@ import {
   NovelApiResponse,
   SearchApiResponse,
   GenresApiResponse,
+  RelatedNovelsApiResponse,
+  RelatedNovel,
   NovelListParams,
   NovelSearchParams,
   CreateNovelRequest,
@@ -62,6 +64,14 @@ export const novelService = {
       novel: NovelWithChapters;
     }>(`/novels/${slug}`);
     return response.data.novel;
+  },
+
+  // Get related novels
+  async getRelatedNovels(slug: string): Promise<RelatedNovel[]> {
+    const response = await apiClient.get<RelatedNovelsApiResponse>(
+      `/novels/${slug}/related`,
+    );
+    return response.data.data;
   },
 
   // Get available genres

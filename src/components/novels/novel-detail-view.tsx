@@ -30,6 +30,7 @@ import { RatingSection } from "@/components/rating-section";
 import { ReadingProgress } from "@/components/reading-progress";
 import { LibraryActionButton } from "@/components/library";
 import { ShareButton } from "@/components/ui/share-button";
+import { RelatedNovels } from "./related-novels";
 import { useAuth } from "@/contexts/auth-context";
 import { useNovelProgress } from "@/hooks/use-reading-progress";
 import {
@@ -177,7 +178,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 <LibraryActionButton novel={novel} />
                 <ShareButton
                   title={novel.title}
-                  description={`Check out "${novel.title}" by ${novel.author}. ${novel.description ? novel.description.slice(0, 100) + "..." : ""}`}
+                  description={`Check out "${novel.title}" by ${novel.author ?? "Anonymous"}. ${novel.description ? novel.description.slice(0, 100) + "..." : ""}`}
                   variant="outline"
                   size="icon"
                 />
@@ -228,7 +229,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
               </h1>
               <div className="text-muted-foreground mb-4 flex items-center gap-2 text-lg">
                 <User className="h-4 w-4" />
-                <span>by {novel.author}</span>
+                <span>by {novel.author ?? "Anonymous"}</span>
               </div>
             </div>
 
@@ -394,17 +395,8 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
             {/* Sidebar */}
             <div className="space-y-6 lg:col-span-1">
-              {/* Placeholder for related novels */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Related Novels</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm">
-                    Related novels will be shown here
-                  </p>
-                </CardContent>
-              </Card>
+              {/* Related Novels */}
+              <RelatedNovels novelSlug={novel.slug} layout="horizontal" />
             </div>
           </div>
         </TabsContent>

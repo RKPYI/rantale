@@ -7,14 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteModal } from "@/components/ui/delete-modal";
-import {
-  BookOpen,
-  Eye,
-  Edit,
-  FileText,
-  Trash2,
-  Plus,
-} from "lucide-react";
+import { BookOpen, Eye, Edit, FileText, Trash2, Plus } from "lucide-react";
 import { useNovelChapters } from "@/hooks/use-chapters";
 import { chapterService } from "@/services/chapters";
 import { AuthorNovel, ChapterSummary } from "@/types/api";
@@ -91,9 +84,7 @@ export function ChaptersTab({
         Array.from(selectedChapterIds),
       );
 
-      toast.success(
-        `Successfully deleted ${result.deleted_count} chapter(s)!`,
-      );
+      toast.success(`Successfully deleted ${result.deleted_count} chapter(s)!`);
       setSelectedChapterIds(new Set());
       await refetchChapters();
       await refetchNovels();
@@ -176,7 +167,7 @@ export function ChaptersTab({
                 )}
                 onClick={() => setCurrentNovel(novel)}
               >
-                <h4 className="truncate font-medium text-sm sm:text-base">
+                <h4 className="truncate text-sm font-medium sm:text-base">
                   {novel.title}
                 </h4>
                 <p className="text-muted-foreground text-xs sm:text-sm">
@@ -195,7 +186,9 @@ export function ChaptersTab({
             <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="flex items-center gap-2">
                 <FileText className="h-5 w-5 flex-shrink-0" />
-                <span className="truncate">Chapters - {currentNovel.title}</span>
+                <span className="truncate">
+                  Chapters - {currentNovel.title}
+                </span>
               </span>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 {selectedChapterIds.size > 0 && (
@@ -257,7 +250,7 @@ export function ChaptersTab({
                         className="mt-1 flex-shrink-0 sm:mt-0"
                       />
                       <div className="min-w-0 flex-1">
-                        <h4 className="truncate font-medium text-sm sm:text-base">
+                        <h4 className="truncate text-sm font-medium sm:text-base">
                           Chapter {chapter.chapter_number}: {chapter.title}
                         </h4>
                         <p className="text-muted-foreground text-xs sm:text-sm">

@@ -218,7 +218,7 @@ export function NovelDialog({
                       status: status as "ongoing" | "completed" | "hiatus",
                     }))
                   }
-                  className="capitalize text-xs sm:text-sm"
+                  className="text-xs capitalize sm:text-sm"
                 >
                   {status}
                 </Button>
