@@ -78,6 +78,14 @@ export interface RelatedNovel extends Novel {
   similarity_score: number;
 }
 
+// Recently Updated Novel with Latest Chapter Info
+export interface RecentlyUpdatedNovel extends Novel {
+  latest_chapter_created_at: string;
+  latest_chapter_number: number;
+  latest_chapter_title: string;
+  latest_chapter_id: number;
+}
+
 // API Responses
 export interface NovelApiResponse {
   message: string;
@@ -103,6 +111,11 @@ export interface RelatedNovelsApiResponse {
     slug: string;
   };
   algorithm_used?: string;
+}
+
+export interface RecentlyUpdatedApiResponse {
+  message: string;
+  novels: RecentlyUpdatedNovel[];
 }
 
 export interface ChapterListResponse {

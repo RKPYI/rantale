@@ -54,6 +54,11 @@ export function useRecommendedNovels() {
   return useApi(() => novelService.getRecommendedNovels(), []);
 }
 
+// Hook for getting recently updated novels (with new chapters)
+export function useRecentlyUpdatedNovels(limit?: number) {
+  return useApi(() => novelService.getRecentlyUpdatedNovels(limit), [limit]);
+}
+
 // Hook for getting novels by genre
 export function useNovelsByGenre(
   genreSlug: string,

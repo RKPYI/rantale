@@ -168,6 +168,12 @@ export function Navbar() {
               Genres
             </Link> */}
             <Link
+              href="/recently-updated"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+            >
+              Recent
+            </Link>
+            <Link
               href="/top-rated"
               className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
             >

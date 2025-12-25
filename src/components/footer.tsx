@@ -59,7 +59,7 @@ export function Footer() {
                 </Link>
               </Button>
               {/* Disable Twitter link for now */}
-              <div className="pointer-events-none opacity-50">
+              {/* <div className="pointer-events-none opacity-50">
                 <Button variant="ghost" size="sm" asChild>
                   <Link
                     href="https://twitter.com/RKPYI"
@@ -70,7 +70,7 @@ export function Footer() {
                     <span className="sr-only">Twitter</span>
                   </Link>
                 </Button>
-              </div>
+              </div> */}
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/contact">
                   <Mail className="h-4 w-4" />

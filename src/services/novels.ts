@@ -10,6 +10,8 @@ import {
   GenresApiResponse,
   RelatedNovelsApiResponse,
   RelatedNovel,
+  RecentlyUpdatedNovel,
+  RecentlyUpdatedApiResponse,
   NovelListParams,
   NovelSearchParams,
   CreateNovelRequest,
@@ -53,6 +55,18 @@ export const novelService = {
   async getRecommendedNovels(): Promise<Novel[]> {
     const response = await apiClient.get<{ message: string; novels: Novel[] }>(
       "/novels/recommendations",
+    );
+    return response.data.novels;
+  },
+
+  // Get recently updated novels (with new chapters)
+  async getRecentlyUpdatedNovels(
+    limit?: number,
+  ): Promise<RecentlyUpdatedNovel[]> {
+    const params = limit ? { limit } : undefined;
+    const response = await apiClient.get<RecentlyUpdatedApiResponse>(
+      "/novels/recently-updated",
+      params,
     );
     return response.data.novels;
   },
