@@ -106,7 +106,7 @@ export const authorService = {
 
   // Get author statistics
   async getStats(): Promise<AuthorStats> {
-    const response = await apiClient.get("/author/stats");
-    return response.data as AuthorStats;
+    const response = await apiClient.get<AuthorStats>("/author/stats");
+    return response.data;
   },
 };

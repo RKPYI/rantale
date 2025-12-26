@@ -6,7 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, PlusCircle, Eye, Star, Users, Edit } from "lucide-react";
+import {
+  BookOpen,
+  PlusCircle,
+  Eye,
+  Star,
+  Edit,
+  FileText,
+  Award,
+} from "lucide-react";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { AuthorNovel, AuthorStats } from "@/types/api";
 import { cn } from "@/lib/utils";
@@ -15,19 +23,28 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: React.ElementType;
-  change?: string;
-  changeType?: "positive" | "negative" | "neutral";
+  subtitle?: string;
+  variant?: "default" | "primary" | "success" | "warning";
 }
 
 function StatCard({
   title,
   value,
   icon: Icon,
-  change,
-  changeType = "positive",
+  subtitle,
+  variant = "default",
 }: StatCardProps) {
+  const variantStyles = {
+    default: "bg-background",
+    primary: "bg-primary/5 border-primary/20",
+    success: "bg-green-500/5 border-green-500/20",
+    warning: "bg-yellow-500/5 border-yellow-500/20",
+  };
+
   return (
-    <Card>
+    <Card
+      className={cn("transition-all hover:shadow-md", variantStyles[variant])}
+    >
       <CardContent className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
@@ -35,20 +52,31 @@ function StatCard({
               {title}
             </p>
             <p className="truncate text-xl font-bold sm:text-2xl">{value}</p>
-            {change && (
-              <p
-                className={cn(
-                  "truncate text-xs",
-                  changeType === "positive" && "text-green-600",
-                  changeType === "negative" && "text-red-600",
-                  changeType === "neutral" && "text-muted-foreground",
-                )}
-              >
-                {change}
+            {subtitle && (
+              <p className="text-muted-foreground truncate text-xs">
+                {subtitle}
               </p>
             )}
           </div>
-          <Icon className="text-muted-foreground h-6 w-6 flex-shrink-0 sm:h-8 sm:w-8" />
+          <div
+            className={cn(
+              "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg sm:h-12 sm:w-12",
+              variant === "primary" && "bg-primary/10",
+              variant === "success" && "bg-green-500/10",
+              variant === "warning" && "bg-yellow-500/10",
+              variant === "default" && "bg-muted",
+            )}
+          >
+            <Icon
+              className={cn(
+                "h-5 w-5 sm:h-6 sm:w-6",
+                variant === "primary" && "text-primary",
+                variant === "success" && "text-green-600 dark:text-green-400",
+                variant === "warning" && "text-yellow-600 dark:text-yellow-400",
+                variant === "default" && "text-muted-foreground",
+              )}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -78,7 +106,7 @@ export function OverviewTab({
 }: OverviewTabProps) {
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Stats Cards */}
+      {/* Quick Stats Summary */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
         {statsLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
@@ -94,27 +122,35 @@ export function OverviewTab({
           <>
             <StatCard
               title="Total Novels"
-              value={stats.total_novels}
+              value={stats.content_stats.total_novels}
               icon={BookOpen}
+              variant="primary"
+            />
+            <StatCard
+              title="Total Chapters"
+              value={formatNumber(stats.content_stats.total_chapters)}
+              icon={FileText}
             />
             <StatCard
               title="Total Views"
-              value={formatNumber(stats.total_views)}
+              value={formatNumber(stats.engagement_stats.total_views)}
               icon={Eye}
-              change={
-                stats.monthly_views
-                  ? `+${formatNumber(stats.monthly_views)} this month`
-                  : undefined
-              }
             />
             <StatCard
               title="Avg. Rating"
               value={
-                stats.average_rating ? stats.average_rating.toFixed(1) : "—"
+                stats.quality_stats.average_rating
+                  ? stats.quality_stats.average_rating.toFixed(1)
+                  : "—"
               }
               icon={Star}
+              variant={
+                stats.quality_stats.average_rating &&
+                stats.quality_stats.average_rating >= 4
+                  ? "success"
+                  : "default"
+              }
             />
-            <StatCard title="Total Followers" value="—" icon={Users} />
           </>
         ) : (
           <div className="col-span-full">
@@ -124,6 +160,60 @@ export function OverviewTab({
           </div>
         )}
       </div>
+
+      {/* Top Novel Highlight */}
+      {!statsLoading && stats?.top_novel && (
+        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-transparent">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-yellow-500" />
+              Top Performing Novel
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-lg font-semibold">
+                  {stats.top_novel.title}
+                </h4>
+                <Button variant="link" size="sm" asChild className="h-auto p-0">
+                  <Link href={`/novels/${stats.top_novel.slug}`}>
+                    View Novel →
+                  </Link>
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="bg-background/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">Views</p>
+                  <p className="text-lg font-bold">
+                    {formatNumber(stats.top_novel.views)}
+                  </p>
+                </div>
+                <div className="bg-background/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">Rating</p>
+                  <p className="text-lg font-bold">
+                    {stats.top_novel.rating
+                      ? stats.top_novel.rating.toFixed(2)
+                      : "—"}
+                  </p>
+                </div>
+                <div className="bg-background/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">Ratings</p>
+                  <p className="text-lg font-bold">
+                    {formatNumber(stats.top_novel.rating_count)}
+                  </p>
+                </div>
+                <div className="bg-background/50 rounded-lg p-3">
+                  <p className="text-muted-foreground text-xs">Comments</p>
+                  <p className="text-lg font-bold">
+                    {formatNumber(stats.top_novel.comments)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Novels */}
       <Card>

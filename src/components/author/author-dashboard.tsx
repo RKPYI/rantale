@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -40,6 +40,15 @@ export function AuthorDashboard() {
     new Set(),
   );
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [bulkDeleteNovelsDialog, setBulkDeleteNovelsDialog] = useState(false);
+
+  // Store refetch function from ChaptersTab using ref to avoid re-renders
+  const refetchChaptersRef = useRef<(() => Promise<void>) | null>(null);
+
+  // Memoize the callback to prevent infinite loops
+  const handleRefetchChapters = useCallback((refetch: () => Promise<void>) => {
+    refetchChaptersRef.current = refetch;
+  }, []);
 
   const {
     data: novels,
@@ -91,6 +100,7 @@ export function AuthorDashboard() {
   const handleBulkDeleteNovels = async () => {
     if (selectedNovelIds.size === 0) return;
 
+    setBulkDeleteNovelsDialog(false);
     setIsBulkDeleting(true);
     try {
       const result = await novelService.bulkDeleteNovels(
@@ -242,7 +252,7 @@ export function AuthorDashboard() {
             onDeleteNovel={(novel) =>
               setDeleteNovelDialog({ isOpen: true, novel })
             }
-            onBulkDelete={handleBulkDeleteNovels}
+            onBulkDelete={() => setBulkDeleteNovelsDialog(true)}
             onToggleSelection={toggleNovelSelection}
             onToggleAll={toggleAllNovels}
             getStatusColor={getStatusColor}
@@ -267,6 +277,7 @@ export function AuthorDashboard() {
               setIsEditingChapter(true);
               setIsChapterDialogOpen(true);
             }}
+            onRefetchChapters={handleRefetchChapters}
           />
         </TabsContent>
 
@@ -300,6 +311,9 @@ export function AuthorDashboard() {
         novel={selectedNovel}
         onSuccess={async () => {
           await refetchNovels();
+          if (refetchChaptersRef.current) {
+            await refetchChaptersRef.current();
+          }
         }}
       />
 
@@ -318,6 +332,17 @@ export function AuthorDashboard() {
         }
         confirmText="Delete Novel"
         isLoading={false}
+      />
+
+      {/* Bulk Delete Novels Confirmation Dialog */}
+      <DeleteModal
+        open={bulkDeleteNovelsDialog}
+        onOpenChange={setBulkDeleteNovelsDialog}
+        onConfirm={handleBulkDeleteNovels}
+        title="Delete Multiple Novels?"
+        description={`This will permanently delete ${selectedNovelIds.size} selected novel(s) and all their chapters. This action cannot be undone.`}
+        confirmText={`Delete ${selectedNovelIds.size} Novel(s)`}
+        isLoading={isBulkDeleting}
       />
     </div>
   );

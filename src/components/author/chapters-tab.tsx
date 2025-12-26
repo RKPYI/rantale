@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,7 @@ interface ChaptersTabProps {
   refetchNovels: () => void;
   onCreateChapter: (novel: AuthorNovel) => void;
   onEditChapter: (novel: AuthorNovel, chapter: ChapterSummary) => void;
+  onRefetchChapters?: (refetch: () => Promise<void>) => void;
 }
 
 export function ChaptersTab({
@@ -28,6 +29,7 @@ export function ChaptersTab({
   refetchNovels,
   onCreateChapter,
   onEditChapter,
+  onRefetchChapters,
 }: ChaptersTabProps) {
   const [currentNovel, setCurrentNovel] = useState<AuthorNovel | null>(
     selectedNovel,
@@ -42,12 +44,21 @@ export function ChaptersTab({
     new Set(),
   );
   const [isBulkDeletingChapters, setIsBulkDeletingChapters] = useState(false);
+  const [bulkDeleteChaptersDialog, setBulkDeleteChaptersDialog] =
+    useState(false);
 
   const {
     data: chapters,
     loading: chaptersLoading,
     refetch: refetchChapters,
   } = useNovelChapters(currentNovel?.slug || "");
+
+  // Expose refetch function to parent
+  useEffect(() => {
+    if (onRefetchChapters && refetchChapters) {
+      onRefetchChapters(refetchChapters);
+    }
+  }, [onRefetchChapters, refetchChapters]);
 
   const handleDeleteChapter = async () => {
     if (!deleteChapterDialog.chapter || !currentNovel) return;
@@ -77,6 +88,7 @@ export function ChaptersTab({
   const handleBulkDeleteChapters = async () => {
     if (!currentNovel || selectedChapterIds.size === 0) return;
 
+    setBulkDeleteChaptersDialog(false);
     setIsBulkDeletingChapters(true);
     try {
       const result = await chapterService.bulkDeleteChapters(
@@ -195,7 +207,7 @@ export function ChaptersTab({
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={handleBulkDeleteChapters}
+                    onClick={() => setBulkDeleteChaptersDialog(true)}
                     disabled={isBulkDeletingChapters}
                     className="w-full sm:w-auto"
                   >
@@ -331,6 +343,17 @@ export function ChaptersTab({
         }
         confirmText="Delete Chapter"
         isLoading={false}
+      />
+
+      {/* Bulk Delete Chapters Confirmation Dialog */}
+      <DeleteModal
+        open={bulkDeleteChaptersDialog}
+        onOpenChange={setBulkDeleteChaptersDialog}
+        onConfirm={handleBulkDeleteChapters}
+        title="Delete Multiple Chapters?"
+        description={`This will permanently delete ${selectedChapterIds.size} selected chapter(s). This action cannot be undone.`}
+        confirmText={`Delete ${selectedChapterIds.size} Chapter(s)`}
+        isLoading={isBulkDeletingChapters}
       />
     </div>
   );

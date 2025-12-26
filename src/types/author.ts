@@ -51,13 +51,43 @@ export interface AuthorApplicationStatusResponse {
   current_role?: number;
 }
 
+export interface TopNovel {
+  id: number;
+  title: string;
+  slug: string;
+  views: number;
+  rating: number | null;
+  rating_count: number;
+  comments: number;
+}
+
 export interface AuthorStats {
-  total_novels: number;
-  total_views: number;
-  total_followers: number;
-  monthly_views: number | null;
-  monthly_followers: number | null;
-  average_rating: number | null;
+  content_stats: {
+    total_novels: number;
+    total_chapters: number;
+    total_words: number;
+    completed_novels: number;
+    ongoing_novels: number;
+    avg_chapters_per_novel: number;
+  };
+  engagement_stats: {
+    total_views: number;
+    total_comments: number;
+    total_ratings: number;
+    total_library_adds: number;
+    total_favorites: number;
+  };
+  quality_stats: {
+    average_rating: number | null;
+    novels_above_4_stars: number;
+    five_star_ratings: number;
+  };
+  reader_engagement: {
+    currently_reading: number;
+    completed_readers: number;
+    want_to_read: number;
+  };
+  top_novel: TopNovel | null;
 }
 
 export interface AuthorNovel {
