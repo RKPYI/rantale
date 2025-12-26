@@ -255,7 +255,7 @@ export function ChapterReadingView({
             {/* Right: Actions */}
             <div className="flex items-center gap-1 md:gap-2">
               {/* Download Button */}
-              <ChapterDownloadButton
+              {/* <ChapterDownloadButton
                 chapter={chapter}
                 novelTitle={novel.title}
                 variant="ghost"
@@ -271,7 +271,7 @@ export function ChapterReadingView({
                     description: error.message,
                   });
                 }}
-              />
+              /> */}
 
               <ChapterNavigator
                 allChapters={allChapters}

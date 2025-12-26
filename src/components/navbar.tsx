@@ -472,12 +472,12 @@ export function Navbar() {
                         My Library
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hidden md:flex">
+                    {/* <DropdownMenuItem asChild className="hidden md:flex">
                       <Link href="/profile/downloads">
                         <Download className="mr-2 h-4 w-4" />
                         Downloads
                       </Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem asChild>
                       <Link href="/notifications">
                         <Star className="mr-2 h-4 w-4" />

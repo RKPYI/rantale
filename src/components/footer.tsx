@@ -128,7 +128,7 @@ export function Footer() {
           </div>
 
           {/* Community Section */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="text-sm font-semibold">Community</h3>
             <ul className="space-y-3 text-sm">
               <li>
@@ -164,7 +164,7 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Support Section */}
           <div className="space-y-4">
