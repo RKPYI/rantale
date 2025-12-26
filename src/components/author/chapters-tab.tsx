@@ -12,6 +12,7 @@ import { useNovelChapters } from "@/hooks/use-chapters";
 import { chapterService } from "@/services/chapters";
 import { AuthorNovel, ChapterSummary } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { formatNumber } from "@/lib/novel-utils";
 import { toast } from "sonner";
 
 interface ChaptersTabProps {
@@ -179,7 +180,7 @@ export function ChaptersTab({
                 )}
                 onClick={() => setCurrentNovel(novel)}
               >
-                <h4 className="truncate text-sm font-medium sm:text-base">
+                <h4 className="text-sm font-medium break-words sm:truncate sm:text-base">
                   {novel.title}
                 </h4>
                 <p className="text-muted-foreground text-xs sm:text-sm">
@@ -198,7 +199,7 @@ export function ChaptersTab({
             <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="flex items-center gap-2">
                 <FileText className="h-5 w-5 flex-shrink-0" />
-                <span className="truncate">
+                <span className="break-words sm:truncate">
                   Chapters - {currentNovel.title}
                 </span>
               </span>
@@ -261,12 +262,12 @@ export function ChaptersTab({
                         }
                         className="mt-1 flex-shrink-0 sm:mt-0"
                       />
-                      <div className="min-w-0 flex-1">
-                        <h4 className="truncate text-sm font-medium sm:text-base">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <h4 className="text-sm font-medium break-words sm:text-base">
                           Chapter {chapter.chapter_number}: {chapter.title}
                         </h4>
                         <p className="text-muted-foreground text-xs sm:text-sm">
-                          {chapter.word_count} words
+                          {formatNumber(chapter.word_count)} words
                         </p>
                       </div>
                     </div>
