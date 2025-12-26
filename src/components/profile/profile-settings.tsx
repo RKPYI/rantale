@@ -238,67 +238,84 @@ export function ProfileSettings() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" />
+              <Shield className="h-5 w-5" />
               Account Security
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handlePasswordUpdate} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current_password">Current Password</Label>
-                <Input
-                  id="current_password"
-                  type="password"
-                  value={passwordData.current_password}
-                  onChange={(e) =>
-                    handlePasswordChange("current_password", e.target.value)
-                  }
-                  placeholder="Enter current password"
-                  required
-                />
-              </div>
+            {user.provider !== "google" ? (
+              <>
+                <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current_password">Current Password</Label>
+                    <Input
+                      id="current_password"
+                      type="password"
+                      value={passwordData.current_password}
+                      onChange={(e) =>
+                        handlePasswordChange("current_password", e.target.value)
+                      }
+                      placeholder="Enter current password"
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="new_password">New Password</Label>
-                <Input
-                  id="new_password"
-                  type="password"
-                  value={passwordData.new_password}
-                  onChange={(e) =>
-                    handlePasswordChange("new_password", e.target.value)
-                  }
-                  placeholder="Enter new password"
-                  minLength={8}
-                  required
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new_password">New Password</Label>
+                    <Input
+                      id="new_password"
+                      type="password"
+                      value={passwordData.new_password}
+                      onChange={(e) =>
+                        handlePasswordChange("new_password", e.target.value)
+                      }
+                      placeholder="Enter new password"
+                      minLength={8}
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirm_password">Confirm New Password</Label>
-                <Input
-                  id="confirm_password"
-                  type="password"
-                  value={passwordData.confirm_password}
-                  onChange={(e) =>
-                    handlePasswordChange("confirm_password", e.target.value)
-                  }
-                  placeholder="Confirm new password"
-                  minLength={8}
-                  required
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm_password">
+                      Confirm New Password
+                    </Label>
+                    <Input
+                      id="confirm_password"
+                      type="password"
+                      value={passwordData.confirm_password}
+                      onChange={(e) =>
+                        handlePasswordChange("confirm_password", e.target.value)
+                      }
+                      placeholder="Confirm new password"
+                      minLength={8}
+                      required
+                    />
+                  </div>
 
-              <Button
-                type="submit"
-                disabled={updatingPassword}
-                className="w-full"
-              >
-                <Lock className="mr-2 h-4 w-4" />
-                {updatingPassword ? "Updating..." : "Update Password"}
-              </Button>
-            </form>
+                  <Button
+                    type="submit"
+                    disabled={updatingPassword}
+                    className="w-full"
+                  >
+                    <Lock className="mr-2 h-4 w-4" />
+                    {updatingPassword ? "Updating..." : "Update Password"}
+                  </Button>
+                </form>
 
-            <Separator className="my-6" />
+                <Separator className="my-6" />
+              </>
+            ) : (
+              <>
+                <Alert className="mb-6">
+                  <Shield className="h-4 w-4" />
+                  <AlertDescription>
+                    You're signed in with Google. Your password is managed
+                    through your Google account for enhanced security.
+                  </AlertDescription>
+                </Alert>
+                <Separator className="my-6" />
+              </>
+            )}
 
             {/* Account Info */}
             <div className="space-y-4">
