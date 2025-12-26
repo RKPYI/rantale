@@ -6,6 +6,7 @@ import {
   User,
   UpdateProfileRequest,
   ChangePasswordRequest,
+  UserProfileStats,
   ApiResponse,
 } from "@/types/api";
 
@@ -150,6 +151,14 @@ export const authService = {
     const response = await apiClient.put<{ message: string }>(
       "/auth/password",
       data,
+    );
+    return response.data;
+  },
+
+  // User Profile Statistics
+  async getUserProfileStats(): Promise<UserProfileStats> {
+    const response = await apiClient.get<UserProfileStats>(
+      "/user/profile/stats",
     );
     return response.data;
   },
