@@ -54,7 +54,6 @@ const READING_SETTINGS_KEY = "chapter-reading-settings";
 // Default settings
 const DEFAULT_SETTINGS = {
   fontSize: 20,
-  lineHeight: 1.6,
   maxWidth: 800,
 };
 
@@ -105,7 +104,7 @@ export function ChapterReadingView({
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const { fontSize, lineHeight, maxWidth } = settings;
+  const { fontSize, maxWidth } = settings;
 
   const { execute: executeUpdateProgress } = useAsync();
 
@@ -219,9 +218,9 @@ export function ChapterReadingView({
       {/* Header Navigation */}
       <div className="bg-background/95 sticky top-1 z-50 border-b shadow-sm backdrop-blur-sm">
         <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             {/* Left: Back Navigation */}
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1 md:gap-2">
               <Link href={`/novels/${novel.slug}`}>
                 <Button variant="ghost" size="sm" className="hidden sm:flex">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -243,7 +242,7 @@ export function ChapterReadingView({
             </div>
 
             {/* Center: Chapter Info */}
-            <div className="min-w-0 flex-1 px-2 text-center md:px-4">
+            <div className="flex-shrink-0 px-2 text-center md:px-4">
               <div className="truncate text-xs font-medium sm:text-sm">
                 {novel.title}
               </div>
@@ -253,7 +252,7 @@ export function ChapterReadingView({
             </div>
 
             {/* Right: Actions */}
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-1 md:gap-2">
               {/* Download Button */}
               {/* <ChapterDownloadButton
                 chapter={chapter}
@@ -320,42 +319,6 @@ export function ChapterReadingView({
                           className="px-2 md:px-3"
                         >
                           A+
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium md:text-sm">
-                        Line Height
-                      </label>
-                      <div className="mt-1 flex items-center gap-1 md:gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updateSettings({
-                              lineHeight: Math.max(1.2, lineHeight - 0.2),
-                            })
-                          }
-                          disabled={lineHeight <= 1.2}
-                          className="px-2 md:px-3"
-                        >
-                          -
-                        </Button>
-                        <span className="w-8 text-center text-xs md:w-10 md:text-sm">
-                          {lineHeight.toFixed(1)}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updateSettings({
-                              lineHeight: Math.min(2.5, lineHeight + 0.2),
-                            })
-                          }
-                          disabled={lineHeight >= 2.5}
-                          className="px-2 md:px-3"
-                        >
-                          +
                         </Button>
                       </div>
                     </div>
@@ -490,7 +453,6 @@ export function ChapterReadingView({
                   className="prose prose-gray dark:prose-invert max-w-none"
                   style={{
                     fontSize: `${fontSize}px`,
-                    lineHeight: lineHeight,
                   }}
                 >
                   <ReactMarkdown
@@ -641,7 +603,15 @@ export function ChapterReadingView({
                       </Button>
                     </Link>
                   ) : (
-                    <div />
+                    <Button
+                      variant="outline"
+                      className="invisible flex items-center"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <div className="hidden text-left md:block">
+                        <div className="text-sm">Placeholder</div>
+                      </div>
+                    </Button>
                   )}
 
                   <div className="text-center">
@@ -664,7 +634,12 @@ export function ChapterReadingView({
                       </Button>
                     </Link>
                   ) : (
-                    <div />
+                    <Button className="invisible flex items-center gap-2">
+                      <div className="hidden text-right md:block">
+                        <div className="text-sm">Placeholder</div>
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   )}
                 </div>
               </CardContent>
