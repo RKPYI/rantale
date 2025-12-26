@@ -50,12 +50,12 @@ export function BottomNav() {
       icon: Library,
       requiresAuth: true,
     },
-    {
-      href: "/profile/downloads",
-      label: "Downloads",
-      icon: Download,
-      requiresAuth: true,
-    },
+    // {
+    //   href: "/profile/downloads",
+    //   label: "Downloads",
+    //   icon: Download,
+    //   requiresAuth: true,
+    // },
   ];
 
   // Filter nav items based on authentication and roles
