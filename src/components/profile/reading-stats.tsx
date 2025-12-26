@@ -133,10 +133,11 @@ export function ReadingStats() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Activity This Month</span>
-                <Badge variant="outline">
+                {/* Not working yet fix the backend first */}
+                {/* <Badge variant="outline">
                   {activity.this_month.reading_days}{" "}
                   {activity.this_month.reading_days === 1 ? "day" : "days"}
-                </Badge>
+                </Badge> */}
               </div>
               <div className="text-muted-foreground flex flex-col gap-2 text-xs">
                 <div className="flex items-center justify-between">

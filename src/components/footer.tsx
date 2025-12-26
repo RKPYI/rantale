@@ -116,14 +116,14 @@ export function Footer() {
                   Recently Updated
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href="/completed"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Completed
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 

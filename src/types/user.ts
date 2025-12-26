@@ -103,7 +103,7 @@ export interface UserProfileStats {
     this_month: {
       comments: number;
       ratings: number;
-      reading_days: number;
+      // reading_days: number; // Not working yet fix the backend first
     };
   };
   genre_preferences: Array<{
