@@ -284,37 +284,46 @@ export function ProfileView() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {profileStats?.recent_activity
-                    .slice(0, 3)
-                    .map((activity, idx) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3"
-                      >
-                        <div className="flex flex-1 items-center gap-3">
-                          <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full"></div>
-                          <span className="text-muted-foreground text-xs sm:text-sm">
-                            {activity.type === "reading"
-                              ? "Read"
-                              : activity.type === "comment"
-                                ? "Commented on"
-                                : "Rated"}
-                          </span>
-                          <span className="truncate text-xs font-medium sm:text-sm">
-                            {activity.novel.title}
+                {profileStats?.recent_activity &&
+                profileStats.recent_activity.length > 0 ? (
+                  <div className="space-y-3">
+                    {profileStats.recent_activity
+                      .slice(0, 3)
+                      .map((activity, idx) => (
+                        <div
+                          key={idx}
+                          className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3"
+                        >
+                          <div className="flex flex-1 items-center gap-3">
+                            <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full"></div>
+                            <span className="text-muted-foreground text-xs sm:text-sm">
+                              {activity.type === "reading"
+                                ? "Read"
+                                : activity.type === "comment"
+                                  ? "Commented on"
+                                  : "Rated"}
+                            </span>
+                            <span className="truncate text-xs font-medium sm:text-sm">
+                              {activity.novel.title}
+                            </span>
+                          </div>
+                          <span className="text-muted-foreground ml-5 text-xs sm:ml-auto">
+                            {formatDate(activity.timestamp)}
                           </span>
                         </div>
-                        <span className="text-muted-foreground ml-5 text-xs sm:ml-auto">
-                          {formatDate(activity.timestamp)}
-                        </span>
-                      </div>
-                    )) || (
-                    <p className="text-muted-foreground text-sm">
+                      ))}
+                  </div>
+                ) : (
+                  <div className="py-6 text-center">
+                    <Clock className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+                    <h4 className="mb-1 text-sm font-medium">
                       No recent activity
+                    </h4>
+                    <p className="text-muted-foreground text-xs">
+                      Start reading novels to see your activity here
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
