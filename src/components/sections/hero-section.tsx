@@ -11,6 +11,7 @@ interface HeroSectionProps {
   description?: string;
   primaryButtonText?: string;
   primaryButtonHref?: string;
+  primaryButtonScrollTo?: string; // New prop for scroll target
   secondaryButtonText?: string;
   secondaryButtonHref?: string;
   className?: string;
@@ -22,10 +23,21 @@ export function HeroSection({
   description = "Immerse yourself in captivating stories from talented authors around the world. Read, discover, and fall in love with your next favorite novel.",
   primaryButtonText = "Start Reading",
   primaryButtonHref = "/search",
+  primaryButtonScrollTo,
   secondaryButtonText = "Browse Genres",
   secondaryButtonHref = "/genres",
   className,
 }: HeroSectionProps) {
+  const handlePrimaryClick = (e: React.MouseEvent) => {
+    if (primaryButtonScrollTo) {
+      e.preventDefault();
+      const element = document.getElementById(primaryButtonScrollTo);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
   return (
     <section
       className={cn(
@@ -43,12 +55,23 @@ export function HeroSection({
             {description}
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link href={primaryButtonHref}>
-              <Button size="lg" className="w-full sm:w-auto">
+            {primaryButtonScrollTo ? (
+              <Button
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={handlePrimaryClick}
+              >
                 <BookOpen className="mr-2 h-5 w-5" />
                 {primaryButtonText}
               </Button>
-            </Link>
+            ) : (
+              <Link href={primaryButtonHref}>
+                <Button size="lg" className="w-full sm:w-auto">
+                  <BookOpen className="mr-2 h-5 w-5" />
+                  {primaryButtonText}
+                </Button>
+              </Link>
+            )}
             <Link href={secondaryButtonHref}>
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
                 <Filter className="mr-2 h-5 w-5" />

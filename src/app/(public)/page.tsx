@@ -50,7 +50,7 @@ export default function Home() {
 
       <div className="bg-background min-h-screen">
         {/* Hero Section */}
-        <HeroSection />
+        <HeroSection primaryButtonScrollTo="main-content-tabs" />
 
         {/* Continue Reading Section - Only show if user is authenticated and has reading progress */}
         {isAuthenticated && (
@@ -81,7 +81,7 @@ export default function Home() {
         </section>
 
         {/* Main Content Tabs */}
-        <section className="bg-muted/20 py-12 lg:py-16">
+        <section id="main-content-tabs" className="bg-muted/20 py-12 lg:py-16">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <NovelsTabs maxItems={12} />
 
