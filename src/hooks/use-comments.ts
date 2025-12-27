@@ -23,12 +23,12 @@ export function useNovelComments(novelSlug: string, page?: number) {
 // Hook for getting chapter comments
 export function useChapterComments(
   novelSlug: string,
-  chapterId: number,
+  chapterNumber: number,
   page?: number,
 ) {
   return useApi(
-    () => commentService.getChapterComments(novelSlug, chapterId, page),
-    [novelSlug, chapterId, page],
+    () => commentService.getChapterComments(novelSlug, chapterNumber, page),
+    [novelSlug, chapterNumber, page],
   );
 }
 

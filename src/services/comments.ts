@@ -28,12 +28,12 @@ export const commentService = {
   // Get comments for a chapter
   async getChapterComments(
     novelSlug: string,
-    chapterId: number,
+    chapterNumber: number,
     page?: number,
   ): Promise<CommentsResponse> {
     const params = page ? { page } : {};
     const response = await apiClient.get<CommentsResponse>(
-      `/novels/${novelSlug}/chapters/${chapterId}/comments`,
+      `/novels/${novelSlug}/chapters/${chapterNumber}/comments`,
       params,
     );
     return response.data;

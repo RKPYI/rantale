@@ -664,6 +664,7 @@ export function ChapterReadingView({
                 novelSlug={novel.slug}
                 novelId={novel.id}
                 chapterId={chapter.id}
+                chapterNumber={chapter.chapter_number}
                 title={`Chapter ${chapter.chapter_number}: ${chapter.title}`}
               />
             )}

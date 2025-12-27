@@ -29,6 +29,7 @@ export function CommentSection({
   novelSlug,
   novelId,
   chapterId,
+  chapterNumber,
   title,
 }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("");
@@ -55,7 +56,10 @@ export function CommentSection({
 
   // Fetch comments - use different hooks for novel vs chapter comments
   const novelCommentsResult = useNovelComments(novelSlug);
-  const chapterCommentsResult = useChapterComments(novelSlug, chapterId || 0);
+  const chapterCommentsResult = useChapterComments(
+    novelSlug,
+    chapterNumber || 0,
+  );
 
   const {
     data: commentsData,
@@ -63,7 +67,7 @@ export function CommentSection({
     error: commentsError,
     refetch: refetchComments,
     silentRefetch: silentRefetchComments,
-  } = chapterId ? chapterCommentsResult : novelCommentsResult;
+  } = chapterNumber ? chapterCommentsResult : novelCommentsResult;
 
   // Async operations
   const { loading: submittingComment, execute: executeCommentAction } =
