@@ -88,6 +88,7 @@ export type {
   AdminCommentsResponse,
   AdminModerationResponse,
   AdminSystemHealth,
+  ErrorMessage,
 } from "./admin";
 
 export * from "./author";

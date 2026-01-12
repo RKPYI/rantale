@@ -10,6 +10,7 @@ import { useAdminDashboardStats } from "@/hooks/use-admin";
 import { OverviewTab } from "./overview-tab";
 import { AuthorApplicationsTab } from "./author-applications-tab";
 import { SystemHealthTab } from "./system-health-tab";
+import { ContactsTab } from "./contacts-tab";
 // import { ActivityTab } from "./activity-tab"; // Not production-ready yet
 
 export function AdminDashboard() {
@@ -61,6 +62,9 @@ export function AdminDashboard() {
             <TabsTrigger value="authors" className="flex-shrink-0">
               Author Apps
             </TabsTrigger>
+            <TabsTrigger value="contacts" className="flex-shrink-0">
+              Contacts
+            </TabsTrigger>
             {/* Activity Tab - Not production-ready yet */}
             {/* <TabsTrigger value="activity" className="flex-shrink-0">
               Activity
@@ -93,6 +97,11 @@ export function AdminDashboard() {
         {/* Author Applications Tab */}
         <TabsContent value="authors" className="mt-6">
           <AuthorApplicationsTab />
+        </TabsContent>
+
+        {/* Contacts Tab */}
+        <TabsContent value="contacts" className="mt-6">
+          <ContactsTab />
         </TabsContent>
 
         {/* Activity Tab - Not production-ready yet */}
