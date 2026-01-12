@@ -2,46 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  Search,
-  Filter,
-  SortAsc,
-  BookOpen,
-  Star,
-  Clock,
-  Crown,
-  TrendingUp,
-  Eye,
-} from "lucide-react";
+import { Search, Filter, SortAsc, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
-import Image from "next/image";
 
 import { useSearchNovels, useGenres } from "@/hooks/use-novels";
-import {
-  formatRating,
-  formatChapterCount,
-  formatViewCount,
-  truncateDescription,
-  getStatusColor,
-  getNovelStyling,
-  getNovelBadgeConfig,
-  formatNumber,
-} from "@/lib/novel-utils";
-import { cn } from "@/lib/utils";
-import {
-  LoadingSpinner,
-  NovelSearchLoading,
-} from "@/components/ui/loading-spinner";
-import { SearchSpinner, LoadingThrobber } from "@/components/ui/spinner";
-import { Novel, Genre } from "@/types/api";
-import { NovelRating } from "@/components/novels";
-import { NovelBadge } from "@/components/novels/ui/novel-badge";
+import { LoadingThrobber } from "@/components/ui/spinner";
+import { Genre } from "@/types/api";
+import { NovelCard } from "@/components/novels";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -133,146 +104,6 @@ export default function SearchPage() {
           }
         })
     : [];
-
-  const NovelCard = ({ novel }: { novel: Novel }) => {
-    const styling = getNovelStyling(novel, "normal");
-    const badgeConfig = getNovelBadgeConfig(novel);
-
-    return (
-      <Link href={`/novels/${novel.slug}`}>
-        <Card
-          className={cn(
-            "transition-all duration-200 hover:scale-[1.02] hover:shadow-lg",
-            // Add featured/trending border styling
-            novel.is_featured &&
-              "border-2 border-amber-500/30 shadow-lg shadow-amber-500/10",
-            novel.is_trending &&
-              !novel.is_featured &&
-              "border-2 border-blue-500/30 shadow-lg shadow-blue-500/10",
-            // Add container gradient background
-            styling.containerClass,
-          )}
-        >
-          <CardContent className="p-4">
-            <div className="flex gap-4">
-              {/* Cover Image */}
-              <div className="relative flex-shrink-0">
-                <div className="h-[120px] w-[80px] flex-shrink-0 overflow-hidden rounded">
-                  {novel.cover_image ? (
-                    <Image
-                      src={novel.cover_image}
-                      alt={novel.title}
-                      width={80}
-                      height={120}
-                      className={cn(
-                        "bg-muted rounded object-cover",
-                        styling.coverClass,
-                      )}
-                    />
-                  ) : (
-                    <div
-                      className={cn(
-                        "bg-muted flex h-30 w-20 items-center justify-center rounded",
-                        styling.coverClass,
-                      )}
-                    >
-                      <BookOpen className="text-muted-foreground h-8 w-8" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Corner badge icon */}
-                {styling.showCornerIcon && (
-                  <div
-                    className={cn(
-                      "absolute -top-1 -right-1 rounded-full p-0.5 shadow-lg",
-                      styling.cornerIconClass,
-                    )}
-                  >
-                    {novel.is_featured ? (
-                      <Crown className="h-3 w-3 text-white" />
-                    ) : (
-                      <TrendingUp className="h-3 w-3 text-white" />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Novel Info */}
-              <div className="min-w-0 flex-1 space-y-2">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3
-                      className={cn(
-                        "line-clamp-2 text-lg font-semibold",
-                        styling.titleClass,
-                      )}
-                    >
-                      {novel.title}
-                    </h3>
-                    {badgeConfig.show && (
-                      <NovelBadge
-                        novel={novel}
-                        positioned={false}
-                        className={styling.badge.className}
-                      />
-                    )}
-                  </div>
-                  <p className="text-muted-foreground">by {novel.author}</p>
-                </div>
-
-                <p className="text-muted-foreground line-clamp-3 text-sm">
-                  {truncateDescription(novel.description, 200)}
-                </p>
-
-                {/* Genres */}
-                <div className="flex flex-wrap gap-1">
-                  {novel.genres.slice(0, 3).map((genre) => (
-                    <Badge
-                      key={genre.id}
-                      variant="secondary"
-                      className="text-xs"
-                    >
-                      {genre.name}
-                    </Badge>
-                  ))}
-                  {novel.genres.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{novel.genres.length - 3}
-                    </Badge>
-                  )}
-                </div>
-
-                {/* Stats */}
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1 font-medium text-yellow-600">
-                    {novel.rating !== null && novel.rating !== undefined && (
-                      <NovelRating novel={novel} />
-                    )}
-                  </div>
-                  <Badge
-                    variant={getStatusColor(novel.status)}
-                    className="text-xs"
-                  >
-                    {novel.status.charAt(0).toUpperCase() +
-                      novel.status.slice(1)}
-                  </Badge>
-                  <div className="text-muted-foreground flex items-center gap-1">
-                    <BookOpen className="h-4 w-4" />
-                    <span>{formatChapterCount(novel.total_chapters)} ch</span>
-                  </div>
-                  <div className="text-muted-foreground flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    <span>{formatNumber(novel.views || 0)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    );
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -511,7 +342,7 @@ export default function SearchPage() {
             ) : filteredResults.length > 0 ? (
               <div className="space-y-4">
                 {filteredResults.map((novel) => (
-                  <NovelCard key={novel.id} novel={novel} />
+                  <NovelCard key={novel.id} novel={novel} size="horizontal" />
                 ))}
               </div>
             ) : (
