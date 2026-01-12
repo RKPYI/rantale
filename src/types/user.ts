@@ -47,6 +47,18 @@ export interface RegisterRequest {
   password_confirmation: string;
 }
 
+// Image Upload Types
+export interface UploadAvatarResponse {
+  message: string;
+  avatar_url: string;
+  user: User;
+}
+
+export interface DeleteAvatarResponse {
+  message: string;
+  user: User;
+}
+
 export interface EmailVerificationRequest {
   id: string;
   hash: string;

@@ -181,6 +181,17 @@ export interface CreateChapterRequest {
   published_at?: string;
 }
 
+// Image Upload Types
+export interface UploadNovelCoverResponse {
+  message: string;
+  cover_url: string;
+  novel: Novel;
+}
+
+export interface DeleteNovelCoverResponse {
+  message: string;
+  novel: Novel;
+}
 export interface UpdateChapterRequest {
   title?: string;
   content?: string;

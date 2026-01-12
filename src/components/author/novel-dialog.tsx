@@ -19,6 +19,7 @@ import { Save } from "lucide-react";
 import { novelService } from "@/services/novels";
 import { AuthorNovel, Genre } from "@/types/api";
 import { toast } from "sonner";
+import { NovelCoverUpload } from "@/components/novels/novel-cover-upload";
 
 interface NovelDialogProps {
   isOpen: boolean;
@@ -41,7 +42,6 @@ export function NovelDialog({
     title: "",
     description: "",
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
-    cover_image: "",
     genres: [] as number[],
   });
   const [saving, setSaving] = useState(false);
@@ -54,7 +54,6 @@ export function NovelDialog({
         title: novel.title,
         description: novel.description,
         status: novel.status,
-        cover_image: novel.cover_image || "",
         genres: novel.genres?.map((g) => g.id) || [],
       });
     } else {
@@ -62,7 +61,6 @@ export function NovelDialog({
         title: "",
         description: "",
         status: "ongoing",
-        cover_image: "",
         genres: [],
       });
     }
@@ -183,23 +181,18 @@ export function NovelDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cover_image" className="text-xs sm:text-sm">
-              Cover Image URL
-            </Label>
-            <Input
-              id="cover_image"
-              value={formData.cover_image}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  cover_image: e.target.value,
-                }))
-              }
-              placeholder="https://example.com/cover.jpg"
-              className="text-sm"
-            />
-          </div>
+          {isEditing && novel && (
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Cover Image</Label>
+              <NovelCoverUpload
+                novel={novel}
+                onUpdate={() => {
+                  onSuccess();
+                  toast.success("Cover image updated!");
+                }}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="status" className="text-xs sm:text-sm">

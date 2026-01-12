@@ -25,13 +25,14 @@ import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { authService } from "@/services/auth";
 import { toast } from "sonner";
+import { AvatarUpload } from "@/components/profile/avatar-upload";
 
 export function ProfileSettings() {
-  const { user, updateProfile, sendEmailVerification } = useAuth();
+  const { user, updateProfile, sendEmailVerification, refreshProfile } =
+    useAuth();
   const [formData, setFormData] = useState({
     name: user?.name || "",
     bio: user?.bio || "",
-    avatar: user?.avatar || "",
   });
 
   // Update form data when user data changes
@@ -40,7 +41,6 @@ export function ProfileSettings() {
       setFormData({
         name: user.name || "",
         bio: user.bio || "",
-        avatar: user.avatar || "",
       });
     }
   }, [user]);
@@ -208,17 +208,14 @@ export function ProfileSettings() {
                 </p>
               </div>
 
+              <Separator className="my-4" />
+
               <div className="space-y-2">
-                <Label htmlFor="avatar">Avatar URL</Label>
-                <Input
-                  id="avatar"
-                  type="url"
-                  value={formData.avatar}
-                  onChange={(e) => handleInputChange("avatar", e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
-                />
+                <Label>Profile Picture</Label>
+                <AvatarUpload user={user} onUpdate={() => refreshProfile()} />
                 <p className="text-muted-foreground text-xs">
-                  Enter a URL to your profile picture
+                  Recommended: 400x400px, max 5MB. Supports JPEG, PNG, GIF,
+                  WebP.
                 </p>
               </div>
 

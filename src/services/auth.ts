@@ -171,4 +171,23 @@ export const authService = {
   getAuthToken(): string | null {
     return apiClient.getAuthToken();
   },
+
+  // Avatar Upload/Delete
+  async uploadAvatar(
+    file: File,
+  ): Promise<{ message: string; avatar_url: string; user: User }> {
+    const response = await apiClient.uploadFile<{
+      message: string;
+      avatar_url: string;
+      user: User;
+    }>("/user/avatar", file, "avatar");
+    return response.data;
+  },
+
+  async deleteAvatar(): Promise<{ message: string; user: User }> {
+    const response = await apiClient.delete<{ message: string; user: User }>(
+      "/user/avatar",
+    );
+    return response.data;
+  },
 };

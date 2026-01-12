@@ -156,6 +156,28 @@ export const novelService = {
     return this.getNovels(fullParams);
   },
 
+  // Novel Cover Image Upload/Delete (Author only)
+  async uploadNovelCover(
+    slug: string,
+    file: File,
+  ): Promise<{ message: string; cover_url: string; novel: Novel }> {
+    const response = await apiClient.uploadFile<{
+      message: string;
+      cover_url: string;
+      novel: Novel;
+    }>(`/novels/${slug}/cover`, file, "cover");
+    return response.data;
+  },
+
+  async deleteNovelCover(
+    slug: string,
+  ): Promise<{ message: string; novel: Novel }> {
+    const response = await apiClient.delete<{ message: string; novel: Novel }>(
+      `/novels/${slug}/cover`,
+    );
+    return response.data;
+  },
+
   // Note: Library functionality (addToLibrary, removeFromLibrary, getUserLibrary)
   // not yet implemented in the backend API
 };

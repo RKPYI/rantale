@@ -4,18 +4,28 @@ import withPWA from "@ducanh2912/next-pwa";
 const nextConfig: NextConfig = {
   // Image optimization
   images: {
+    loader: process.env.NODE_ENV === "development" ? "custom" : "default",
+    loaderFile:
+      process.env.NODE_ENV === "development"
+        ? "./src/lib/image-loader.ts"
+        : undefined,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "**", // This allows any HTTPS domain
       },
-      // Or be more specific:
-      // {
-      //   protocol: 'https',
-      //   hostname: 'example.com',
-      //   pathname: '/images/**',
-      // }
+      {
+        protocol: "http",
+        hostname: "localhost", // Allow localhost for development
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1", // Allow 127.0.0.1 for development
+      },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // SEO optimization
