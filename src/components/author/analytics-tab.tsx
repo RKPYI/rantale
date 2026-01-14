@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { formatNumber } from "@/lib/novel-utils";
 import { AuthorNovel, AuthorStats } from "@/types/api";
+import { NovelCard } from "@/components/novels/novel-card";
 
 interface AnalyticsTabProps {
   stats: AuthorStats | null;
@@ -330,12 +331,12 @@ export function AnalyticsTab({
         </Card>
       </div>
 
-      {/* Top Performing Novels */}
+      {/* Most Viewed Novels */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 flex-shrink-0" />
-            <span className="truncate">Top Performing Novels</span>
+            <Eye className="h-5 w-5 flex-shrink-0" />
+            <span className="truncate">Most Viewed Novels</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -343,8 +344,7 @@ export function AnalyticsTab({
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-32 w-full" />
                 </div>
               ))}
             </div>
@@ -357,33 +357,12 @@ export function AnalyticsTab({
                 .sort((a, b) => b.views_count - a.views_count)
                 .slice(0, 5)
                 .map((novel, index) => (
-                  <div
+                  <NovelCard
                     key={novel.id}
-                    className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border p-3 transition-colors"
-                  >
-                    <div className="flex min-w-0 flex-1 items-center gap-3">
-                      <span className="bg-primary/10 text-primary flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold">
-                        {index + 1}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">
-                          {novel.title}
-                        </p>
-                        <div className="text-muted-foreground flex items-center gap-3 text-xs">
-                          <span className="flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            {formatNumber(novel.views_count)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Star className="h-3 w-3" />
-                            {novel.rating_avg
-                              ? parseFloat(novel.rating_avg).toFixed(1)
-                              : "—"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    novel={novel}
+                    size="ranked"
+                    rank={index + 1}
+                  />
                 ))}
             </div>
           ) : (

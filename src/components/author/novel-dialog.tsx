@@ -20,6 +20,7 @@ import { novelService } from "@/services/novels";
 import { AuthorNovel, Genre } from "@/types/api";
 import { toast } from "sonner";
 import { NovelCoverUpload } from "@/components/novels/novel-cover-upload";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 interface NovelDialogProps {
   isOpen: boolean;
@@ -44,11 +45,13 @@ export function NovelDialog({
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
     genres: [] as number[],
   });
+  const [coverImage, setCoverImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
     setError(""); // Clear error when dialog opens/closes
+    setCoverImage(null); // Clear cover image selection
     if (isEditing && novel) {
       setFormData({
         title: novel.title,
@@ -75,15 +78,33 @@ export function NovelDialog({
       if (isEditing && novel) {
         await novelService.updateNovel(novel.slug, formData);
         toast.success("Novel updated successfully!");
+        onSuccess();
+        onClose();
       } else {
-        await novelService.createNovel({
+        // Create the novel first
+        const createdNovel = await novelService.createNovel({
           ...formData,
           author: "", // This should be set by the backend based on authenticated user
         });
-        toast.success("Novel created successfully!");
+
+        // If a cover image was selected, upload it
+        if (coverImage && createdNovel.slug) {
+          try {
+            await novelService.uploadNovelCover(createdNovel.slug, coverImage);
+            toast.success("Novel created with cover image!");
+          } catch (uploadError) {
+            console.error("Failed to upload cover:", uploadError);
+            toast.success(
+              "Novel created, but cover upload failed. You can add it later.",
+            );
+          }
+        } else {
+          toast.success("Novel created successfully!");
+        }
+
+        onSuccess();
+        onClose();
       }
-      onSuccess();
-      onClose();
     } catch (error: unknown) {
       console.error("Failed to save novel:", error);
 
@@ -181,7 +202,8 @@ export function NovelDialog({
             />
           </div>
 
-          {isEditing && novel && (
+          {/* Cover Image Upload */}
+          {isEditing && novel ? (
             <div className="space-y-2">
               <Label className="text-xs sm:text-sm">Cover Image</Label>
               <NovelCoverUpload
@@ -191,6 +213,26 @@ export function NovelDialog({
                   toast.success("Cover image updated!");
                 }}
               />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">
+                Cover Image (Optional)
+              </Label>
+              <ImageUpload
+                onFileSelect={(file) => setCoverImage(file)}
+                aspectRatio="2/3"
+                compress={true}
+                maxWidth={800}
+                placeholder="Upload novel cover image (recommended: 2:3 ratio)"
+                compact={true}
+                showDelete={false}
+              />
+              {coverImage && (
+                <p className="text-muted-foreground text-xs">
+                  Selected: {coverImage.name}
+                </p>
+              )}
             </div>
           )}
 
