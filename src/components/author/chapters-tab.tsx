@@ -11,7 +11,7 @@ import { BookOpen, Eye, Edit, FileText, Trash2, Plus } from "lucide-react";
 import { useNovelChapters } from "@/hooks/use-chapters";
 import { chapterService } from "@/services/chapters";
 import { AuthorNovel, ChapterSummary } from "@/types/api";
-import { cn } from "@/lib/utils";
+import { cn, logAndToastError, toggleInSet, toggleAllInSet } from "@/lib/utils";
 import { formatNumber } from "@/lib/novel-utils";
 import { toast } from "sonner";
 
@@ -74,15 +74,11 @@ export function ChaptersTab({
       toast.success("Chapter deleted successfully!");
       setDeleteChapterDialog({ isOpen: false, chapter: null });
     } catch (error) {
-      console.error("Failed to delete chapter:", error);
-
-      let errorMessage = "Failed to delete chapter. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to delete chapter",
+        "Failed to delete chapter. Please try again.",
+      );
     }
   };
 
@@ -102,41 +98,25 @@ export function ChaptersTab({
       await refetchChapters();
       await refetchNovels();
     } catch (error) {
-      console.error("Failed to bulk delete chapters:", error);
-
-      let errorMessage = "Failed to delete chapters. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error || errorMessage;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to bulk delete chapters",
+        "Failed to delete chapters. Please try again.",
+      );
     } finally {
       setIsBulkDeletingChapters(false);
     }
   };
 
   const toggleChapterSelection = (chapterId: number) => {
-    setSelectedChapterIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(chapterId)) {
-        newSet.delete(chapterId);
-      } else {
-        newSet.add(chapterId);
-      }
-      return newSet;
-    });
+    setSelectedChapterIds((prev) => toggleInSet(prev, chapterId));
   };
 
   const toggleAllChapters = () => {
     if (!chapters?.chapters) return;
-    if (selectedChapterIds.size === chapters.chapters.length) {
-      setSelectedChapterIds(new Set());
-    } else {
-      setSelectedChapterIds(new Set(chapters.chapters.map((ch) => ch.id)));
-    }
+    setSelectedChapterIds((prev) =>
+      toggleAllInSet(prev, chapters.chapters, (ch) => ch.id),
+    );
   };
 
   if (!novels || novels.length === 0) {
