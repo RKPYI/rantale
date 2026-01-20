@@ -20,6 +20,7 @@ import { chapterService } from "@/services/chapters";
 import { AuthorNovel, ChapterSummary, Chapter } from "@/types/api";
 import { toast } from "sonner";
 import { MarkdownEditor } from "@/components/chapters/markdown-editor";
+import { handleErrorWithState, ApiError } from "@/lib/utils";
 
 interface ChapterDialogProps {
   isOpen: boolean;
@@ -134,44 +135,31 @@ export function ChapterDialog({
     } catch (error: unknown) {
       console.error("Failed to save chapter:", error);
 
-      // Handle ApiError from api-client
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as {
-          success: false;
-          error: string;
-          details?: Record<string, string[]>;
-          statusCode?: number;
-          rawData?: unknown;
-        };
-
-        let errorMessage =
-          apiError.error || "Failed to save chapter. Please try again.";
-
-        // Handle chapter number conflict - check rawData for existing_chapter
+      // Special handling for chapter conflict
+      if (error && typeof error === "object" && "rawData" in error) {
+        const apiError = error as ApiError;
         if (
           apiError.rawData &&
           typeof apiError.rawData === "object" &&
-          apiError.rawData !== null &&
           "existing_chapter" in apiError.rawData
         ) {
           const existing = apiError.rawData.existing_chapter as {
-            id: number;
             chapter_number: number;
             title: string;
           };
-          errorMessage = `Chapter ${existing.chapter_number} already exists: "${existing.title}". Please use a different chapter number or edit the existing chapter.`;
+          const errorMessage = `Chapter ${existing.chapter_number} already exists: "${existing.title}". Please use a different chapter number or edit the existing chapter.`;
+          setError(errorMessage);
+          toast.error(errorMessage);
+          return;
         }
-
-        setError(errorMessage);
-        toast.error(errorMessage);
-      } else if (error instanceof Error) {
-        setError(error.message);
-        toast.error(error.message);
-      } else {
-        const fallbackMessage = "Failed to save chapter. Please try again.";
-        setError(fallbackMessage);
-        toast.error(fallbackMessage);
       }
+
+      // Default error handling
+      handleErrorWithState(
+        error,
+        setError,
+        "Failed to save chapter. Please try again.",
+      );
     } finally {
       setSaving(false);
     }

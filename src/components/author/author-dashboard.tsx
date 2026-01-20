@@ -18,6 +18,7 @@ import { NovelsTab } from "./novels-tab";
 import { ChaptersTab } from "./chapters-tab";
 import { AnalyticsTab } from "./analytics-tab";
 import { NovelDialog } from "./novel-dialog";
+import { toggleInSet, toggleAllInSet, logAndToastError } from "@/lib/utils";
 import { ChapterDialog } from "./chapter-dialog";
 
 export function AuthorDashboard() {
@@ -85,15 +86,11 @@ export function AuthorDashboard() {
       toast.success("Novel deleted successfully!");
       setDeleteNovelDialog({ isOpen: false, novel: null });
     } catch (error) {
-      console.error("Failed to delete novel:", error);
-
-      let errorMessage = "Failed to delete novel. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to delete novel",
+        "Failed to delete novel. Please try again.",
+      );
     }
   };
 
@@ -118,41 +115,23 @@ export function AuthorDashboard() {
       setSelectedNovelIds(new Set());
       await refetchNovels();
     } catch (error) {
-      console.error("Failed to bulk delete novels:", error);
-
-      let errorMessage = "Failed to delete novels. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error || errorMessage;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to bulk delete novels",
+        "Failed to delete novels. Please try again.",
+      );
     } finally {
       setIsBulkDeleting(false);
     }
   };
 
   const toggleNovelSelection = (novelId: number) => {
-    setSelectedNovelIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(novelId)) {
-        newSet.delete(novelId);
-      } else {
-        newSet.add(novelId);
-      }
-      return newSet;
-    });
+    setSelectedNovelIds((prev) => toggleInSet(prev, novelId));
   };
 
   const toggleAllNovels = () => {
     if (!novels) return;
-    if (selectedNovelIds.size === novels.length) {
-      setSelectedNovelIds(new Set());
-    } else {
-      setSelectedNovelIds(new Set(novels.map((n) => n.id)));
-    }
+    setSelectedNovelIds((prev) => toggleAllInSet(prev, novels, (n) => n.id));
   };
 
   if (novelsError || statsError) {

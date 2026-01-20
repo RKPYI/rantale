@@ -39,6 +39,7 @@ import { formatDate } from "@/lib/novel-utils";
 import { adminService } from "@/services/admin";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DeleteModal } from "@/components/ui/delete-modal";
+import { logAndToastError } from "@/lib/utils";
 
 export function ContactsTab() {
   const [statusFilter, setStatusFilter] = useState("all");
@@ -113,8 +114,11 @@ export function ContactsTab() {
         setSelectedContact(selectedContact);
       }, 100);
     } catch (error) {
-      console.error("Failed to send response:", error);
-      alert("Failed to send response. Please try again.");
+      logAndToastError(
+        error,
+        "Failed to send response",
+        "Failed to send response. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -136,8 +140,11 @@ export function ContactsTab() {
       setDeleteModalOpen(false);
       setContactToDelete(null);
     } catch (error) {
-      console.error("Failed to delete contact:", error);
-      alert("Failed to delete contact. Please try again.");
+      logAndToastError(
+        error,
+        "Failed to delete contact",
+        "Failed to delete contact. Please try again.",
+      );
     } finally {
       setIsDeleting(false);
     }

@@ -21,6 +21,7 @@ import { AuthorNovel, Genre } from "@/types/api";
 import { toast } from "sonner";
 import { NovelCoverUpload } from "@/components/novels/novel-cover-upload";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { handleErrorWithState } from "@/lib/utils";
 
 interface NovelDialogProps {
   isOpen: boolean;
@@ -107,28 +108,11 @@ export function NovelDialog({
       }
     } catch (error: unknown) {
       console.error("Failed to save novel:", error);
-
-      // Handle ApiError from api-client
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as {
-          success: false;
-          error: string;
-          details?: Record<string, string[]>;
-          statusCode?: number;
-        };
-
-        const errorMessage =
-          apiError.error || "Failed to save novel. Please try again.";
-        setError(errorMessage);
-        toast.error(errorMessage);
-      } else if (error instanceof Error) {
-        setError(error.message);
-        toast.error(error.message);
-      } else {
-        const fallbackMessage = "Failed to save novel. Please try again.";
-        setError(fallbackMessage);
-        toast.error(fallbackMessage);
-      }
+      handleErrorWithState(
+        error,
+        setError,
+        "Failed to save novel. Please try again.",
+      );
     } finally {
       setSaving(false);
     }

@@ -26,6 +26,7 @@ import { useAsync } from "@/hooks/use-api";
 import { authService } from "@/services/auth";
 import { toast } from "sonner";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
+import { logAndToastError } from "@/lib/utils";
 
 export function ProfileSettings() {
   const { user, updateProfile, sendEmailVerification, refreshProfile } =
@@ -73,8 +74,11 @@ export function ProfileSettings() {
         toast.success("Profile updated successfully!");
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again.");
+      logAndToastError(
+        error,
+        "Error updating profile",
+        "Failed to update profile. Please try again.",
+      );
     }
   };
 
@@ -104,8 +108,11 @@ export function ProfileSettings() {
       });
       toast.success("Password updated successfully!");
     } catch (error) {
-      console.error("Error updating password:", error);
-      toast.error("Failed to update password. Please try again.");
+      logAndToastError(
+        error,
+        "Error updating password",
+        "Failed to update password. Please try again.",
+      );
     }
   };
 
@@ -116,8 +123,11 @@ export function ProfileSettings() {
         toast.success("Verification email sent! Check your inbox.");
       }
     } catch (error) {
-      console.error("Error sending verification:", error);
-      toast.error("Failed to send verification email. Please try again.");
+      logAndToastError(
+        error,
+        "Error sending verification",
+        "Failed to send verification email. Please try again.",
+      );
     }
   };
 

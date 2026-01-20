@@ -36,6 +36,7 @@ import {
 import { AuthorApplication } from "@/types/api";
 import { formatDate } from "@/lib/novel-utils";
 import { adminService } from "@/services/admin";
+import { logAndToastError } from "@/lib/utils";
 
 // Helper to detect and warn about spam-like content
 const detectSpamPattern = (text: string): boolean => {
@@ -100,7 +101,11 @@ export function AuthorApplicationsTab() {
       setIsDialogOpen(false);
       setAdminNotes("");
     } catch (error) {
-      console.error(`Failed to ${action} application:`, error);
+      logAndToastError(
+        error,
+        `Failed to ${action} application`,
+        `Failed to ${action} application. Please try again.`,
+      );
     }
   };
 

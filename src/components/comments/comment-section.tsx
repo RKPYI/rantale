@@ -13,6 +13,7 @@ import { commentService } from "@/services/comments";
 import { useAsync } from "@/hooks/use-api";
 
 import { sortComments } from "@/lib/content-utils";
+import { toggleInSet } from "@/lib/utils";
 
 import {
   Comment,
@@ -277,27 +278,11 @@ export function CommentSection({
   );
 
   const handleToggleSpoiler = useCallback((commentId: number) => {
-    setOpenSpoilers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(commentId)) {
-        newSet.delete(commentId);
-      } else {
-        newSet.add(commentId);
-      }
-      return newSet;
-    });
+    setOpenSpoilers((prev) => toggleInSet(prev, commentId));
   }, []);
 
   const handleToggleRepliesCollapsed = useCallback((commentId: number) => {
-    setCollapsedReplies((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(commentId)) {
-        newSet.delete(commentId);
-      } else {
-        newSet.add(commentId);
-      }
-      return newSet;
-    });
+    setCollapsedReplies((prev) => toggleInSet(prev, commentId));
   }, []);
 
   const handleCreateComment = useCallback(async () => {
