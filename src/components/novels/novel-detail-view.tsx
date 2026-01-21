@@ -35,6 +35,7 @@ import { RelatedNovels } from "./related-novels";
 import { NovelDialog } from "@/components/author/novel-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useNovelProgress } from "@/hooks/use-reading-progress";
+import { useGenres } from "@/hooks/use-novels";
 import {
   formatRating,
   getStatusColor,
@@ -56,12 +57,12 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [genres, setGenres] = useState<Genre[]>([]);
   const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
     novel.slug,
   );
+  const { data: genres } = useGenres();
   const isLoading = authLoading || progressLoading;
 
   // Handle URL hash to open specific tab (e.g., #reviews)
@@ -115,24 +116,6 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
   // Check if user is admin
   const isAdmin = user?.is_admin || user?.role === 3;
-
-  // Fetch genres for the edit dialog
-  useEffect(() => {
-    const fetchGenres = async () => {
-      if (isAdmin) {
-        try {
-          const response = await fetch("/api/genres");
-          if (response.ok) {
-            const data = await response.json();
-            setGenres(data);
-          }
-        } catch (error) {
-          console.error("Failed to fetch genres:", error);
-        }
-      }
-    };
-    fetchGenres();
-  }, [isAdmin]);
 
   const handleEditSuccess = () => {
     router.refresh();
@@ -506,9 +489,9 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
         <NovelDialog
           isOpen={showEditDialog}
           onClose={() => setShowEditDialog(false)}
-          novel={novel as any}
+          novel={novel}
           isEditing={true}
-          genres={genres}
+          genres={genres || []}
           onSuccess={handleEditSuccess}
         />
       )}
