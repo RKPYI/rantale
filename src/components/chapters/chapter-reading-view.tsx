@@ -23,6 +23,7 @@ import {
   ArrowUp,
   WifiOff,
   Type,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ import { CommentSection } from "@/components/comments/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
 import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
+import { ChapterDialog } from "@/components/author/chapter-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { useOfflineStatus } from "@/hooks/use-offline-chapter";
@@ -96,17 +98,25 @@ export function ChapterReadingView({
   allChapters,
 }: ChapterReadingViewProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { isOffline } = useOfflineStatus();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [showComments, setShowComments] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { fontSize, maxWidth } = settings;
 
   const { execute: executeUpdateProgress } = useAsync();
+
+  // Check if user is admin
+  const isAdmin = user?.is_admin || user?.role === 3;
+
+  const handleEditSuccess = () => {
+    router.refresh();
+  };
 
   // Mark component as mounted to prevent hydration mismatch
   useEffect(() => {
@@ -253,6 +263,18 @@ export function ChapterReadingView({
 
             {/* Right: Actions */}
             <div className="flex min-w-0 flex-1 items-center justify-end gap-1 md:gap-2">
+              {/* Admin Edit Button */}
+              {isAdmin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowEditDialog(true)}
+                  title="Edit Chapter (Admin)"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              )}
+
               {/* Download Button */}
               {/* <ChapterDownloadButton
                 chapter={chapter}
@@ -719,6 +741,26 @@ export function ChapterReadingView({
           </Link>
         )}
       </div>
+
+      {/* Admin Edit Dialog */}
+      {isAdmin && (
+        <ChapterDialog
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          chapter={chapter}
+          isEditing={true}
+          novel={
+            {
+              ...novel,
+              slug: novel.slug,
+              id: novel.id,
+              title: novel.title,
+              author: novel.author,
+            } as any
+          }
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }

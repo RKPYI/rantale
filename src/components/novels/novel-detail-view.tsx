@@ -15,6 +15,7 @@ import {
   MessageCircle,
   TrendingUp,
   ChevronRight,
+  Edit,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { LibraryActionButton } from "@/components/library";
 import { ShareButton } from "@/components/ui/share-button";
 import { RelatedNovels } from "./related-novels";
+import { NovelDialog } from "@/components/author/novel-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useNovelProgress } from "@/hooks/use-reading-progress";
 import {
@@ -42,7 +44,7 @@ import {
 } from "@/lib/novel-utils";
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
-import { NovelWithChapters } from "@/types/api";
+import { NovelWithChapters, Genre } from "@/types/api";
 import { useRouter } from "next/navigation";
 import { NovelBadge } from "./ui/novel-badge";
 
@@ -51,8 +53,10 @@ interface NovelDetailViewProps {
 }
 
 export function NovelDetailView({ novel }: NovelDetailViewProps) {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [genres, setGenres] = useState<Genre[]>([]);
   const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
@@ -108,6 +112,31 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const hasStartedReading =
     readingProgress?.current_chapter !== null &&
     readingProgress?.current_chapter !== undefined;
+
+  // Check if user is admin
+  const isAdmin = user?.is_admin || user?.role === 3;
+
+  // Fetch genres for the edit dialog
+  useEffect(() => {
+    const fetchGenres = async () => {
+      if (isAdmin) {
+        try {
+          const response = await fetch("/api/genres");
+          if (response.ok) {
+            const data = await response.json();
+            setGenres(data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch genres:", error);
+        }
+      }
+    };
+    fetchGenres();
+  }, [isAdmin]);
+
+  const handleEditSuccess = () => {
+    router.refresh();
+  };
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-6">
@@ -171,6 +200,19 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Start Reading
+                </Button>
+              )}
+
+              {/* Admin Edit Button */}
+              {isAdmin && (
+                <Button
+                  onClick={() => setShowEditDialog(true)}
+                  variant="secondary"
+                  className="w-full"
+                  size="lg"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Novel (Admin)
                 </Button>
               )}
 
@@ -458,6 +500,18 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Admin Edit Dialog */}
+      {isAdmin && (
+        <NovelDialog
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          novel={novel as any}
+          isEditing={true}
+          genres={genres}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }
