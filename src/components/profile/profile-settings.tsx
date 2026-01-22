@@ -180,6 +180,13 @@ export function ProfileSettings() {
           <CardContent>
             <form onSubmit={handleProfileUpdate} className="space-y-4">
               <div className="space-y-2">
+                <Label>Profile Picture</Label>
+                <AvatarUpload user={user} onUpdate={() => refreshProfile()} />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
@@ -219,15 +226,6 @@ export function ProfileSettings() {
               </div>
 
               <Separator className="my-4" />
-
-              <div className="space-y-2">
-                <Label>Profile Picture</Label>
-                <AvatarUpload user={user} onUpdate={() => refreshProfile()} />
-                <p className="text-muted-foreground text-xs">
-                  Recommended: 400x400px, max 5MB. Supports JPEG, PNG, GIF,
-                  WebP.
-                </p>
-              </div>
 
               <Button
                 type="submit"
