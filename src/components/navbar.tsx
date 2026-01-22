@@ -14,13 +14,13 @@ import {
   MailCheck,
   X,
   Clock,
-  Star,
   Shield,
   PenTool,
   Download,
   Library,
   TrendingUp,
   Crown,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -480,7 +480,7 @@ export function Navbar() {
                     </DropdownMenuItem> */}
                     <DropdownMenuItem asChild>
                       <Link href="/notifications">
-                        <Star className="mr-2 h-4 w-4" />
+                        <Bell className="mr-2 h-4 w-4" />
                         Notifications
                       </Link>
                     </DropdownMenuItem>
