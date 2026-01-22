@@ -87,7 +87,7 @@ export default function ImageUploadDemo() {
                 <ul className="list-inside list-disc space-y-1">
                   <li>Recommended size: 400x400 pixels (square)</li>
                   <li>Supported formats: JPEG, PNG, GIF, WebP</li>
-                  <li>Maximum file size: 5MB</li>
+                  <li>Maximum file size: 50MB</li>
                   <li>Images are automatically compressed and optimized</li>
                 </ul>
               </div>
@@ -119,7 +119,7 @@ export default function ImageUploadDemo() {
                 <ul className="list-inside list-disc space-y-1">
                   <li>Recommended size: 800x1200 pixels (2:3 ratio)</li>
                   <li>Supported formats: JPEG, PNG, GIF, WebP</li>
-                  <li>Maximum file size: 5MB</li>
+                  <li>Maximum file size: 50MB</li>
                   <li>Portrait orientation works best for book covers</li>
                   <li>Images are automatically compressed and optimized</li>
                 </ul>
