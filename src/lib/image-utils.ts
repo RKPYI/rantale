@@ -12,8 +12,8 @@ export const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ] as const;
 
-// Max file size in bytes (5MB)
-export const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+// Max file size in bytes (50MB)
+export const MAX_IMAGE_SIZE = 50 * 1024 * 1024;
 
 // Image validation error types
 export interface ImageValidationError {
