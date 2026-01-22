@@ -219,7 +219,10 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           <div className="text-muted-foreground flex items-center space-x-4 text-sm">
-            <span>© 2025 Rantale. All rights reserved.</span>
+            <span>
+              © 2025 Rantale. All novel rights belong to their respective
+              authors.
+            </span>
           </div>
 
           <div className="text-muted-foreground flex items-center space-x-1 text-sm">
