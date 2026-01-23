@@ -16,6 +16,7 @@ import {
   TrendingUp,
   ChevronRight,
   Edit,
+  Trash2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,26 @@ import { cn } from "@/lib/utils";
 import { NovelWithChapters, Genre } from "@/types/api";
 import { useRouter } from "next/navigation";
 import { NovelBadge } from "./ui/novel-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { novelService } from "@/services/novels";
+import { toast } from "sonner";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
@@ -57,6 +78,8 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
@@ -119,6 +142,22 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
   const handleEditSuccess = () => {
     router.refresh();
+  };
+
+  const handleDeleteNovel = async () => {
+    setIsDeleting(true);
+    try {
+      await novelService.deleteNovel(novel.slug);
+      toast.success("Novel deleted successfully");
+      router.push("/novels");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete novel:", error);
+      toast.error("Failed to delete novel. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   return (
@@ -188,15 +227,26 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
               {/* Admin Edit Button */}
               {isAdmin && (
-                <Button
-                  onClick={() => setShowEditDialog(true)}
-                  variant="secondary"
-                  className="w-full"
-                  size="lg"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Novel (Admin)
-                </Button>
+                <>
+                  <Button
+                    onClick={() => setShowEditDialog(true)}
+                    variant="secondary"
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Novel (Admin)
+                  </Button>
+                  <Button
+                    onClick={() => setShowDeleteDialog(true)}
+                    variant="destructive"
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Novel (Admin)
+                  </Button>
+                </>
               )}
 
               <div className="flex gap-2">
@@ -494,6 +544,34 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
           genres={genres || []}
           onSuccess={handleEditSuccess}
         />
+      )}
+
+      {/* Admin Delete Confirmation Dialog */}
+      {isAdmin && (
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                novel &quot;{novel.title}&quot; and all of its chapters,
+                comments, and ratings.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteNovel}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Deleting..." : "Delete Novel"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </div>
   );
