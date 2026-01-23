@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,12 +27,8 @@ import {
   Users,
   Settings,
 } from "lucide-react";
-import {
-  useNotifications,
-  useMarkAsRead,
-  useMarkAllAsRead,
-  useDeleteNotification,
-} from "@/hooks/use-notifications";
+import { useNotifications } from "@/hooks/use-notifications";
+import { useNotificationContext } from "@/contexts/notification-context";
 import { notificationService } from "@/services/notifications";
 import { formatDate } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
@@ -45,17 +41,20 @@ interface NotificationCenterProps {
 export function NotificationCenter({ className }: NotificationCenterProps) {
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
+  // Use context for actions to ensure specific unread count updates
+  const {
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    loading: contextLoading,
+  } = useNotificationContext();
+
   const {
     data: notifications,
     loading,
     error,
     refetch,
   } = useNotifications(filter === "unread");
-  const { loading: markingAsRead, execute: markAsRead } = useMarkAsRead();
-  const { loading: markingAllAsRead, execute: markAllAsRead } =
-    useMarkAllAsRead();
-  const { loading: deleting, execute: deleteNotification } =
-    useDeleteNotification();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -102,7 +101,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
   const handleMarkAsRead = async (notificationId: number) => {
     try {
-      await markAsRead(notificationService.markAsRead, notificationId);
+      await markAsRead(notificationId);
       refetch();
     } catch (error) {
       console.error("Error marking notification as read:", error);
@@ -111,7 +110,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead(notificationService.markAllAsRead);
+      await markAllAsRead();
       refetch();
     } catch (error) {
       console.error("Error marking all as read:", error);
@@ -120,10 +119,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
   const handleDelete = async (notificationId: number) => {
     try {
-      await deleteNotification(
-        notificationService.deleteNotification,
-        notificationId,
-      );
+      await deleteNotification(notificationId);
       refetch();
     } catch (error) {
       console.error("Error deleting notification:", error);
@@ -176,7 +172,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
                 variant="ghost"
                 size="sm"
                 onClick={handleMarkAllAsRead}
-                disabled={markingAllAsRead}
+                disabled={contextLoading}
               >
                 <CheckCheck className="h-4 w-4" />
               </Button>
@@ -245,7 +241,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleMarkAsRead(notification.id)}
-                          disabled={markingAsRead}
+                          disabled={contextLoading}
                         >
                           <Check className="h-3 w-3" />
                         </Button>
@@ -253,7 +249,11 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" disabled={deleting}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={contextLoading}
+                          >
                             <MoreHorizontal className="h-3 w-3" />
                           </Button>
                         </DropdownMenuTrigger>

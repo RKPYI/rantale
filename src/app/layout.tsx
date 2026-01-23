@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { NotificationProvider } from "@/contexts/notification-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -110,7 +111,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <NotificationProvider>{children}</NotificationProvider>
             <Toaster />
             <Analytics />
             {/* <OfflineIndicator /> */}

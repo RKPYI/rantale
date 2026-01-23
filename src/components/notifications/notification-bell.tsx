@@ -9,14 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Bell, BellRing } from "lucide-react";
-import { useUnreadNotificationCount } from "@/hooks/use-notifications";
+import { useNotificationContext } from "@/contexts/notification-context";
 import { NotificationCenter } from "./notification-center";
 
 export function NotificationBell() {
-  const { data: unreadData, loading } = useUnreadNotificationCount();
+  const { unreadCount } = useNotificationContext();
   const [isOpen, setIsOpen] = useState(false);
-
-  const unreadCount = unreadData || 0;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
