@@ -227,7 +227,7 @@ export function ChapterReadingView({
 
       {/* Header Navigation */}
       <div className="bg-background/95 sticky top-1 z-50 border-b shadow-sm backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-3">
+        <div className="container mx-auto px-2 py-3 md:px-4">
           <div className="flex items-center">
             {/* Left: Back Navigation */}
             <div className="flex min-w-0 flex-1 items-center gap-1 md:gap-2">
@@ -252,7 +252,7 @@ export function ChapterReadingView({
             </div>
 
             {/* Center: Chapter Info */}
-            <div className="flex-shrink-0 px-2 text-center md:px-4">
+            <div className="hidden flex-shrink-0 px-2 text-center md:block md:px-4">
               <div className="truncate text-xs font-medium sm:text-sm">
                 {novel.title}
               </div>
