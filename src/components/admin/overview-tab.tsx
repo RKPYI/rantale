@@ -54,6 +54,82 @@ export function OverviewTab() {
 
       {/* Recent Activity & Quick Stats */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>Content Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {stats?.content?.novels || 0}
+                </p>
+                <p className="text-muted-foreground text-sm">Total Novels</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {formatNumber(stats?.content?.chapters || 0)}
+                </p>
+                <p className="text-muted-foreground text-sm">Total Chapters</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {formatNumber(
+                    typeof stats?.engagement?.total_views === "string"
+                      ? parseInt(stats.engagement.total_views)
+                      : stats?.engagement?.total_views || 0,
+                  )}
+                </p>
+                <p className="text-muted-foreground text-sm">Total Views</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl font-bold">
+                  {stats?.engagement?.total_library_entries || 0}
+                </p>
+                <p className="text-muted-foreground text-sm">Library Entries</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* User Statistics */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>User Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats?.users?.active_today || 0}
+                </p>
+                <p className="text-muted-foreground text-xs">Active Today</p>
+              </div>
+              <div className="bg-muted rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-green-600">
+                  {stats?.users?.verified || 0}
+                </p>
+                <p className="text-muted-foreground text-xs">Verified</p>
+              </div>
+              <div className="bg-muted rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-purple-600">
+                  {stats?.users?.by_role?.authors || 0}
+                </p>
+                <p className="text-muted-foreground text-xs">Authors</p>
+              </div>
+              <div className="bg-muted rounded-lg p-3 text-center">
+                <p className="text-2xl font-bold text-orange-600">
+                  {stats?.author_applications?.pending || 0}
+                </p>
+                <p className="text-muted-foreground text-xs">Pending Apps</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Content & Engagement Overview */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Activity */}
         <Card>
           <CardHeader className="pb-3">
@@ -99,82 +175,6 @@ export function OverviewTab() {
                 No recent activity
               </p>
             )}
-          </CardContent>
-        </Card>
-
-        {/* User Statistics */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>User Breakdown</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-muted rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-blue-600">
-                  {stats?.users?.active_today || 0}
-                </p>
-                <p className="text-muted-foreground text-xs">Active Today</p>
-              </div>
-              <div className="bg-muted rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-green-600">
-                  {stats?.users?.verified || 0}
-                </p>
-                <p className="text-muted-foreground text-xs">Verified</p>
-              </div>
-              <div className="bg-muted rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-purple-600">
-                  {stats?.users?.by_role?.authors || 0}
-                </p>
-                <p className="text-muted-foreground text-xs">Authors</p>
-              </div>
-              <div className="bg-muted rounded-lg p-3 text-center">
-                <p className="text-2xl font-bold text-orange-600">
-                  {stats?.author_applications?.pending || 0}
-                </p>
-                <p className="text-muted-foreground text-xs">Pending Apps</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Content & Engagement Overview */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Content Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="text-xl font-bold">
-                  {stats?.content?.novels || 0}
-                </p>
-                <p className="text-muted-foreground text-sm">Total Novels</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold">
-                  {formatNumber(stats?.content?.chapters || 0)}
-                </p>
-                <p className="text-muted-foreground text-sm">Total Chapters</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold">
-                  {formatNumber(
-                    typeof stats?.engagement?.total_views === "string"
-                      ? parseInt(stats.engagement.total_views)
-                      : stats?.engagement?.total_views || 0,
-                  )}
-                </p>
-                <p className="text-muted-foreground text-sm">Total Views</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold">
-                  {stats?.engagement?.total_library_entries || 0}
-                </p>
-                <p className="text-muted-foreground text-sm">Library Entries</p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
