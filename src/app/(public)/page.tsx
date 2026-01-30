@@ -90,7 +90,7 @@ export default function Home() {
             <NovelsTabs maxItems={12} />
 
             <div className="mt-8 text-center">
-              <Link href="/search">
+              <Link href="/recently-updated">
                 <Button variant="outline" size="lg">
                   Explore More Novels
                 </Button>

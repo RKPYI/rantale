@@ -92,14 +92,14 @@ export function Footer() {
                   All Novels
                 </Link>
               </li> */}
-              <li>
+              {/* <li>
                 <Link
                   href="/genres"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Genres
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   href="/top-rated"
