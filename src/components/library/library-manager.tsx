@@ -522,7 +522,7 @@ export function LibraryManager() {
                   : "Add some novels to your library to get started."}
               </p>
               <Button asChild>
-                <Link href="/novels">Browse Novels</Link>
+                <Link href="/">Browse Novels</Link>
               </Button>
             </div>
           )}
