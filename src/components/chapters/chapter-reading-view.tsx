@@ -23,6 +23,7 @@ import {
   ArrowUp,
   WifiOff,
   Type,
+  Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,10 +36,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CommentSection } from "@/components/comment-section";
+import { CommentSection } from "@/components/comments/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
 import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
+import { ChapterDialog } from "@/components/author/chapter-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { useOfflineStatus } from "@/hooks/use-offline-chapter";
@@ -54,7 +56,6 @@ const READING_SETTINGS_KEY = "chapter-reading-settings";
 // Default settings
 const DEFAULT_SETTINGS = {
   fontSize: 20,
-  lineHeight: 1.6,
   maxWidth: 800,
 };
 
@@ -97,17 +98,25 @@ export function ChapterReadingView({
   allChapters,
 }: ChapterReadingViewProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { isOffline } = useOfflineStatus();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [showComments, setShowComments] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const { fontSize, lineHeight, maxWidth } = settings;
+  const { fontSize, maxWidth } = settings;
 
   const { execute: executeUpdateProgress } = useAsync();
+
+  // Check if user is admin
+  const isAdmin = user?.is_admin || user?.role === 3;
+
+  const handleEditSuccess = () => {
+    router.refresh();
+  };
 
   // Mark component as mounted to prevent hydration mismatch
   useEffect(() => {
@@ -218,10 +227,10 @@ export function ChapterReadingView({
 
       {/* Header Navigation */}
       <div className="bg-background/95 sticky top-1 z-50 border-b shadow-sm backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-2 py-3 md:px-4">
+          <div className="flex items-center">
             {/* Left: Back Navigation */}
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1 md:gap-2">
               <Link href={`/novels/${novel.slug}`}>
                 <Button variant="ghost" size="sm" className="hidden sm:flex">
                   <ArrowLeft className="mr-2 h-4 w-4" />
@@ -243,7 +252,7 @@ export function ChapterReadingView({
             </div>
 
             {/* Center: Chapter Info */}
-            <div className="min-w-0 flex-1 px-2 text-center md:px-4">
+            <div className="hidden flex-shrink-0 px-2 text-center md:block md:px-4">
               <div className="truncate text-xs font-medium sm:text-sm">
                 {novel.title}
               </div>
@@ -253,9 +262,21 @@ export function ChapterReadingView({
             </div>
 
             {/* Right: Actions */}
-            <div className="flex items-center gap-1 md:gap-2">
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-1 md:gap-2">
+              {/* Admin Edit Button */}
+              {isAdmin && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowEditDialog(true)}
+                  title="Edit Chapter (Admin)"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+              )}
+
               {/* Download Button */}
-              <ChapterDownloadButton
+              {/* <ChapterDownloadButton
                 chapter={chapter}
                 novelTitle={novel.title}
                 variant="ghost"
@@ -271,7 +292,7 @@ export function ChapterReadingView({
                     description: error.message,
                   });
                 }}
-              />
+              /> */}
 
               <ChapterNavigator
                 allChapters={allChapters}
@@ -320,42 +341,6 @@ export function ChapterReadingView({
                           className="px-2 md:px-3"
                         >
                           A+
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium md:text-sm">
-                        Line Height
-                      </label>
-                      <div className="mt-1 flex items-center gap-1 md:gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updateSettings({
-                              lineHeight: Math.max(1.2, lineHeight - 0.2),
-                            })
-                          }
-                          disabled={lineHeight <= 1.2}
-                          className="px-2 md:px-3"
-                        >
-                          -
-                        </Button>
-                        <span className="w-8 text-center text-xs md:w-10 md:text-sm">
-                          {lineHeight.toFixed(1)}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            updateSettings({
-                              lineHeight: Math.min(2.5, lineHeight + 0.2),
-                            })
-                          }
-                          disabled={lineHeight >= 2.5}
-                          className="px-2 md:px-3"
-                        >
-                          +
                         </Button>
                       </div>
                     </div>
@@ -490,7 +475,6 @@ export function ChapterReadingView({
                   className="prose prose-gray dark:prose-invert max-w-none"
                   style={{
                     fontSize: `${fontSize}px`,
-                    lineHeight: lineHeight,
                   }}
                 >
                   <ReactMarkdown
@@ -589,7 +573,7 @@ export function ChapterReadingView({
                       table: ({ node, ...props }) => (
                         <div className="my-6 overflow-x-auto">
                           <table
-                            className="w-full border-collapse border border-border"
+                            className="border-border w-full border-collapse border"
                             {...props}
                           />
                         </div>
@@ -597,21 +581,19 @@ export function ChapterReadingView({
                       thead: ({ node, ...props }) => (
                         <thead className="bg-muted" {...props} />
                       ),
-                      tbody: ({ node, ...props }) => (
-                        <tbody {...props} />
-                      ),
+                      tbody: ({ node, ...props }) => <tbody {...props} />,
                       tr: ({ node, ...props }) => (
-                        <tr className="border-b border-border" {...props} />
+                        <tr className="border-border border-b" {...props} />
                       ),
                       th: ({ node, ...props }) => (
                         <th
-                          className="border border-border px-4 py-3 text-left font-semibold"
+                          className="border-border border px-4 py-3 text-left font-semibold"
                           {...props}
                         />
                       ),
                       td: ({ node, ...props }) => (
                         <td
-                          className="border border-border px-4 py-3"
+                          className="border-border border px-4 py-3"
                           {...props}
                         />
                       ),
@@ -643,7 +625,15 @@ export function ChapterReadingView({
                       </Button>
                     </Link>
                   ) : (
-                    <div />
+                    <Button
+                      variant="outline"
+                      className="invisible flex items-center"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <div className="hidden text-left md:block">
+                        <div className="text-sm">Placeholder</div>
+                      </div>
+                    </Button>
                   )}
 
                   <div className="text-center">
@@ -666,7 +656,12 @@ export function ChapterReadingView({
                       </Button>
                     </Link>
                   ) : (
-                    <div />
+                    <Button className="invisible flex items-center gap-2">
+                      <div className="hidden text-right md:block">
+                        <div className="text-sm">Placeholder</div>
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   )}
                 </div>
               </CardContent>
@@ -691,6 +686,7 @@ export function ChapterReadingView({
                 novelSlug={novel.slug}
                 novelId={novel.id}
                 chapterId={chapter.id}
+                chapterNumber={chapter.chapter_number}
                 title={`Chapter ${chapter.chapter_number}: ${chapter.title}`}
               />
             )}
@@ -745,6 +741,26 @@ export function ChapterReadingView({
           </Link>
         )}
       </div>
+
+      {/* Admin Edit Dialog */}
+      {isAdmin && (
+        <ChapterDialog
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          chapter={chapter}
+          isEditing={true}
+          novel={
+            {
+              ...novel,
+              slug: novel.slug,
+              id: novel.id,
+              title: novel.title,
+              author: novel.author,
+            } as any
+          }
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }

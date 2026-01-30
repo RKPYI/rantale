@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 interface NovelGridProps {
   novels?: Novel[];
   loading?: boolean;
-  size?: "default" | "compact" | "featured";
+  size?: "default" | "compact" | "featured" | "horizontal";
   maxItems?: number;
   emptyMessage?: string;
   emptyIcon?: "book" | "clock" | "star";
@@ -25,7 +25,7 @@ export function NovelGrid({
   emptyMessage = "No novels found",
   emptyIcon = "book",
   className,
-  skeletonCount = 10,
+  skeletonCount = 12,
 }: NovelGridProps) {
   const displayNovels = maxItems ? novels?.slice(0, maxItems) : novels;
 
@@ -50,12 +50,25 @@ export function NovelGrid({
     if (size === "featured") {
       return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
     }
+    if (size === "compact") {
+      return "grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+    }
+    if (size === "horizontal") {
+      return "grid-cols-1"; // Single column for horizontal cards
+    }
     return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
   };
 
   if (loading) {
     return (
-      <div className={cn("grid gap-6", getGridCols(), className)}>
+      <div
+        className={cn(
+          "grid gap-4",
+          size === "horizontal" ? "gap-2" : "gap-4",
+          getGridCols(),
+          className,
+        )}
+      >
         {Array.from({ length: skeletonCount }).map((_, i) => (
           <NovelCardSkeleton key={i} size={size} />
         ))}
@@ -73,7 +86,14 @@ export function NovelGrid({
   }
 
   return (
-    <div className={cn("grid gap-6", getGridCols(), className)}>
+    <div
+      className={cn(
+        "grid gap-4",
+        size === "horizontal" ? "gap-2" : "gap-4",
+        getGridCols(),
+        className,
+      )}
+    >
       {displayNovels.map((novel) => (
         <NovelCard key={novel.id} novel={novel} size={size} />
       ))}

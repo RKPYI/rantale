@@ -59,7 +59,7 @@ export function Footer() {
                 </Link>
               </Button>
               {/* Disable Twitter link for now */}
-              <div className="pointer-events-none opacity-50">
+              {/* <div className="pointer-events-none opacity-50">
                 <Button variant="ghost" size="sm" asChild>
                   <Link
                     href="https://twitter.com/RKPYI"
@@ -70,7 +70,7 @@ export function Footer() {
                     <span className="sr-only">Twitter</span>
                   </Link>
                 </Button>
-              </div>
+              </div> */}
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/contact">
                   <Mail className="h-4 w-4" />
@@ -92,14 +92,14 @@ export function Footer() {
                   All Novels
                 </Link>
               </li> */}
-              <li>
+              {/* <li>
                 <Link
                   href="/genres"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Genres
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link
                   href="/top-rated"
@@ -116,19 +116,19 @@ export function Footer() {
                   Recently Updated
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href="/completed"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Completed
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
           {/* Community Section */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="text-sm font-semibold">Community</h3>
             <ul className="space-y-3 text-sm">
               <li>
@@ -164,7 +164,7 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Support Section */}
           <div className="space-y-4">
@@ -219,7 +219,10 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           <div className="text-muted-foreground flex items-center space-x-4 text-sm">
-            <span>© 2025 Rantale. All rights reserved.</span>
+            <span>
+              © 2025 Rantale. All novel rights belong to their respective
+              authors.
+            </span>
           </div>
 
           <div className="text-muted-foreground flex items-center space-x-1 text-sm">

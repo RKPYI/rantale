@@ -127,116 +127,130 @@ export function SearchSheet({ trigger }: SearchSheetProps) {
                     <Link
                       key={novel.id}
                       href={`/novels/${novel.slug}`}
-                      className={cn(
-                        "hover:bg-muted/50 block rounded-lg p-3 transition-all",
-                        styling.containerClass,
-                      )}
+                      className="block"
                       onClick={handleResultClick}
                     >
-                      <div className="flex items-start gap-3">
-                        {/* Novel Cover */}
-                        <div className="relative flex-shrink-0">
-                          {novel.cover_image ? (
-                            <Image
-                              src={novel.cover_image}
-                              alt={novel.title}
-                              width={56}
-                              height={80}
-                              className={cn(
-                                "bg-muted rounded object-cover",
-                                styling.coverClass,
-                              )}
-                            />
-                          ) : (
-                            <div
-                              className={cn(
-                                "bg-muted flex h-20 w-14 items-center justify-center rounded",
-                                styling.coverClass,
-                              )}
-                            >
-                              <BookOpen className="text-muted-foreground h-6 w-6" />
-                            </div>
-                          )}
-                          {/* Corner badge icon */}
-                          {styling.showCornerIcon && (
-                            <div
-                              className={cn(
-                                "absolute -top-1 -right-1 rounded-full p-0.5 shadow-lg",
-                                styling.cornerIconClass,
-                              )}
-                            >
-                              {novel.is_featured ? (
-                                <Crown className="h-3 w-3 text-white" />
+                      <div
+                        className={cn(
+                          "hover:bg-muted/50 group rounded-lg p-3 transition-all",
+                          // Add featured/trending border styling
+                          novel.is_featured &&
+                            "border border-amber-500/30 shadow-md shadow-amber-500/10",
+                          novel.is_trending &&
+                            !novel.is_featured &&
+                            "border border-blue-500/30 shadow-md shadow-blue-500/10",
+                          // Add container gradient background
+                          styling.containerClass,
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          {/* Novel Cover */}
+                          <div className="relative flex-shrink-0">
+                            <div className="relative h-20 w-14 flex-shrink-0 overflow-hidden rounded">
+                              {novel.cover_image ? (
+                                <Image
+                                  src={novel.cover_image}
+                                  alt={novel.title}
+                                  width={56}
+                                  height={80}
+                                  className={cn(
+                                    "bg-muted rounded object-cover",
+                                    styling.coverClass,
+                                  )}
+                                />
                               ) : (
-                                <TrendingUp className="h-3 w-3 text-white" />
+                                <div
+                                  className={cn(
+                                    "bg-muted flex h-20 w-14 items-center justify-center rounded",
+                                    styling.coverClass,
+                                  )}
+                                >
+                                  <BookOpen className="text-muted-foreground h-6 w-6" />
+                                </div>
                               )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* Novel Info */}
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1 flex items-center gap-1.5">
-                            <h4
-                              className={cn(
-                                "text-sm leading-tight font-medium",
-                                styling.titleClass,
-                              )}
-                            >
-                              {novel.title}
-                            </h4>
-                            {styling.badge.show && (
-                              <NovelBadge
-                                novel={novel}
-                                positioned={false}
-                                className={styling.badge.className}
-                              />
+                            {/* Corner badge icon */}
+                            {styling.showCornerIcon && (
+                              <div
+                                className={cn(
+                                  "absolute -top-1 -right-1 rounded-full p-0.5 shadow-lg",
+                                  styling.cornerIconClass,
+                                )}
+                              >
+                                {novel.is_featured ? (
+                                  <Crown className="h-3 w-3 text-white" />
+                                ) : (
+                                  <TrendingUp className="h-3 w-3 text-white" />
+                                )}
+                              </div>
                             )}
                           </div>
-                          <p className="text-muted-foreground mb-2 text-xs">
-                            by {novel.author}
-                          </p>
 
-                          {/* Novel Stats */}
-                          <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1">
-                              {novel.rating !== null &&
-                                novel.rating !== undefined && (
-                                  <NovelRating novel={novel} type="small" />
+                          {/* Novel Info */}
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center gap-1.5">
+                              <h4
+                                className={cn(
+                                  "text-sm leading-tight font-medium",
+                                  styling.titleClass,
                                 )}
-                            </div>
-                            <Badge
-                              variant={getStatusColor(novel.status)}
-                              className="h-4 text-xs"
-                            >
-                              {novel.status.charAt(0).toUpperCase() +
-                                novel.status.slice(1)}
-                            </Badge>
-                            <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                              <BookOpen className="h-3 w-3" />
-                              {novel.total_chapters} ch
-                            </div>
-                          </div>
-
-                          {/* Genres */}
-                          {novel.genres.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {novel.genres.slice(0, 3).map((genre) => (
-                                <Badge
-                                  key={genre.id}
-                                  variant="secondary"
-                                  className="h-4 text-xs"
-                                >
-                                  {genre.name}
-                                </Badge>
-                              ))}
-                              {novel.genres.length > 3 && (
-                                <span className="text-muted-foreground text-xs">
-                                  +{novel.genres.length - 3}
-                                </span>
+                              >
+                                {novel.title}
+                              </h4>
+                              {styling.badge.show && (
+                                <NovelBadge
+                                  novel={novel}
+                                  positioned={false}
+                                  className={styling.badge.className}
+                                />
                               )}
                             </div>
-                          )}
+                            <p className="text-muted-foreground mb-2 text-xs">
+                              by {novel.author}
+                            </p>
+
+                            {/* Novel Stats */}
+                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                              <div className="flex items-center gap-1">
+                                {novel.rating !== null &&
+                                  novel.rating !== undefined && (
+                                    <NovelRating novel={novel} type="small" />
+                                  )}
+                              </div>
+                              <Badge
+                                variant={getStatusColor(novel.status)}
+                                className="h-4 text-xs"
+                              >
+                                {novel.status.charAt(0).toUpperCase() +
+                                  novel.status.slice(1)}
+                              </Badge>
+                              <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                                <BookOpen className="h-3 w-3" />
+                                {novel.total_chapters} ch
+                              </div>
+                            </div>
+
+                            {/* Genres */}
+                            {novel.genres.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {novel.genres.slice(0, 3).map((genre) => (
+                                  <Badge
+                                    key={genre.id}
+                                    variant="secondary"
+                                    className="h-4 text-xs"
+                                  >
+                                    {genre.name}
+                                  </Badge>
+                                ))}
+                                {novel.genres.length > 3 && (
+                                  <span className="text-muted-foreground text-xs">
+                                    +{novel.genres.length - 3}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Link>

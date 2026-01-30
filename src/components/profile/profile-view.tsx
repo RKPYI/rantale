@@ -25,8 +25,10 @@ import {
   Trophy,
   Target,
   TrendingUp,
+  Library,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { useProfileStats } from "@/hooks/use-profile-stats";
 import { useLibrary } from "@/hooks/use-library";
 import { UserAvatar, UserInfo } from "@/components/ui/user-avatar";
 import { formatDate } from "@/lib/novel-utils";
@@ -38,8 +40,13 @@ import Link from "next/link";
 
 export function ProfileView() {
   const [activeTab, setActiveTab] = useState("overview");
-  const { user, isAuthenticated, loading } = useAuth();
-  const { data: library, loading: libraryLoading } = useLibrary();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { data: profileStats, loading: statsLoading } = useProfileStats();
+  // Only load library data when on library tab (for pagination support)
+  const shouldLoadLibrary = activeTab === "library";
+  const { data: library, loading: libraryLoading } = useLibrary(
+    shouldLoadLibrary ? undefined : "",
+  );
 
   const userRole = user ? getUserRole(user) : "user";
 
@@ -73,6 +80,8 @@ export function ProfileView() {
     // Update URL hash without scrolling
     window.history.replaceState(null, "", `#${value}`);
   };
+
+  const loading = authLoading || statsLoading;
 
   if (loading) {
     return <ProfileViewSkeleton />;
@@ -144,24 +153,24 @@ export function ProfileView() {
                   </p>
                 </div>
                 <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
-                  <BookOpen className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
+                  <Library className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
                   <p className="text-muted-foreground text-xs">Library</p>
                   <p className="text-xs font-medium sm:text-sm">
-                    {library?.stats?.total || 0}
+                    {profileStats?.library.total_novels || 0}
                   </p>
                 </div>
                 <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
                   <Heart className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
                   <p className="text-muted-foreground text-xs">Favorites</p>
                   <p className="text-xs font-medium sm:text-sm">
-                    {library?.stats?.favorites || 0}
+                    {profileStats?.library.favorites || 0}
                   </p>
                 </div>
                 <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
                   <Trophy className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
                   <p className="text-muted-foreground text-xs">Completed</p>
                   <p className="text-xs font-medium sm:text-sm">
-                    {library?.stats?.completed || 0}
+                    {profileStats?.reading_progress.completed_novels || 0}
                   </p>
                 </div>
               </div>
@@ -223,19 +232,6 @@ export function ProfileView() {
             <TabsTrigger value="settings" className="flex-shrink-0">
               Settings
             </TabsTrigger>
-            {(userRole === "author" || userRole === "admin") && (
-              <TabsTrigger
-                value="author"
-                className="hidden flex-shrink-0 sm:block"
-              >
-                Author Dashboard
-              </TabsTrigger>
-            )}
-            {(userRole === "author" || userRole === "admin") && (
-              <TabsTrigger value="author" className="flex-shrink-0 sm:hidden">
-                Author
-              </TabsTrigger>
-            )}
           </TabsList>
         </div>
 
@@ -288,37 +284,46 @@ export function ProfileView() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {library?.library.data.slice(0, 3).map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3"
-                    >
-                      <div className="flex flex-1 items-center gap-3">
-                        <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full"></div>
-                        <span className="text-muted-foreground text-xs sm:text-sm">
-                          {entry.status === "reading"
-                            ? "Started reading"
-                            : entry.status === "completed"
-                              ? "Finished reading"
-                              : entry.status === "want_to_read"
-                                ? "Added to library"
-                                : "Updated"}
-                        </span>
-                        <span className="truncate text-xs font-medium sm:text-sm">
-                          {entry.novel.title}
-                        </span>
-                      </div>
-                      <span className="text-muted-foreground ml-5 text-xs sm:ml-auto">
-                        {formatDate(entry.status_updated_at)}
-                      </span>
-                    </div>
-                  )) || (
-                    <p className="text-muted-foreground text-sm">
+                {profileStats?.recent_activity &&
+                profileStats.recent_activity.length > 0 ? (
+                  <div className="space-y-3">
+                    {profileStats.recent_activity
+                      .slice(0, 3)
+                      .map((activity, idx) => (
+                        <div
+                          key={idx}
+                          className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3"
+                        >
+                          <div className="flex flex-1 items-center gap-3">
+                            <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full"></div>
+                            <span className="text-muted-foreground text-xs sm:text-sm">
+                              {activity.type === "reading"
+                                ? "Read"
+                                : activity.type === "comment"
+                                  ? "Commented on"
+                                  : "Rated"}
+                            </span>
+                            <span className="truncate text-xs font-medium sm:text-sm">
+                              {activity.novel.title}
+                            </span>
+                          </div>
+                          <span className="text-muted-foreground ml-5 text-xs sm:ml-auto">
+                            {formatDate(activity.timestamp)}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="py-6 text-center">
+                    <Clock className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+                    <h4 className="mb-1 text-sm font-medium">
                       No recent activity
+                    </h4>
+                    <p className="text-muted-foreground text-xs">
+                      Start reading novels to see your activity here
                     </p>
-                  )}
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -327,15 +332,15 @@ export function ProfileView() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <BarChart3 className="h-5 w-5" />
-                Reading Overview
+                <Library className="h-5 w-5" />
+                Library Overview
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6">
                 <div className="rounded-lg border p-3 text-center">
                   <p className="text-xl font-bold text-blue-600 sm:text-2xl">
-                    {library?.stats?.reading || 0}
+                    {profileStats?.library.by_status.reading || 0}
                   </p>
                   <p className="text-muted-foreground text-xs leading-tight sm:text-sm">
                     Currently Reading
@@ -343,7 +348,7 @@ export function ProfileView() {
                 </div>
                 <div className="rounded-lg border p-3 text-center">
                   <p className="text-xl font-bold text-green-600 sm:text-2xl">
-                    {library?.stats?.completed || 0}
+                    {profileStats?.library.by_status.completed || 0}
                   </p>
                   <p className="text-muted-foreground text-xs sm:text-sm">
                     Completed
@@ -351,7 +356,7 @@ export function ProfileView() {
                 </div>
                 <div className="rounded-lg border p-3 text-center">
                   <p className="text-xl font-bold text-yellow-600 sm:text-2xl">
-                    {library?.stats?.want_to_read || 0}
+                    {profileStats?.library.by_status.want_to_read || 0}
                   </p>
                   <p className="text-muted-foreground text-xs leading-tight sm:text-sm">
                     Want to Read
@@ -359,15 +364,23 @@ export function ProfileView() {
                 </div>
                 <div className="rounded-lg border p-3 text-center">
                   <p className="text-xl font-bold text-orange-600 sm:text-2xl">
-                    {library?.stats?.on_hold || 0}
+                    {profileStats?.library.by_status.on_hold || 0}
                   </p>
                   <p className="text-muted-foreground text-xs sm:text-sm">
                     On Hold
                   </p>
                 </div>
-                <div className="col-span-2 rounded-lg border p-3 text-center sm:col-span-1">
+                <div className="rounded-lg border p-3 text-center">
+                  <p className="text-xl font-bold text-gray-600 sm:text-2xl">
+                    {profileStats?.library.by_status.dropped || 0}
+                  </p>
+                  <p className="text-muted-foreground text-xs sm:text-sm">
+                    Dropped
+                  </p>
+                </div>
+                <div className="rounded-lg border p-3 text-center">
                   <p className="text-xl font-bold text-red-600 sm:text-2xl">
-                    {library?.stats?.favorites || 0}
+                    {profileStats?.library.favorites || 0}
                   </p>
                   <p className="text-muted-foreground text-xs sm:text-sm">
                     Favorites
@@ -405,9 +418,10 @@ export function ProfileView() {
                 {library && library.library.data.length > 0 ? (
                   <div className="space-y-3 sm:space-y-4">
                     {library.library.data.slice(0, 10).map((entry) => (
-                      <div
+                      <Link
                         key={entry.id}
-                        className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4"
+                        href={`/novels/${entry.novel.slug}`}
+                        className="hover:bg-accent flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:gap-4 sm:p-4"
                       >
                         <div className="flex flex-1 items-center gap-3 sm:gap-4">
                           <img
@@ -425,8 +439,33 @@ export function ProfileView() {
                               by {entry.novel.author}
                             </p>
                             <div className="mt-1 flex items-center gap-2">
-                              <Badge variant="outline" className="text-xs">
-                                {entry.status.replace("_", " ")}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${
+                                  entry.status === "want_to_read"
+                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                                    : entry.status === "reading"
+                                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                      : entry.status === "completed"
+                                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+                                        : entry.status === "on_hold"
+                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
+                                          : entry.status === "dropped"
+                                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                                            : ""
+                                }`}
+                              >
+                                {entry.status === "want_to_read"
+                                  ? "Want to Read"
+                                  : entry.status === "reading"
+                                    ? "Reading"
+                                    : entry.status === "completed"
+                                      ? "Completed"
+                                      : entry.status === "on_hold"
+                                        ? "On Hold"
+                                        : entry.status === "dropped"
+                                          ? "Dropped"
+                                          : entry.status}
                               </Badge>
                               {entry.is_favorite && (
                                 <Heart className="h-3 w-3 fill-current text-red-500 sm:h-4 sm:w-4" />
@@ -434,12 +473,7 @@ export function ProfileView() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex-shrink-0 text-left sm:text-right">
-                          <p className="text-muted-foreground text-xs sm:text-sm">
-                            Added {formatDate(entry.added_at)}
-                          </p>
-                        </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ) : (

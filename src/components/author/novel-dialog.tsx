@@ -17,13 +17,16 @@ import {
 } from "@/components/ui/dialog";
 import { Save } from "lucide-react";
 import { novelService } from "@/services/novels";
-import { AuthorNovel, Genre } from "@/types/api";
+import { AuthorNovel, Genre, NovelWithChapters } from "@/types/api";
 import { toast } from "sonner";
+import { NovelCoverUpload } from "@/components/novels/novel-cover-upload";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { handleErrorWithState } from "@/lib/utils";
 
 interface NovelDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  novel?: AuthorNovel | null;
+  novel?: AuthorNovel | NovelWithChapters | null;
   isEditing: boolean;
   genres: Genre[];
   onSuccess: () => void;
@@ -41,20 +44,20 @@ export function NovelDialog({
     title: "",
     description: "",
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
-    cover_image: "",
     genres: [] as number[],
   });
+  const [coverImage, setCoverImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
     setError(""); // Clear error when dialog opens/closes
+    setCoverImage(null); // Clear cover image selection
     if (isEditing && novel) {
       setFormData({
         title: novel.title,
         description: novel.description,
         status: novel.status,
-        cover_image: novel.cover_image || "",
         genres: novel.genres?.map((g) => g.id) || [],
       });
     } else {
@@ -62,7 +65,6 @@ export function NovelDialog({
         title: "",
         description: "",
         status: "ongoing",
-        cover_image: "",
         genres: [],
       });
     }
@@ -77,39 +79,40 @@ export function NovelDialog({
       if (isEditing && novel) {
         await novelService.updateNovel(novel.slug, formData);
         toast.success("Novel updated successfully!");
+        onSuccess();
+        onClose();
       } else {
-        await novelService.createNovel({
+        // Create the novel first
+        const createdNovel = await novelService.createNovel({
           ...formData,
           author: "", // This should be set by the backend based on authenticated user
         });
-        toast.success("Novel created successfully!");
+
+        // If a cover image was selected, upload it
+        if (coverImage && createdNovel.slug) {
+          try {
+            await novelService.uploadNovelCover(createdNovel.slug, coverImage);
+            toast.success("Novel created with cover image!");
+          } catch (uploadError) {
+            console.error("Failed to upload cover:", uploadError);
+            toast.success(
+              "Novel created, but cover upload failed. You can add it later.",
+            );
+          }
+        } else {
+          toast.success("Novel created successfully!");
+        }
+
+        onSuccess();
+        onClose();
       }
-      onSuccess();
-      onClose();
     } catch (error: unknown) {
       console.error("Failed to save novel:", error);
-
-      // Handle ApiError from api-client
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as {
-          success: false;
-          error: string;
-          details?: Record<string, string[]>;
-          statusCode?: number;
-        };
-
-        const errorMessage =
-          apiError.error || "Failed to save novel. Please try again.";
-        setError(errorMessage);
-        toast.error(errorMessage);
-      } else if (error instanceof Error) {
-        setError(error.message);
-        toast.error(error.message);
-      } else {
-        const fallbackMessage = "Failed to save novel. Please try again.";
-        setError(fallbackMessage);
-        toast.error(fallbackMessage);
-      }
+      handleErrorWithState(
+        error,
+        setError,
+        "Failed to save novel. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
@@ -183,23 +186,39 @@ export function NovelDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cover_image" className="text-xs sm:text-sm">
-              Cover Image URL
-            </Label>
-            <Input
-              id="cover_image"
-              value={formData.cover_image}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  cover_image: e.target.value,
-                }))
-              }
-              placeholder="https://example.com/cover.jpg"
-              className="text-sm"
-            />
-          </div>
+          {/* Cover Image Upload */}
+          {isEditing && novel ? (
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">Cover Image</Label>
+              <NovelCoverUpload
+                novel={novel}
+                onUpdate={() => {
+                  onSuccess();
+                  toast.success("Cover image updated!");
+                }}
+              />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label className="text-xs sm:text-sm">
+                Cover Image (Optional)
+              </Label>
+              <ImageUpload
+                onFileSelect={(file) => setCoverImage(file)}
+                aspectRatio="2/3"
+                compress={true}
+                maxWidth={800}
+                placeholder="Upload novel cover image (recommended: 2:3 ratio)"
+                compact={true}
+                showDelete={false}
+              />
+              {coverImage && (
+                <p className="text-muted-foreground text-xs">
+                  Selected: {coverImage.name}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="status" className="text-xs sm:text-sm">
@@ -218,7 +237,7 @@ export function NovelDialog({
                       status: status as "ongoing" | "completed" | "hiatus",
                     }))
                   }
-                  className="capitalize text-xs sm:text-sm"
+                  className="text-xs capitalize sm:text-sm"
                 >
                   {status}
                 </Button>

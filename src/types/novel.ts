@@ -73,6 +73,19 @@ export interface NovelWithChapters extends Novel {
   chapters: ChapterSummary[];
 }
 
+// Related Novel with Similarity Score
+export interface RelatedNovel extends Novel {
+  similarity_score: number;
+}
+
+// Recently Updated Novel with Latest Chapter Info
+export interface RecentlyUpdatedNovel extends Novel {
+  latest_chapter_created_at: string;
+  latest_chapter_number: number;
+  latest_chapter_title: string;
+  latest_chapter_id: number;
+}
+
 // API Responses
 export interface NovelApiResponse {
   message: string;
@@ -87,6 +100,22 @@ export interface SearchApiResponse {
 export interface GenresApiResponse {
   message: string;
   genres: Genre[];
+}
+
+export interface RelatedNovelsApiResponse {
+  message: string;
+  data: RelatedNovel[];
+  current_novel: {
+    id: number;
+    title: string;
+    slug: string;
+  };
+  algorithm_used?: string;
+}
+
+export interface RecentlyUpdatedApiResponse {
+  message: string;
+  novels: RecentlyUpdatedNovel[];
 }
 
 export interface ChapterListResponse {
@@ -152,6 +181,17 @@ export interface CreateChapterRequest {
   published_at?: string;
 }
 
+// Image Upload Types
+export interface UploadNovelCoverResponse {
+  message: string;
+  cover_url: string;
+  novel: Novel;
+}
+
+export interface DeleteNovelCoverResponse {
+  message: string;
+  novel: Novel;
+}
 export interface UpdateChapterRequest {
   title?: string;
   content?: string;

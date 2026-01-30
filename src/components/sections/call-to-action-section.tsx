@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AuthModal } from "@/components/auth-modal";
 
 interface CallToActionSectionProps {
   title?: string;
@@ -36,12 +37,15 @@ export function CallToActionSection({
           <h2 className="text-2xl font-bold md:text-3xl">{title}</h2>
           <p className="text-muted-foreground text-lg">{description}</p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link href={primaryButtonHref}>
-              <Button size="lg" className="w-full sm:w-auto">
-                {primaryButtonText}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            <AuthModal
+              defaultTab="signup"
+              trigger={
+                <Button size="lg" className="w-full sm:w-auto">
+                  {primaryButtonText}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              }
+            />
             <Link href={secondaryButtonHref}>
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
                 {secondaryButtonText}

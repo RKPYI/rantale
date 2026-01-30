@@ -14,13 +14,13 @@ import {
   MailCheck,
   X,
   Clock,
-  Star,
   Shield,
   PenTool,
   Download,
   Library,
   TrendingUp,
   Crown,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -127,12 +127,12 @@ export function Navbar() {
     <nav
       className={`bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 border-b backdrop-blur ${showResults ? "z-[100]" : "z-50"}`}
     >
-      <div className="flex h-14 items-center justify-between px-4 md:h-16 md:px-6 lg:px-8">
-        {/* Left side - Logo */}
-        <div className="flex items-center space-x-4 md:space-x-6">
+      <div className="flex h-14 items-center px-4 md:h-16 md:px-6 lg:px-8">
+        {/* Left side - Logo & Navigation */}
+        <div className="flex min-w-0 flex-1 items-center space-x-4 md:space-x-6">
           <Link
             href="/"
-            className="flex items-center transition-opacity hover:opacity-80"
+            className="flex flex-shrink-0 items-center transition-opacity hover:opacity-80"
           >
             {/* Render a placeholder during hydration, then the actual logo */}
             {!mounted ? (
@@ -157,7 +157,7 @@ export function Navbar() {
           <div className="hidden items-center space-x-4 lg:flex">
             <Link
               href="/search"
-              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium whitespace-nowrap transition-colors"
             >
               Browse
             </Link>
@@ -168,17 +168,23 @@ export function Navbar() {
               Genres
             </Link> */}
             <Link
+              href="/recently-updated"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium whitespace-nowrap transition-colors"
+            >
+              Recent
+            </Link>
+            <Link
               href="/top-rated"
-              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+              className="text-muted-foreground hover:text-foreground text-sm font-medium whitespace-nowrap transition-colors"
             >
               Top Rated
             </Link>
           </div>
         </div>
 
-        {/* Middle - Enhanced Search bar (Desktop only) */}
+        {/* Center - Enhanced Search bar (Desktop only) */}
         <div
-          className="relative mx-4 hidden max-w-md flex-1 md:mx-8 md:block"
+          className="relative mx-4 hidden w-full max-w-md flex-shrink-0 md:mx-6 md:block lg:mx-8"
           ref={searchRef}
         >
           <div className="relative">
@@ -374,7 +380,7 @@ export function Navbar() {
         </div>
 
         {/* Right side - Actions */}
-        <div className="flex items-center space-x-2 md:space-x-3">
+        <div className="flex min-w-0 flex-1 items-center justify-end space-x-2 md:space-x-3">
           {/* Search Sheet - Mobile only */}
           <div className="md:hidden">
             <SearchSheet
@@ -466,15 +472,15 @@ export function Navbar() {
                         My Library
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="hidden md:flex">
+                    {/* <DropdownMenuItem asChild className="hidden md:flex">
                       <Link href="/profile/downloads">
                         <Download className="mr-2 h-4 w-4" />
                         Downloads
                       </Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem asChild>
                       <Link href="/notifications">
-                        <Star className="mr-2 h-4 w-4" />
+                        <Bell className="mr-2 h-4 w-4" />
                         Notifications
                       </Link>
                     </DropdownMenuItem>

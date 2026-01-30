@@ -1,24 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteModal } from "@/components/ui/delete-modal";
-import {
-  BookOpen,
-  Eye,
-  Edit,
-  FileText,
-  Trash2,
-  Plus,
-} from "lucide-react";
+import { BookOpen, Eye, Edit, FileText, Trash2, Plus } from "lucide-react";
 import { useNovelChapters } from "@/hooks/use-chapters";
 import { chapterService } from "@/services/chapters";
 import { AuthorNovel, ChapterSummary } from "@/types/api";
-import { cn } from "@/lib/utils";
+import { cn, logAndToastError, toggleInSet, toggleAllInSet } from "@/lib/utils";
+import { formatNumber } from "@/lib/novel-utils";
 import { toast } from "sonner";
 
 interface ChaptersTabProps {
@@ -27,6 +21,7 @@ interface ChaptersTabProps {
   refetchNovels: () => void;
   onCreateChapter: (novel: AuthorNovel) => void;
   onEditChapter: (novel: AuthorNovel, chapter: ChapterSummary) => void;
+  onRefetchChapters?: (refetch: () => Promise<void>) => void;
 }
 
 export function ChaptersTab({
@@ -35,6 +30,7 @@ export function ChaptersTab({
   refetchNovels,
   onCreateChapter,
   onEditChapter,
+  onRefetchChapters,
 }: ChaptersTabProps) {
   const [currentNovel, setCurrentNovel] = useState<AuthorNovel | null>(
     selectedNovel,
@@ -49,12 +45,21 @@ export function ChaptersTab({
     new Set(),
   );
   const [isBulkDeletingChapters, setIsBulkDeletingChapters] = useState(false);
+  const [bulkDeleteChaptersDialog, setBulkDeleteChaptersDialog] =
+    useState(false);
 
   const {
     data: chapters,
     loading: chaptersLoading,
     refetch: refetchChapters,
   } = useNovelChapters(currentNovel?.slug || "");
+
+  // Expose refetch function to parent
+  useEffect(() => {
+    if (onRefetchChapters && refetchChapters) {
+      onRefetchChapters(refetchChapters);
+    }
+  }, [onRefetchChapters, refetchChapters]);
 
   const handleDeleteChapter = async () => {
     if (!deleteChapterDialog.chapter || !currentNovel) return;
@@ -69,21 +74,18 @@ export function ChaptersTab({
       toast.success("Chapter deleted successfully!");
       setDeleteChapterDialog({ isOpen: false, chapter: null });
     } catch (error) {
-      console.error("Failed to delete chapter:", error);
-
-      let errorMessage = "Failed to delete chapter. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to delete chapter",
+        "Failed to delete chapter. Please try again.",
+      );
     }
   };
 
   const handleBulkDeleteChapters = async () => {
     if (!currentNovel || selectedChapterIds.size === 0) return;
 
+    setBulkDeleteChaptersDialog(false);
     setIsBulkDeletingChapters(true);
     try {
       const result = await chapterService.bulkDeleteChapters(
@@ -91,48 +93,30 @@ export function ChaptersTab({
         Array.from(selectedChapterIds),
       );
 
-      toast.success(
-        `Successfully deleted ${result.deleted_count} chapter(s)!`,
-      );
+      toast.success(`Successfully deleted ${result.deleted_count} chapter(s)!`);
       setSelectedChapterIds(new Set());
       await refetchChapters();
       await refetchNovels();
     } catch (error) {
-      console.error("Failed to bulk delete chapters:", error);
-
-      let errorMessage = "Failed to delete chapters. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error || errorMessage;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to bulk delete chapters",
+        "Failed to delete chapters. Please try again.",
+      );
     } finally {
       setIsBulkDeletingChapters(false);
     }
   };
 
   const toggleChapterSelection = (chapterId: number) => {
-    setSelectedChapterIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(chapterId)) {
-        newSet.delete(chapterId);
-      } else {
-        newSet.add(chapterId);
-      }
-      return newSet;
-    });
+    setSelectedChapterIds((prev) => toggleInSet(prev, chapterId));
   };
 
   const toggleAllChapters = () => {
     if (!chapters?.chapters) return;
-    if (selectedChapterIds.size === chapters.chapters.length) {
-      setSelectedChapterIds(new Set());
-    } else {
-      setSelectedChapterIds(new Set(chapters.chapters.map((ch) => ch.id)));
-    }
+    setSelectedChapterIds((prev) =>
+      toggleAllInSet(prev, chapters.chapters, (ch) => ch.id),
+    );
   };
 
   if (!novels || novels.length === 0) {
@@ -176,7 +160,7 @@ export function ChaptersTab({
                 )}
                 onClick={() => setCurrentNovel(novel)}
               >
-                <h4 className="truncate font-medium text-sm sm:text-base">
+                <h4 className="text-sm font-medium break-words sm:truncate sm:text-base">
                   {novel.title}
                 </h4>
                 <p className="text-muted-foreground text-xs sm:text-sm">
@@ -195,14 +179,16 @@ export function ChaptersTab({
             <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <span className="flex items-center gap-2">
                 <FileText className="h-5 w-5 flex-shrink-0" />
-                <span className="truncate">Chapters - {currentNovel.title}</span>
+                <span className="break-words sm:truncate">
+                  Chapters - {currentNovel.title}
+                </span>
               </span>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 {selectedChapterIds.size > 0 && (
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={handleBulkDeleteChapters}
+                    onClick={() => setBulkDeleteChaptersDialog(true)}
                     disabled={isBulkDeletingChapters}
                     className="w-full sm:w-auto"
                   >
@@ -256,12 +242,12 @@ export function ChaptersTab({
                         }
                         className="mt-1 flex-shrink-0 sm:mt-0"
                       />
-                      <div className="min-w-0 flex-1">
-                        <h4 className="truncate font-medium text-sm sm:text-base">
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <h4 className="text-sm font-medium break-words sm:text-base">
                           Chapter {chapter.chapter_number}: {chapter.title}
                         </h4>
                         <p className="text-muted-foreground text-xs sm:text-sm">
-                          {chapter.word_count} words
+                          {formatNumber(chapter.word_count)} words
                         </p>
                       </div>
                     </div>
@@ -338,6 +324,17 @@ export function ChaptersTab({
         }
         confirmText="Delete Chapter"
         isLoading={false}
+      />
+
+      {/* Bulk Delete Chapters Confirmation Dialog */}
+      <DeleteModal
+        open={bulkDeleteChaptersDialog}
+        onOpenChange={setBulkDeleteChaptersDialog}
+        onConfirm={handleBulkDeleteChapters}
+        title="Delete Multiple Chapters?"
+        description={`This will permanently delete ${selectedChapterIds.size} selected chapter(s). This action cannot be undone.`}
+        confirmText={`Delete ${selectedChapterIds.size} Chapter(s)`}
+        isLoading={isBulkDeletingChapters}
       />
     </div>
   );

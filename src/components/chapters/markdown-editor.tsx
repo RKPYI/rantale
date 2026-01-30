@@ -275,7 +275,7 @@ export function MarkdownEditor({
             table: ({ node, ...props }) => (
               <div className="my-6 overflow-x-auto">
                 <table
-                  className="w-full border-collapse border border-border"
+                  className="border-border w-full border-collapse border"
                   {...props}
                 />
               </div>
@@ -285,16 +285,16 @@ export function MarkdownEditor({
             ),
             tbody: ({ node, ...props }) => <tbody {...props} />,
             tr: ({ node, ...props }) => (
-              <tr className="border-b border-border" {...props} />
+              <tr className="border-border border-b" {...props} />
             ),
             th: ({ node, ...props }) => (
               <th
-                className="border border-border px-4 py-3 text-left font-semibold"
+                className="border-border border px-4 py-3 text-left font-semibold"
                 {...props}
               />
             ),
             td: ({ node, ...props }) => (
-              <td className="border border-border px-4 py-3" {...props} />
+              <td className="border-border border px-4 py-3" {...props} />
             ),
           }}
         >
@@ -472,13 +472,13 @@ export function MarkdownEditor({
               Strikethrough
             </div>
           </div>
-          <div className="mt-3 pt-3 border-t border-border">
-            <p className="font-semibold mb-2">Table Example:</p>
-            <code className="bg-muted rounded px-2 py-1 block text-xs overflow-x-auto">
+          <div className="border-border mt-3 border-t pt-3">
+            <p className="mb-2 font-semibold">Table Example:</p>
+            <code className="bg-muted block overflow-x-auto rounded px-2 py-1 text-xs">
               | Name | Type | Description |<br />
               | --- | --- | --- |<br />
-              | Item 1 | Type A | Description here |<br />
-              | Item 2 | Type B | Another description |
+              | Item 1 | Type A | Description here |<br />| Item 2 | Type B |
+              Another description |
             </code>
           </div>
         </CardContent>

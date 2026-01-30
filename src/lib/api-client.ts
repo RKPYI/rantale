@@ -40,8 +40,13 @@ class ApiClient {
   }
 
   // Build request headers
-  private buildHeaders(headers?: HeadersInit): HeadersInit {
-    const requestHeaders = { ...this.defaultHeaders, ...headers };
+  private buildHeaders(
+    headers?: HeadersInit,
+    skipContentType: boolean = false,
+  ): HeadersInit {
+    const requestHeaders = skipContentType
+      ? { ...headers }
+      : { ...this.defaultHeaders, ...headers };
 
     const token = this.getAuthToken();
     if (token) {
@@ -118,9 +123,15 @@ class ApiClient {
     data?: unknown,
     headers?: HeadersInit,
   ): Promise<ApiResponse<T>> {
+    // Don't set Content-Type for FormData - browser will set it with boundary
+    const isFormData = data instanceof FormData;
+    const requestHeaders = isFormData
+      ? this.buildHeaders(headers, true)
+      : this.buildHeaders(headers);
+
     const response = await fetch(this.buildURL(endpoint), {
       method: "POST",
-      headers: this.buildHeaders(headers),
+      headers: requestHeaders,
       body: data instanceof FormData ? data : JSON.stringify(data),
     });
 

@@ -12,18 +12,21 @@ import {
   TrendingUp,
   Heart,
   Star,
+  MessageCircle,
 } from "lucide-react";
-import { useLibrary } from "@/hooks/use-library";
+import { useProfileStats } from "@/hooks/use-profile-stats";
 import { formatDate } from "@/lib/novel-utils";
+import { ContinueReading } from "@/components/sections/continue-reading";
+import Link from "next/link";
 
 export function ReadingStats() {
-  const { data: library, loading } = useLibrary();
+  const { data: stats, loading } = useProfileStats();
 
   if (loading) {
     return <ReadingStatsSkeleton />;
   }
 
-  if (!library) {
+  if (!stats) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
@@ -37,30 +40,31 @@ export function ReadingStats() {
     );
   }
 
-  const stats = library.stats;
-  const recentEntries = library.library.data.slice(0, 5);
-
-  // Calculate reading streaks and goals (mock data for now)
-  const readingStreak = 7; // days
-  const monthlyGoal = 5; // novels per month
-  const monthlyProgress = stats.completed; // assuming this month
+  const library = stats.library;
+  const readingProgress = stats.reading_progress;
+  const activity = stats.activity;
+  const recentActivity = stats.recent_activity.slice(0, 5);
 
   return (
     <div className="space-y-6">
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Overview Stats - Using Reading Progress data (novels with chapters read) */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="p-4 text-center">
             <BookOpen className="mx-auto mb-2 h-8 w-8 text-blue-500" />
-            <p className="text-2xl font-bold">{stats.total}</p>
-            <p className="text-muted-foreground text-sm">Total Novels</p>
+            <p className="text-2xl font-bold">
+              {readingProgress.total_novels_reading}
+            </p>
+            <p className="text-muted-foreground text-sm">Novels Read</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4 text-center">
             <Target className="mx-auto mb-2 h-8 w-8 text-green-500" />
-            <p className="text-2xl font-bold">{stats.completed}</p>
+            <p className="text-2xl font-bold">
+              {readingProgress.completed_novels}
+            </p>
             <p className="text-muted-foreground text-sm">Completed</p>
           </CardContent>
         </Card>
@@ -68,16 +72,16 @@ export function ReadingStats() {
         <Card>
           <CardContent className="p-4 text-center">
             <Heart className="mx-auto mb-2 h-8 w-8 text-red-500" />
-            <p className="text-2xl font-bold">{stats.favorites}</p>
+            <p className="text-2xl font-bold">{library.favorites}</p>
             <p className="text-muted-foreground text-sm">Favorites</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-4 text-center">
-            <TrendingUp className="mx-auto mb-2 h-8 w-8 text-purple-500" />
-            <p className="text-2xl font-bold">{readingStreak}</p>
-            <p className="text-muted-foreground text-sm">Day Streak</p>
+            <MessageCircle className="mx-auto mb-2 h-8 w-8 text-purple-500" />
+            <p className="text-2xl font-bold">{activity.total_comments}</p>
+            <p className="text-muted-foreground text-sm">Comments</p>
           </CardContent>
         </Card>
       </div>
@@ -94,14 +98,16 @@ export function ReadingStats() {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Currently Reading</span>
-                <Badge variant="outline">{stats.reading}</Badge>
+                <span className="text-sm">In Progress</span>
+                <Badge variant="outline">
+                  {readingProgress.in_progress_novels}
+                </Badge>
               </div>
               <div className="bg-muted h-2 w-full rounded-full">
                 <div
                   className="h-2 rounded-full bg-blue-500 transition-all"
                   style={{
-                    width: `${Math.min((stats.reading / (stats.total || 1)) * 100, 100)}%`,
+                    width: `${Math.min((readingProgress.in_progress_novels / (readingProgress.total_novels_reading || 1)) * 100, 100)}%`,
                   }}
                 ></div>
               </div>
@@ -109,19 +115,16 @@ export function ReadingStats() {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Completion Rate</span>
+                <span className="text-sm">Average Completion</span>
                 <Badge variant="outline">
-                  {stats.total > 0
-                    ? Math.round((stats.completed / stats.total) * 100)
-                    : 0}
-                  %
+                  {Math.round(readingProgress.average_completion_rate)}%
                 </Badge>
               </div>
               <div className="bg-muted h-2 w-full rounded-full">
                 <div
                   className="h-2 rounded-full bg-green-500 transition-all"
                   style={{
-                    width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`,
+                    width: `${readingProgress.average_completion_rate}%`,
                   }}
                 ></div>
               </div>
@@ -129,76 +132,166 @@ export function ReadingStats() {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Monthly Goal</span>
-                <Badge variant="outline">
-                  {monthlyProgress}/{monthlyGoal}
-                </Badge>
+                <span className="text-sm">Activity This Month</span>
+                {/* Not working yet fix the backend first */}
+                {/* <Badge variant="outline">
+                  {activity.this_month.reading_days}{" "}
+                  {activity.this_month.reading_days === 1 ? "day" : "days"}
+                </Badge> */}
               </div>
-              <div className="bg-muted h-2 w-full rounded-full">
-                <div
-                  className="h-2 rounded-full bg-purple-500 transition-all"
-                  style={{
-                    width: `${Math.min((monthlyProgress / monthlyGoal) * 100, 100)}%`,
-                  }}
-                ></div>
+              <div className="text-muted-foreground flex flex-col gap-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Star className="h-3 w-3" />
+                    Ratings
+                  </span>
+                  <span className="font-medium">
+                    {activity.this_month.ratings}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="h-3 w-3" />
+                    Comments
+                  </span>
+                  <span className="font-medium">
+                    {activity.this_month.comments}
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Reading Categories */}
+        {/* Library Status - What's in your library */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Star className="h-5 w-5" />
-              Reading Status
+              Library Status
             </CardTitle>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Novels organized in your library ({library.total_novels} total)
+            </p>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3 dark:bg-blue-950/20">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-blue-500"></div>
-                  <span className="text-sm font-medium">Reading</span>
+            <div className="space-y-3">
+              {library.by_status.reading > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3 dark:bg-blue-950/20">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-blue-500"></div>
+                    <span className="text-sm font-medium">Reading</span>
+                  </div>
+                  <span className="text-sm font-bold">
+                    {library.by_status.reading}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">{stats.reading}</span>
-              </div>
+              )}
 
-              <div className="flex items-center justify-between rounded-lg bg-yellow-50 p-3 dark:bg-yellow-950/20">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                  <span className="text-sm font-medium">Want to Read</span>
+              {library.by_status.want_to_read > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-yellow-50 p-3 dark:bg-yellow-950/20">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                    <span className="text-sm font-medium">Want to Read</span>
+                  </div>
+                  <span className="text-sm font-bold">
+                    {library.by_status.want_to_read}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">{stats.want_to_read}</span>
-              </div>
+              )}
 
-              <div className="flex items-center justify-between rounded-lg bg-green-50 p-3 dark:bg-green-950/20">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                  <span className="text-sm font-medium">Completed</span>
+              {library.by_status.completed > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-green-50 p-3 dark:bg-green-950/20">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                    <span className="text-sm font-medium">Completed</span>
+                  </div>
+                  <span className="text-sm font-bold">
+                    {library.by_status.completed}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">{stats.completed}</span>
-              </div>
+              )}
 
-              <div className="flex items-center justify-between rounded-lg bg-orange-50 p-3 dark:bg-orange-950/20">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-orange-500"></div>
-                  <span className="text-sm font-medium">On Hold</span>
+              {library.by_status.on_hold > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-orange-50 p-3 dark:bg-orange-950/20">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-orange-500"></div>
+                    <span className="text-sm font-medium">On Hold</span>
+                  </div>
+                  <span className="text-sm font-bold">
+                    {library.by_status.on_hold}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">{stats.on_hold}</span>
-              </div>
+              )}
 
-              <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950/20">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-gray-500"></div>
-                  <span className="text-sm font-medium">Dropped</span>
+              {library.by_status.dropped > 0 && (
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-950/20">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full bg-gray-500"></div>
+                    <span className="text-sm font-medium">Dropped</span>
+                  </div>
+                  <span className="text-sm font-bold">
+                    {library.by_status.dropped}
+                  </span>
                 </div>
-                <span className="text-sm font-bold">{stats.dropped}</span>
-              </div>
+              )}
+
+              {library.total_novels === 0 && (
+                <p className="text-muted-foreground py-4 text-center text-sm">
+                  No novels in library yet
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Overall Statistics Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Overall Statistics
+          </CardTitle>
+          <p className="text-muted-foreground mt-1 text-sm">
+            <strong>{readingProgress.total_novels_reading} novels</strong> with
+            reading progress, <strong>{library.total_novels} novels</strong>{" "}
+            organized in library
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">
+                Total Chapters Read
+              </p>
+              <p className="text-2xl font-bold">
+                {readingProgress.total_chapters_read}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">Avg. Completion</p>
+              <p className="text-2xl font-bold">
+                {Math.round(readingProgress.average_completion_rate)}%
+              </p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">Total Ratings</p>
+              <p className="text-2xl font-bold">{activity.total_ratings}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">Avg. Rating Given</p>
+              <p className="text-2xl font-bold">
+                {activity.average_rating_given.toFixed(1)}
+                <span className="text-muted-foreground text-sm">/5</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Continue Reading Section */}
+          <ContinueReading className="mt-6" showTitle={true} />
+        </CardContent>
+      </Card>
 
       {/* Recent Activity */}
       <Card>
@@ -209,40 +302,43 @@ export function ReadingStats() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {recentEntries.length > 0 ? (
+          {recentActivity.length > 0 ? (
             <div className="space-y-3">
-              {recentEntries.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
+              {recentActivity.map((activity, idx) => (
+                <Link
+                  key={idx}
+                  href={`/novels/${activity.novel.slug}`}
+                  className="hover:bg-muted flex items-center justify-between rounded-lg border p-3 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <img
-                      src={entry.novel.cover_image || "/placeholder-book.jpg"}
-                      alt={entry.novel.title}
-                      className="h-12 w-10 rounded object-cover"
-                    />
+                    <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                      {activity.type === "reading" ? (
+                        <BookOpen className="text-primary h-5 w-5" />
+                      ) : activity.type === "comment" ? (
+                        <MessageCircle className="text-primary h-5 w-5" />
+                      ) : (
+                        <Star className="text-primary h-5 w-5" />
+                      )}
+                    </div>
                     <div>
                       <h4 className="text-sm font-medium">
-                        {entry.novel.title}
+                        {activity.novel.title}
                       </h4>
                       <p className="text-muted-foreground text-xs">
-                        by {entry.novel.author}
+                        {activity.type === "reading" && activity.chapter
+                          ? `Chapter ${activity.chapter.number}: ${activity.chapter.title}`
+                          : activity.type === "comment"
+                            ? activity.content?.slice(0, 50) + "..."
+                            : `Rated ${activity.rating}/5`}
                       </p>
-                      <Badge variant="outline" className="mt-1 text-xs">
-                        {entry.status.replace("_", " ")}
-                      </Badge>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-muted-foreground text-xs">
-                      Updated {formatDate(entry.status_updated_at)}
+                      {formatDate(activity.timestamp)}
                     </p>
-                    {entry.is_favorite && (
-                      <Heart className="mt-1 ml-auto h-3 w-3 fill-current text-red-500" />
-                    )}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

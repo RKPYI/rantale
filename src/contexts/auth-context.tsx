@@ -195,7 +195,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
 
         const updatedUser = await authService.updateProfile(data);
-        setUser(updatedUser);
+        // Merge updated data with existing user to preserve all fields
+        setUser((prevUser) =>
+          prevUser ? { ...prevUser, ...updatedUser } : updatedUser,
+        );
 
         return true;
       } catch (err) {

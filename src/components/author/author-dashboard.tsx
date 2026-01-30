@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,6 +18,7 @@ import { NovelsTab } from "./novels-tab";
 import { ChaptersTab } from "./chapters-tab";
 import { AnalyticsTab } from "./analytics-tab";
 import { NovelDialog } from "./novel-dialog";
+import { toggleInSet, toggleAllInSet, logAndToastError } from "@/lib/utils";
 import { ChapterDialog } from "./chapter-dialog";
 
 export function AuthorDashboard() {
@@ -40,6 +41,15 @@ export function AuthorDashboard() {
     new Set(),
   );
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [bulkDeleteNovelsDialog, setBulkDeleteNovelsDialog] = useState(false);
+
+  // Store refetch function from ChaptersTab using ref to avoid re-renders
+  const refetchChaptersRef = useRef<(() => Promise<void>) | null>(null);
+
+  // Memoize the callback to prevent infinite loops
+  const handleRefetchChapters = useCallback((refetch: () => Promise<void>) => {
+    refetchChaptersRef.current = refetch;
+  }, []);
 
   const {
     data: novels,
@@ -76,21 +86,18 @@ export function AuthorDashboard() {
       toast.success("Novel deleted successfully!");
       setDeleteNovelDialog({ isOpen: false, novel: null });
     } catch (error) {
-      console.error("Failed to delete novel:", error);
-
-      let errorMessage = "Failed to delete novel. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to delete novel",
+        "Failed to delete novel. Please try again.",
+      );
     }
   };
 
   const handleBulkDeleteNovels = async () => {
     if (selectedNovelIds.size === 0) return;
 
+    setBulkDeleteNovelsDialog(false);
     setIsBulkDeleting(true);
     try {
       const result = await novelService.bulkDeleteNovels(
@@ -108,41 +115,23 @@ export function AuthorDashboard() {
       setSelectedNovelIds(new Set());
       await refetchNovels();
     } catch (error) {
-      console.error("Failed to bulk delete novels:", error);
-
-      let errorMessage = "Failed to delete novels. Please try again.";
-      if (error && typeof error === "object" && "error" in error) {
-        const apiError = error as { error: string };
-        errorMessage = apiError.error || errorMessage;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage);
+      logAndToastError(
+        error,
+        "Failed to bulk delete novels",
+        "Failed to delete novels. Please try again.",
+      );
     } finally {
       setIsBulkDeleting(false);
     }
   };
 
   const toggleNovelSelection = (novelId: number) => {
-    setSelectedNovelIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(novelId)) {
-        newSet.delete(novelId);
-      } else {
-        newSet.add(novelId);
-      }
-      return newSet;
-    });
+    setSelectedNovelIds((prev) => toggleInSet(prev, novelId));
   };
 
   const toggleAllNovels = () => {
     if (!novels) return;
-    if (selectedNovelIds.size === novels.length) {
-      setSelectedNovelIds(new Set());
-    } else {
-      setSelectedNovelIds(new Set(novels.map((n) => n.id)));
-    }
+    setSelectedNovelIds((prev) => toggleAllInSet(prev, novels, (n) => n.id));
   };
 
   if (novelsError || statsError) {
@@ -242,7 +231,7 @@ export function AuthorDashboard() {
             onDeleteNovel={(novel) =>
               setDeleteNovelDialog({ isOpen: true, novel })
             }
-            onBulkDelete={handleBulkDeleteNovels}
+            onBulkDelete={() => setBulkDeleteNovelsDialog(true)}
             onToggleSelection={toggleNovelSelection}
             onToggleAll={toggleAllNovels}
             getStatusColor={getStatusColor}
@@ -267,6 +256,7 @@ export function AuthorDashboard() {
               setIsEditingChapter(true);
               setIsChapterDialogOpen(true);
             }}
+            onRefetchChapters={handleRefetchChapters}
           />
         </TabsContent>
 
@@ -300,6 +290,9 @@ export function AuthorDashboard() {
         novel={selectedNovel}
         onSuccess={async () => {
           await refetchNovels();
+          if (refetchChaptersRef.current) {
+            await refetchChaptersRef.current();
+          }
         }}
       />
 
@@ -318,6 +311,17 @@ export function AuthorDashboard() {
         }
         confirmText="Delete Novel"
         isLoading={false}
+      />
+
+      {/* Bulk Delete Novels Confirmation Dialog */}
+      <DeleteModal
+        open={bulkDeleteNovelsDialog}
+        onOpenChange={setBulkDeleteNovelsDialog}
+        onConfirm={handleBulkDeleteNovels}
+        title="Delete Multiple Novels?"
+        description={`This will permanently delete ${selectedNovelIds.size} selected novel(s) and all their chapters. This action cannot be undone.`}
+        confirmText={`Delete ${selectedNovelIds.size} Novel(s)`}
+        isLoading={isBulkDeleting}
       />
     </div>
   );

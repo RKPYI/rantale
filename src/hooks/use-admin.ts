@@ -7,6 +7,8 @@ import {
   AdminUsersResponse,
   AdminModerationResponse,
   AdminSystemHealth,
+  AdminContactsResponse,
+  AdminContactResponse,
   User,
   AuthorApplication,
 } from "@/types/api";
@@ -99,5 +101,20 @@ export function useToggleCommentApproval() {
   return useApi(
     () => Promise.resolve({}), // Use refetch with adminService.toggleCommentApproval
     [],
+  );
+}
+
+// Contact Management
+export function useAdminContacts(page?: number, status?: string) {
+  return useApi<AdminContactsResponse>(
+    () => adminService.getContacts(page, status),
+    [page, status],
+  );
+}
+
+export function useAdminContact(contactId: number) {
+  return useApi<AdminContactResponse>(
+    () => adminService.getContact(contactId),
+    [contactId],
   );
 }

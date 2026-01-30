@@ -6,6 +6,7 @@ import {
   User,
   UpdateProfileRequest,
   ChangePasswordRequest,
+  UserProfileStats,
   ApiResponse,
 } from "@/types/api";
 
@@ -154,6 +155,14 @@ export const authService = {
     return response.data;
   },
 
+  // User Profile Statistics
+  async getUserProfileStats(): Promise<UserProfileStats> {
+    const response = await apiClient.get<UserProfileStats>(
+      "/user/profile/stats",
+    );
+    return response.data;
+  },
+
   // Utility methods
   isAuthenticated(): boolean {
     return apiClient.getAuthToken() !== null;
@@ -161,5 +170,24 @@ export const authService = {
 
   getAuthToken(): string | null {
     return apiClient.getAuthToken();
+  },
+
+  // Avatar Upload/Delete
+  async uploadAvatar(
+    file: File,
+  ): Promise<{ message: string; avatar_url: string; user: User }> {
+    const response = await apiClient.uploadFile<{
+      message: string;
+      avatar_url: string;
+      user: User;
+    }>("/user/avatar", file, "avatar");
+    return response.data;
+  },
+
+  async deleteAvatar(): Promise<{ message: string; user: User }> {
+    const response = await apiClient.delete<{ message: string; user: User }>(
+      "/user/avatar",
+    );
+    return response.data;
   },
 };

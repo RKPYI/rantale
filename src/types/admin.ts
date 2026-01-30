@@ -147,6 +147,12 @@ export interface AdminModerationResponse {
   };
 }
 
+export interface ErrorMessage {
+  timestamp: string;
+  level: "ERROR" | "CRITICAL" | "WARNING";
+  message: string;
+}
+
 export interface AdminSystemHealth {
   message: string;
   health: {
@@ -163,6 +169,48 @@ export interface AdminSystemHealth {
     recent_errors: {
       count_today: number;
       critical_errors: number;
+      critical_messages: ErrorMessage[];
+      error_messages: ErrorMessage[];
     };
   };
+}
+
+// Contact Management
+export interface AdminContact {
+  id: number;
+  user_id: number | null;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: "new" | "read" | "replied";
+  admin_response: string | null;
+  responded_by: number | null;
+  responded_at: string | null;
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  responder?: {
+    id: number;
+    name: string;
+  } | null;
+}
+
+// Admin contacts list response - directly paginated
+export type AdminContactsResponse = PaginatedResponse<AdminContact>;
+
+// Admin single contact response - directly returns contact object (not wrapped)
+export type AdminContactResponse = AdminContact;
+
+export interface ContactRespondRequest {
+  admin_response: string;
+}
+
+export interface ContactUpdateStatusRequest {
+  status: "new" | "read" | "replied";
 }

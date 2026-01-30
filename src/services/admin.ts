@@ -5,6 +5,10 @@ import {
   AdminUsersResponse,
   AdminModerationResponse,
   AdminSystemHealth,
+  AdminContactsResponse,
+  AdminContactResponse,
+  ContactRespondRequest,
+  ContactUpdateStatusRequest,
   AuthorApplication,
   User,
   MessageResponse,
@@ -150,5 +154,61 @@ export const adminService = {
       `/admin/comments/${commentId}/toggle-approval`,
     );
     return response.data;
+  },
+
+  // Contact Management
+  async getContacts(
+    page?: number,
+    status?: string,
+  ): Promise<AdminContactsResponse> {
+    const params: Record<string, string | number> = {};
+    if (page) params.page = page;
+    if (status && status !== "all") params.status = status;
+
+    const response = await apiClient.get<AdminContactsResponse>(
+      "/admin/contacts",
+      params,
+    );
+    // Response is directly the paginated data, not wrapped
+    return response.data || (response as unknown as AdminContactsResponse);
+  },
+
+  async getContact(contactId: number): Promise<AdminContactResponse> {
+    const response = await apiClient.get<AdminContactResponse>(
+      `/admin/contacts/${contactId}`,
+    );
+    // Response is directly the contact object, not wrapped
+    return response.data || (response as unknown as AdminContactResponse);
+  },
+
+  async respondToContact(
+    contactId: number,
+    data: ContactRespondRequest,
+  ): Promise<AdminContactResponse> {
+    const response = await apiClient.post<AdminContactResponse>(
+      `/admin/contacts/${contactId}/respond`,
+      data,
+    );
+    // Response is directly the contact object, not wrapped
+    return response.data || (response as unknown as AdminContactResponse);
+  },
+
+  async updateContactStatus(
+    contactId: number,
+    data: ContactUpdateStatusRequest,
+  ): Promise<AdminContactResponse> {
+    const response = await apiClient.put<AdminContactResponse>(
+      `/admin/contacts/${contactId}/status`,
+      data,
+    );
+    // Response is directly the contact object, not wrapped
+    return response.data || (response as unknown as AdminContactResponse);
+  },
+
+  async deleteContact(contactId: number): Promise<MessageResponse> {
+    const response = await apiClient.delete<MessageResponse>(
+      `/admin/contacts/${contactId}`,
+    );
+    return response.data || (response as unknown as MessageResponse);
   },
 };

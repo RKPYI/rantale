@@ -20,6 +20,14 @@ export function useNovel(slug: string) {
   return useApi(() => novelService.getNovelBySlug(slug), [slug]);
 }
 
+// Hook for getting related novels
+export function useRelatedNovels(slug: string) {
+  return useApi(
+    () => (slug ? novelService.getRelatedNovels(slug) : Promise.resolve([])),
+    [slug],
+  );
+}
+
 // Hook for searching novels
 export function useSearchNovels(query: string) {
   return useApi(
@@ -44,6 +52,11 @@ export function useLatestNovels() {
 // Hook for getting recommended novels
 export function useRecommendedNovels() {
   return useApi(() => novelService.getRecommendedNovels(), []);
+}
+
+// Hook for getting recently updated novels (with new chapters)
+export function useRecentlyUpdatedNovels(limit?: number) {
+  return useApi(() => novelService.getRecentlyUpdatedNovels(limit), [limit]);
 }
 
 // Hook for getting novels by genre

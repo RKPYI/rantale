@@ -11,6 +11,7 @@ import {
 } from "@/components/sections";
 import { NovelGrid, NovelsTabs } from "@/components/novels";
 import { GenreList } from "@/components/genres";
+import { ContinueReading } from "@/components/sections/continue-reading";
 import { usePopularNovels, useGenres } from "@/hooks/use-novels";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -49,7 +50,20 @@ export default function Home() {
 
       <div className="bg-background min-h-screen">
         {/* Hero Section */}
-        <HeroSection />
+        <HeroSection
+          primaryButtonScrollTo="main-content-tabs"
+          secondaryButtonText="Browse Novels"
+          secondaryButtonHref="/search"
+        />
+
+        {/* Continue Reading Section - Only show if user is authenticated and has reading progress */}
+        {isAuthenticated && (
+          <section className="py-8 lg:py-12">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8">
+              <ContinueReading variant="compact" showTitle={true} />
+            </div>
+          </section>
+        )}
 
         {/* Featured/Popular Novels */}
         <section className="py-12 lg:py-16">
@@ -71,12 +85,12 @@ export default function Home() {
         </section>
 
         {/* Main Content Tabs */}
-        <section className="bg-muted/20 py-12 lg:py-16">
+        <section id="main-content-tabs" className="bg-muted/20 py-12 lg:py-16">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <NovelsTabs maxItems={10} />
+            <NovelsTabs maxItems={12} />
 
             <div className="mt-8 text-center">
-              <Link href="/search">
+              <Link href="/recently-updated">
                 <Button variant="outline" size="lg">
                   Explore More Novels
                 </Button>
@@ -86,11 +100,11 @@ export default function Home() {
         </section>
 
         {/* Genres Section */}
-        <section className="py-12 lg:py-16">
+        {/* <section className="py-12 lg:py-16">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <GenreList genres={genres || []} loading={genresLoading} />
           </div>
-        </section>
+        </section> */}
 
         {/* Call to Action - Only show for non-authenticated users */}
         {!isAuthenticated && <CallToActionSection />}

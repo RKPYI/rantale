@@ -237,7 +237,7 @@ export function LibraryManager() {
 
       {/* Stats Cards */}
       {library?.stats && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-7">
           <Card>
             <CardContent className="p-3 text-center sm:p-4">
               <p className="text-xl font-bold sm:text-2xl">
@@ -248,7 +248,7 @@ export function LibraryManager() {
           </Card>
           <Card>
             <CardContent className="p-3 text-center sm:p-4">
-              <p className="text-xl font-bold sm:text-2xl">
+              <p className="text-xl font-bold text-green-600 sm:text-2xl">
                 {library.stats.reading}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm">
@@ -258,7 +258,7 @@ export function LibraryManager() {
           </Card>
           <Card>
             <CardContent className="p-3 text-center sm:p-4">
-              <p className="text-xl font-bold sm:text-2xl">
+              <p className="text-xl font-bold text-purple-600 sm:text-2xl">
                 {library.stats.completed}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm">
@@ -268,7 +268,7 @@ export function LibraryManager() {
           </Card>
           <Card>
             <CardContent className="p-3 text-center sm:p-4">
-              <p className="text-xl font-bold sm:text-2xl">
+              <p className="text-xl font-bold text-blue-600 sm:text-2xl">
                 {library.stats.want_to_read}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm">
@@ -278,11 +278,21 @@ export function LibraryManager() {
           </Card>
           <Card>
             <CardContent className="p-3 text-center sm:p-4">
-              <p className="text-xl font-bold sm:text-2xl">
+              <p className="text-xl font-bold text-yellow-600 sm:text-2xl">
                 {library.stats.on_hold}
               </p>
               <p className="text-muted-foreground text-xs sm:text-sm">
                 On Hold
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center sm:p-4">
+              <p className="text-xl font-bold text-gray-600 sm:text-2xl">
+                {library.stats.dropped}
+              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Dropped
               </p>
             </CardContent>
           </Card>
@@ -512,7 +522,7 @@ export function LibraryManager() {
                   : "Add some novels to your library to get started."}
               </p>
               <Button asChild>
-                <Link href="/novels">Browse Novels</Link>
+                <Link href="/">Browse Novels</Link>
               </Button>
             </div>
           )}

@@ -28,11 +28,13 @@ export type {
   Genre,
   Novel,
   NovelWithChapters,
+  RelatedNovel,
   Chapter,
   ChapterSummary,
   NovelApiResponse,
   SearchApiResponse,
   GenresApiResponse,
+  RelatedNovelsApiResponse,
   ChapterListResponse,
   ChapterDetailResponse,
   NovelSearchParams,
@@ -86,6 +88,7 @@ export type {
   AdminCommentsResponse,
   AdminModerationResponse,
   AdminSystemHealth,
+  ErrorMessage,
 } from "./admin";
 
 export * from "./author";

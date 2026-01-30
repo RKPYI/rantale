@@ -30,6 +30,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { authService } from "@/services/auth";
 import { toast } from "sonner";
+import { getValidationErrors, logAndToastError } from "@/lib/utils";
 import type { LoginRequest, RegisterRequest } from "@/types/api";
 import Link from "next/link";
 
@@ -130,7 +131,12 @@ export function AuthModal({
 
     // Basic validation
     const newErrors: Record<string, string[]> = {};
-    if (!signinData.email) newErrors.email = ["Email is required"];
+    if (!signinData.email) {
+      newErrors.email = ["Email is required"];
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signinData.email)) {
+      newErrors.email = ["Email is not valid"];
+    }
+
     if (!signinData.password) newErrors.password = ["Password is required"];
 
     if (Object.keys(newErrors).length > 0) {
@@ -151,19 +157,15 @@ export function AuthModal({
 
       handleSuccess();
     } catch (error: unknown) {
-      const err = error as {
-        details?: Record<string, string | string[]>;
-        message?: string;
-      };
-      if (err?.details) {
-        // Convert error details to the expected format
-        const formattedErrors: Record<string, string[]> = {};
-        Object.entries(err.details).forEach(([key, value]) => {
-          formattedErrors[key] = Array.isArray(value) ? value : [value];
-        });
-        setErrors(formattedErrors);
+      const validationErrors = getValidationErrors(error);
+      if (validationErrors) {
+        setErrors(validationErrors);
       } else {
-        toast.error(err?.message || "Login failed. Please try again.");
+        logAndToastError(
+          error,
+          "Login failed",
+          "Login failed. Please try again.",
+        );
       }
     }
   };
@@ -175,7 +177,13 @@ export function AuthModal({
     // Basic validation
     const newErrors: Record<string, string[]> = {};
     if (!signupData.name) newErrors.name = ["Name is required"];
-    if (!signupData.email) newErrors.email = ["Email is required"];
+
+    if (!signupData.email) {
+      newErrors.email = ["Email is required"];
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(signupData.email)) {
+      newErrors.email = ["Email is not valid"];
+    }
+
     if (!signupData.password) newErrors.password = ["Password is required"];
     if (signupData.password !== signupData.password_confirmation) {
       newErrors.password_confirmation = ["Passwords do not match"];
@@ -204,19 +212,15 @@ export function AuthModal({
 
       handleSuccess();
     } catch (error: unknown) {
-      const err = error as {
-        details?: Record<string, string | string[]>;
-        message?: string;
-      };
-      if (err?.details) {
-        // Convert error details to the expected format
-        const formattedErrors: Record<string, string[]> = {};
-        Object.entries(err.details).forEach(([key, value]) => {
-          formattedErrors[key] = Array.isArray(value) ? value : [value];
-        });
-        setErrors(formattedErrors);
+      const validationErrors = getValidationErrors(error);
+      if (validationErrors) {
+        setErrors(validationErrors);
       } else {
-        toast.error(err?.message || "Registration failed. Please try again.");
+        logAndToastError(
+          error,
+          "Registration failed",
+          "Registration failed. Please try again.",
+        );
       }
     }
   };
@@ -228,8 +232,11 @@ export function AuthModal({
       // Redirect to Google OAuth
       window.location.href = url;
     } catch (error: unknown) {
-      console.error("Google authentication error:", error);
-      toast.error("Google authentication failed. Please try again.");
+      logAndToastError(
+        error,
+        "Google authentication error",
+        "Google authentication failed. Please try again.",
+      );
     }
   };
 

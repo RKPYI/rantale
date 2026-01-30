@@ -25,13 +25,15 @@ import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
 import { authService } from "@/services/auth";
 import { toast } from "sonner";
+import { AvatarUpload } from "@/components/profile/avatar-upload";
+import { logAndToastError } from "@/lib/utils";
 
 export function ProfileSettings() {
-  const { user, updateProfile, sendEmailVerification } = useAuth();
+  const { user, updateProfile, sendEmailVerification, refreshProfile } =
+    useAuth();
   const [formData, setFormData] = useState({
     name: user?.name || "",
     bio: user?.bio || "",
-    avatar: user?.avatar || "",
   });
 
   // Update form data when user data changes
@@ -40,7 +42,6 @@ export function ProfileSettings() {
       setFormData({
         name: user.name || "",
         bio: user.bio || "",
-        avatar: user.avatar || "",
       });
     }
   }, [user]);
@@ -73,8 +74,11 @@ export function ProfileSettings() {
         toast.success("Profile updated successfully!");
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again.");
+      logAndToastError(
+        error,
+        "Error updating profile",
+        "Failed to update profile. Please try again.",
+      );
     }
   };
 
@@ -104,8 +108,11 @@ export function ProfileSettings() {
       });
       toast.success("Password updated successfully!");
     } catch (error) {
-      console.error("Error updating password:", error);
-      toast.error("Failed to update password. Please try again.");
+      logAndToastError(
+        error,
+        "Error updating password",
+        "Failed to update password. Please try again.",
+      );
     }
   };
 
@@ -116,8 +123,11 @@ export function ProfileSettings() {
         toast.success("Verification email sent! Check your inbox.");
       }
     } catch (error) {
-      console.error("Error sending verification:", error);
-      toast.error("Failed to send verification email. Please try again.");
+      logAndToastError(
+        error,
+        "Error sending verification",
+        "Failed to send verification email. Please try again.",
+      );
     }
   };
 
@@ -170,6 +180,13 @@ export function ProfileSettings() {
           <CardContent>
             <form onSubmit={handleProfileUpdate} className="space-y-4">
               <div className="space-y-2">
+                <Label>Profile Picture</Label>
+                <AvatarUpload user={user} onUpdate={() => refreshProfile()} />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
@@ -208,19 +225,7 @@ export function ProfileSettings() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="avatar">Avatar URL</Label>
-                <Input
-                  id="avatar"
-                  type="url"
-                  value={formData.avatar}
-                  onChange={(e) => handleInputChange("avatar", e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
-                />
-                <p className="text-muted-foreground text-xs">
-                  Enter a URL to your profile picture
-                </p>
-              </div>
+              <Separator className="my-4" />
 
               <Button
                 type="submit"
@@ -238,67 +243,84 @@ export function ProfileSettings() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5" />
+              <Shield className="h-5 w-5" />
               Account Security
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handlePasswordUpdate} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current_password">Current Password</Label>
-                <Input
-                  id="current_password"
-                  type="password"
-                  value={passwordData.current_password}
-                  onChange={(e) =>
-                    handlePasswordChange("current_password", e.target.value)
-                  }
-                  placeholder="Enter current password"
-                  required
-                />
-              </div>
+            {user.provider !== "google" ? (
+              <>
+                <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="current_password">Current Password</Label>
+                    <Input
+                      id="current_password"
+                      type="password"
+                      value={passwordData.current_password}
+                      onChange={(e) =>
+                        handlePasswordChange("current_password", e.target.value)
+                      }
+                      placeholder="Enter current password"
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="new_password">New Password</Label>
-                <Input
-                  id="new_password"
-                  type="password"
-                  value={passwordData.new_password}
-                  onChange={(e) =>
-                    handlePasswordChange("new_password", e.target.value)
-                  }
-                  placeholder="Enter new password"
-                  minLength={8}
-                  required
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new_password">New Password</Label>
+                    <Input
+                      id="new_password"
+                      type="password"
+                      value={passwordData.new_password}
+                      onChange={(e) =>
+                        handlePasswordChange("new_password", e.target.value)
+                      }
+                      placeholder="Enter new password"
+                      minLength={8}
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirm_password">Confirm New Password</Label>
-                <Input
-                  id="confirm_password"
-                  type="password"
-                  value={passwordData.confirm_password}
-                  onChange={(e) =>
-                    handlePasswordChange("confirm_password", e.target.value)
-                  }
-                  placeholder="Confirm new password"
-                  minLength={8}
-                  required
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm_password">
+                      Confirm New Password
+                    </Label>
+                    <Input
+                      id="confirm_password"
+                      type="password"
+                      value={passwordData.confirm_password}
+                      onChange={(e) =>
+                        handlePasswordChange("confirm_password", e.target.value)
+                      }
+                      placeholder="Confirm new password"
+                      minLength={8}
+                      required
+                    />
+                  </div>
 
-              <Button
-                type="submit"
-                disabled={updatingPassword}
-                className="w-full"
-              >
-                <Lock className="mr-2 h-4 w-4" />
-                {updatingPassword ? "Updating..." : "Update Password"}
-              </Button>
-            </form>
+                  <Button
+                    type="submit"
+                    disabled={updatingPassword}
+                    className="w-full"
+                  >
+                    <Lock className="mr-2 h-4 w-4" />
+                    {updatingPassword ? "Updating..." : "Update Password"}
+                  </Button>
+                </form>
 
-            <Separator className="my-6" />
+                <Separator className="my-6" />
+              </>
+            ) : (
+              <>
+                <Alert className="mb-6">
+                  <Shield className="h-4 w-4" />
+                  <AlertDescription>
+                    You're signed in with Google. Your password is managed
+                    through your Google account for enhanced security.
+                  </AlertDescription>
+                </Alert>
+                <Separator className="my-6" />
+              </>
+            )}
 
             {/* Account Info */}
             <div className="space-y-4">

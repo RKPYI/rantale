@@ -8,6 +8,10 @@ import {
   NovelApiResponse,
   SearchApiResponse,
   GenresApiResponse,
+  RelatedNovelsApiResponse,
+  RelatedNovel,
+  RecentlyUpdatedNovel,
+  RecentlyUpdatedApiResponse,
   NovelListParams,
   NovelSearchParams,
   CreateNovelRequest,
@@ -55,6 +59,18 @@ export const novelService = {
     return response.data.novels;
   },
 
+  // Get recently updated novels (with new chapters)
+  async getRecentlyUpdatedNovels(
+    limit?: number,
+  ): Promise<RecentlyUpdatedNovel[]> {
+    const params = limit ? { limit } : undefined;
+    const response = await apiClient.get<RecentlyUpdatedApiResponse>(
+      "/novels/recently-updated",
+      params,
+    );
+    return response.data.novels;
+  },
+
   // Get novel by slug
   async getNovelBySlug(slug: string): Promise<NovelWithChapters> {
     const response = await apiClient.get<{
@@ -62,6 +78,14 @@ export const novelService = {
       novel: NovelWithChapters;
     }>(`/novels/${slug}`);
     return response.data.novel;
+  },
+
+  // Get related novels
+  async getRelatedNovels(slug: string): Promise<RelatedNovel[]> {
+    const response = await apiClient.get<RelatedNovelsApiResponse>(
+      `/novels/${slug}/related`,
+    );
+    return response.data.data;
   },
 
   // Get available genres
@@ -130,6 +154,28 @@ export const novelService = {
   ): Promise<PaginatedResponse<Novel>> {
     const fullParams = { ...params, sort_by: sortBy };
     return this.getNovels(fullParams);
+  },
+
+  // Novel Cover Image Upload/Delete (Author only)
+  async uploadNovelCover(
+    slug: string,
+    file: File,
+  ): Promise<{ message: string; cover_url: string; novel: Novel }> {
+    const response = await apiClient.uploadFile<{
+      message: string;
+      cover_url: string;
+      novel: Novel;
+    }>(`/novels/${slug}/cover`, file, "cover");
+    return response.data;
+  },
+
+  async deleteNovelCover(
+    slug: string,
+  ): Promise<{ message: string; novel: Novel }> {
+    const response = await apiClient.delete<{ message: string; novel: Novel }>(
+      `/novels/${slug}/cover`,
+    );
+    return response.data;
   },
 
   // Note: Library functionality (addToLibrary, removeFromLibrary, getUserLibrary)

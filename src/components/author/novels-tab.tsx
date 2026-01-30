@@ -132,14 +132,16 @@ export function NovelsTab({
                     className="h-16 w-12 flex-shrink-0 rounded object-cover"
                   />
                   <div className="min-w-0 flex-1 space-y-1">
-                    <h4 className="truncate font-medium text-sm sm:text-base">
+                    <h4 className="truncate text-sm font-medium sm:text-base">
                       {novel.title}
                     </h4>
                     <p className="text-muted-foreground line-clamp-2 text-xs sm:text-sm">
                       {novel.description}
                     </p>
                     <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-                      <Badge className={cn(getStatusColor(novel.status), "text-xs")}>
+                      <Badge
+                        className={cn(getStatusColor(novel.status), "text-xs")}
+                      >
                         {novel.status.charAt(0).toUpperCase() +
                           novel.status.slice(1)}
                       </Badge>
@@ -182,9 +184,7 @@ export function NovelsTab({
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Novel
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onManageChapters(novel)}
-                      >
+                      <DropdownMenuItem onClick={() => onManageChapters(novel)}>
                         <FileText className="mr-2 h-4 w-4" />
                         Manage Chapters
                       </DropdownMenuItem>
