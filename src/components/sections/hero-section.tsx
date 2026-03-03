@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Filter } from "lucide-react";
+import { BookOpen, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -74,7 +74,7 @@ export function HeroSection({
             )}
             <Link href={secondaryButtonHref}>
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                <Filter className="mr-2 h-5 w-5" />
+                <Search className="mr-2 h-5 w-5" />
                 {secondaryButtonText}
               </Button>
             </Link>

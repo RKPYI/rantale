@@ -77,6 +77,8 @@ export function AvatarUpload({ user, onUpdate, className }: AvatarUploadProps) {
       showDelete={!!user.avatar}
       placeholder="Upload your profile picture"
       compact={true}
+      enableCrop={true}
+      cropShape="round"
     />
   );
 }

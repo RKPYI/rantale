@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Rantale",
+  title: "Privacy Policy",
   description:
     "Privacy policy for Rantale - A non-profit novel reading platform",
 };
@@ -397,10 +397,10 @@ export default function PrivacyPage() {
               <li>
                 <strong>Email:</strong>{" "}
                 <a
-                  href="mailto:support@rantale.randk.me"
+                  href="mailto:romagading+r@gmail.com"
                   className="text-primary hover:underline"
                 >
-                  support@rantale.randk.me
+                  romagading+r@gmail.com
                 </a>
               </li>
             </ul>

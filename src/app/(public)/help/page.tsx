@@ -51,32 +51,32 @@ export default function HelpPage() {
     },
   ];
 
-  const helpCategories = [
-    {
-      icon: User,
-      title: "Account & Profile",
-      description: "Manage your account settings and profile",
-      link: "/help/account",
-    },
-    {
-      icon: Book,
-      title: "Reading & Novels",
-      description: "Learn about reading features and novel discovery",
-      link: "/help/reading",
-    },
-    {
-      icon: Settings,
-      title: "Settings & Preferences",
-      description: "Customize your reading experience",
-      link: "/help/settings",
-    },
-    {
-      icon: MessageCircle,
-      title: "Community Guidelines",
-      description: "Rules and guidelines for our community",
-      link: "/help/guidelines",
-    },
-  ];
+  // const helpCategories = [
+  //   {
+  //     icon: User,
+  //     title: "Account & Profile",
+  //     description: "Manage your account settings and profile",
+  //     link: "/help/account",
+  //   },
+  //   {
+  //     icon: Book,
+  //     title: "Reading & Novels",
+  //     description: "Learn about reading features and novel discovery",
+  //     link: "/help/reading",
+  //   },
+  //   {
+  //     icon: Settings,
+  //     title: "Settings & Preferences",
+  //     description: "Customize your reading experience",
+  //     link: "/help/settings",
+  //   },
+  //   {
+  //     icon: MessageCircle,
+  //     title: "Community Guidelines",
+  //     description: "Rules and guidelines for our community",
+  //     link: "/help/guidelines",
+  //   },
+  // ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -93,7 +93,7 @@ export default function HelpPage() {
         </div>
 
         {/* Search */}
-        <Card className="mb-8">
+        {/* <Card className="mb-8">
           <CardContent className="p-6">
             <div className="relative">
               <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
@@ -103,10 +103,10 @@ export default function HelpPage() {
               />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Help Categories */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
           {helpCategories.map((category) => {
             const Icon = category.icon;
             return (
@@ -129,7 +129,7 @@ export default function HelpPage() {
               </Link>
             );
           })}
-        </div>
+        </div> */}
 
         {/* FAQ */}
         <Card>

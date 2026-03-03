@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Save } from "lucide-react";
 import { novelService } from "@/services/novels";
-import { AuthorNovel, Genre } from "@/types/api";
+import { AuthorNovel, Genre, NovelWithChapters } from "@/types/api";
 import { toast } from "sonner";
 import { NovelCoverUpload } from "@/components/novels/novel-cover-upload";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -26,7 +26,7 @@ import { handleErrorWithState } from "@/lib/utils";
 interface NovelDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  novel?: AuthorNovel | null;
+  novel?: AuthorNovel | NovelWithChapters | null;
   isEditing: boolean;
   genres: Genre[];
   onSuccess: () => void;

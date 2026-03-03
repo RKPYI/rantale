@@ -180,7 +180,12 @@ export default function ContactPage() {
                 <p className="text-muted-foreground mb-2">
                   Send us an email anytime!
                 </p>
-                <p className="font-medium">support@rantale.randk.me</p>
+                <a
+                  className="text-primary font-medium hover:underline"
+                  href="mailto:romagading+r@gmail.com"
+                >
+                  romagading+r@gmail.com
+                </a>
               </CardContent>
             </Card>
 
@@ -188,12 +193,19 @@ export default function ContactPage() {
               <CardContent className="p-6">
                 <div className="mb-4 flex items-center gap-3">
                   <Phone className="text-primary h-5 w-5" />
-                  <h3 className="font-semibold">Phone</h3>
+                  <h3 className="font-semibold">WhatsApp</h3>
                 </div>
                 <p className="text-muted-foreground mb-2">
                   Mon-Fri from 8am to 5pm.
                 </p>
-                <p className="font-medium">+1 (555) 000-0000</p>
+                <a
+                  href="https://wa.me/000000000000"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary font-medium hover:underline"
+                >
+                  +0 000-0000-0000
+                </a>
               </CardContent>
             </Card>
 

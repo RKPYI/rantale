@@ -15,6 +15,8 @@ import {
   MessageCircle,
   TrendingUp,
   ChevronRight,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,8 +33,10 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { LibraryActionButton } from "@/components/library";
 import { ShareButton } from "@/components/ui/share-button";
 import { RelatedNovels } from "./related-novels";
+import { NovelDialog } from "@/components/author/novel-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useNovelProgress } from "@/hooks/use-reading-progress";
+import { useGenres } from "@/hooks/use-novels";
 import {
   formatRating,
   getStatusColor,
@@ -42,22 +46,46 @@ import {
 } from "@/lib/novel-utils";
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
-import { NovelWithChapters } from "@/types/api";
+import { NovelWithChapters, Genre } from "@/types/api";
 import { useRouter } from "next/navigation";
 import { NovelBadge } from "./ui/novel-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { novelService } from "@/services/novels";
+import { toast } from "sonner";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
 }
 
 export function NovelDetailView({ novel }: NovelDetailViewProps) {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
     novel.slug,
   );
+  const { data: genres } = useGenres();
   const isLoading = authLoading || progressLoading;
 
   // Handle URL hash to open specific tab (e.g., #reviews)
@@ -108,6 +136,29 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const hasStartedReading =
     readingProgress?.current_chapter !== null &&
     readingProgress?.current_chapter !== undefined;
+
+  // Check if user is admin
+  const isAdmin = user?.is_admin || user?.role === 3;
+
+  const handleEditSuccess = () => {
+    router.refresh();
+  };
+
+  const handleDeleteNovel = async () => {
+    setIsDeleting(true);
+    try {
+      await novelService.deleteNovel(novel.slug);
+      toast.success("Novel deleted successfully");
+      router.push("/novels");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to delete novel:", error);
+      toast.error("Failed to delete novel. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-6">
@@ -172,6 +223,30 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   <BookOpen className="mr-2 h-4 w-4" />
                   Start Reading
                 </Button>
+              )}
+
+              {/* Admin Edit Button */}
+              {isAdmin && (
+                <>
+                  <Button
+                    onClick={() => setShowEditDialog(true)}
+                    variant="secondary"
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Novel (Admin)
+                  </Button>
+                  <Button
+                    onClick={() => setShowDeleteDialog(true)}
+                    variant="destructive"
+                    className="w-full"
+                    size="lg"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Novel (Admin)
+                  </Button>
+                </>
               )}
 
               <div className="flex gap-2">
@@ -458,6 +533,46 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Admin Edit Dialog */}
+      {isAdmin && (
+        <NovelDialog
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          novel={novel}
+          isEditing={true}
+          genres={genres || []}
+          onSuccess={handleEditSuccess}
+        />
+      )}
+
+      {/* Admin Delete Confirmation Dialog */}
+      {isAdmin && (
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the
+                novel &quot;{novel.title}&quot; and all of its chapters,
+                comments, and ratings.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteNovel}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Deleting..." : "Delete Novel"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }

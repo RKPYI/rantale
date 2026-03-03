@@ -50,7 +50,11 @@ export default function Home() {
 
       <div className="bg-background min-h-screen">
         {/* Hero Section */}
-        <HeroSection primaryButtonScrollTo="main-content-tabs" />
+        <HeroSection
+          primaryButtonScrollTo="main-content-tabs"
+          secondaryButtonText="Browse Novels"
+          secondaryButtonHref="/search"
+        />
 
         {/* Continue Reading Section - Only show if user is authenticated and has reading progress */}
         {isAuthenticated && (
@@ -86,7 +90,7 @@ export default function Home() {
             <NovelsTabs maxItems={12} />
 
             <div className="mt-8 text-center">
-              <Link href="/search">
+              <Link href="/recently-updated">
                 <Button variant="outline" size="lg">
                   Explore More Novels
                 </Button>
@@ -96,11 +100,11 @@ export default function Home() {
         </section>
 
         {/* Genres Section */}
-        <section className="py-12 lg:py-16">
+        {/* <section className="py-12 lg:py-16">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <GenreList genres={genres || []} loading={genresLoading} />
           </div>
-        </section>
+        </section> */}
 
         {/* Call to Action - Only show for non-authenticated users */}
         {!isAuthenticated && <CallToActionSection />}
