@@ -7,13 +7,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DeleteModal } from "@/components/ui/delete-modal";
-import { BookOpen, Eye, Edit, FileText, Trash2, Plus } from "lucide-react";
-import { useNovelChapters } from "@/hooks/use-chapters";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  BookOpen,
+  Eye,
+  Edit,
+  FileText,
+  Trash2,
+  Plus,
+  Send,
+  AlertCircle,
+} from "lucide-react";
+import { useAuthorNovelChapters } from "@/hooks/use-author";
 import { chapterService } from "@/services/chapters";
-import { AuthorNovel, ChapterSummary } from "@/types/api";
+import { authorService } from "@/services/author";
+import {
+  AuthorNovel,
+  AuthorChapterWithStatus,
+  ChapterSummary,
+} from "@/types/api";
 import { cn, logAndToastError, toggleInSet, toggleAllInSet } from "@/lib/utils";
 import { formatNumber } from "@/lib/novel-utils";
 import { toast } from "sonner";
+import { ChapterStatusBadge } from "@/components/editor/chapter-status-badge";
 
 interface ChaptersTabProps {
   selectedNovel: AuthorNovel | null;
@@ -47,12 +63,17 @@ export function ChaptersTab({
   const [isBulkDeletingChapters, setIsBulkDeletingChapters] = useState(false);
   const [bulkDeleteChaptersDialog, setBulkDeleteChaptersDialog] =
     useState(false);
+  const [submittingChapterId, setSubmittingChapterId] = useState<number | null>(
+    null,
+  );
 
   const {
-    data: chapters,
+    data: chaptersData,
     loading: chaptersLoading,
     refetch: refetchChapters,
-  } = useNovelChapters(currentNovel?.slug || "");
+  } = useAuthorNovelChapters(currentNovel?.slug || "");
+
+  const chapters = chaptersData?.chapters || [];
 
   // Expose refetch function to parent
   useEffect(() => {
@@ -108,14 +129,33 @@ export function ChaptersTab({
     }
   };
 
+  const handleSubmitForReview = async (chapter: AuthorChapterWithStatus) => {
+    if (!currentNovel) return;
+
+    setSubmittingChapterId(chapter.id);
+    try {
+      await authorService.submitChapterForReview(currentNovel.slug, chapter.id);
+      toast.success("Chapter submitted for review!");
+      await refetchChapters();
+    } catch (error) {
+      logAndToastError(
+        error,
+        "Failed to submit chapter",
+        "Failed to submit chapter for review. Please try again.",
+      );
+    } finally {
+      setSubmittingChapterId(null);
+    }
+  };
+
   const toggleChapterSelection = (chapterId: number) => {
     setSelectedChapterIds((prev) => toggleInSet(prev, chapterId));
   };
 
   const toggleAllChapters = () => {
-    if (!chapters?.chapters) return;
+    if (!chapters || chapters.length === 0) return;
     setSelectedChapterIds((prev) =>
-      toggleAllInSet(prev, chapters.chapters, (ch) => ch.id),
+      toggleAllInSet(prev, chapters, (ch: AuthorChapterWithStatus) => ch.id),
     );
   };
 
@@ -213,77 +253,155 @@ export function ChaptersTab({
                   <Skeleton key={i} className="h-16 w-full" />
                 ))}
               </div>
-            ) : chapters?.chapters && chapters.chapters.length > 0 ? (
+            ) : chapters && chapters.length > 0 ? (
               <div className="space-y-3">
                 {/* Select All Checkbox */}
                 <div className="flex items-center gap-2 border-b pb-3">
                   <Checkbox
-                    checked={
-                      selectedChapterIds.size === chapters.chapters.length
-                    }
+                    checked={selectedChapterIds.size === chapters.length}
                     onCheckedChange={toggleAllChapters}
                   />
                   <label className="text-xs font-medium sm:text-sm">
-                    Select All ({chapters.chapters.length})
+                    Select All ({chapters.length})
                   </label>
                 </div>
 
-                {chapters.chapters.map((chapter) => (
+                {chapters.map((chapter: AuthorChapterWithStatus) => (
                   <div
                     key={chapter.id}
-                    className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4"
+                    className={cn(
+                      "rounded-lg border p-3 sm:p-4",
+                      chapter.status === "revision_requested" &&
+                        "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20",
+                      chapter.status === "pending_update" &&
+                        "border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20",
+                      chapter.status === "pending_review" &&
+                        "border-yellow-200 bg-yellow-50/50 dark:border-yellow-900/50 dark:bg-yellow-950/20",
+                    )}
                   >
-                    <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-                      {/* Checkbox for individual selection */}
-                      <Checkbox
-                        checked={selectedChapterIds.has(chapter.id)}
-                        onCheckedChange={() =>
-                          toggleChapterSelection(chapter.id)
-                        }
-                        className="mt-1 flex-shrink-0 sm:mt-0"
-                      />
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <h4 className="text-sm font-medium break-words sm:text-base">
-                          Chapter {chapter.chapter_number}: {chapter.title}
-                        </h4>
-                        <p className="text-muted-foreground text-xs sm:text-sm">
-                          {formatNumber(chapter.word_count)} words
-                        </p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
+                        {/* Checkbox for individual selection */}
+                        <Checkbox
+                          checked={selectedChapterIds.has(chapter.id)}
+                          onCheckedChange={() =>
+                            toggleChapterSelection(chapter.id)
+                          }
+                          className="mt-1 flex-shrink-0 sm:mt-0"
+                        />
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h4 className="text-sm font-medium break-words sm:text-base">
+                              Chapter {chapter.chapter_number}: {chapter.title}
+                            </h4>
+                            <ChapterStatusBadge status={chapter.status} />
+                          </div>
+                          <p className="text-muted-foreground text-xs sm:text-sm">
+                            {formatNumber(chapter.word_count)} words
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end space-x-2 sm:flex-shrink-0">
+                        {/* Submit for Review button - only for draft or revision_requested chapters */}
+                        {(chapter.status === "draft" ||
+                          chapter.status === "revision_requested") && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleSubmitForReview(chapter)}
+                            disabled={submittingChapterId === chapter.id}
+                          >
+                            {submittingChapterId === chapter.id ? (
+                              <span className="mr-2 animate-spin">⏳</span>
+                            ) : (
+                              <Send className="mr-2 h-4 w-4" />
+                            )}
+                            Submit
+                          </Button>
+                        )}
+                        {/* View button - for approved or pending_update chapters (published) */}
+                        {(chapter.status === "approved" ||
+                          chapter.status === "pending_update") && (
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link
+                              href={`/novels/${currentNovel.slug}/chapters/${chapter.chapter_number}`}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                        )}
+                        {/* Edit button - disabled for pending_review and pending_update */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            onEditChapter(
+                              currentNovel,
+                              chapter as unknown as ChapterSummary,
+                            )
+                          }
+                          disabled={
+                            chapter.status === "pending_review" ||
+                            chapter.status === "pending_update"
+                          }
+                          title={
+                            chapter.status === "pending_review" ||
+                            chapter.status === "pending_update"
+                              ? "Cannot edit while pending review"
+                              : undefined
+                          }
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setDeleteChapterDialog({
+                              isOpen: true,
+                              chapter: {
+                                id: chapter.id,
+                                number: chapter.chapter_number,
+                                title: chapter.title,
+                              },
+                            })
+                          }
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end space-x-2 sm:flex-shrink-0">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link
-                          href={`/novels/${currentNovel.slug}/chapters/${chapter.chapter_number}`}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onEditChapter(currentNovel, chapter)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setDeleteChapterDialog({
-                            isOpen: true,
-                            chapter: {
-                              id: chapter.id,
-                              number: chapter.chapter_number,
-                              title: chapter.title,
-                            },
-                          })
-                        }
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    {/* Revision Notes */}
+                    {chapter.status === "revision_requested" &&
+                      chapter.latest_review?.notes && (
+                        <Alert variant="destructive" className="mt-3">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription className="text-sm">
+                            <strong>Editor Feedback:</strong>{" "}
+                            {chapter.latest_review.notes}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    {/* Pending Update Message */}
+                    {chapter.status === "pending_update" && (
+                      <Alert className="mt-3 border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20">
+                        <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <AlertDescription className="text-sm text-blue-800 dark:text-blue-300">
+                          Your changes are being reviewed. The original content
+                          remains visible to readers.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    {/* Pending Review Message */}
+                    {chapter.status === "pending_review" && (
+                      <Alert className="mt-3 border-yellow-200 bg-yellow-50/50 dark:border-yellow-900/50 dark:bg-yellow-950/20">
+                        <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                        <AlertDescription className="text-sm text-yellow-800 dark:text-yellow-300">
+                          This chapter is waiting for editor review.
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   </div>
                 ))}
               </div>

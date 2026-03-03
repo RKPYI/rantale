@@ -1,14 +1,7 @@
 "use client";
 
 import { authorService } from "@/services/author";
-import {
-  AuthorApplication,
-  AuthorApplicationRequest,
-  AuthorApplicationsResponse,
-  AuthorApplicationStatusResponse,
-  AuthorNovel,
-  AuthorStats,
-} from "@/types/api";
+import { AuthorNovel, AuthorStats, AuthorChapterWithStatus } from "@/types/api";
 import { useApi } from "./use-api";
 
 // Hook for getting current user's application status
@@ -61,4 +54,18 @@ export function useAuthorNovels() {
 // Hook for getting author statistics
 export function useAuthorStats() {
   return useApi<AuthorStats>(() => authorService.getStats(), []);
+}
+
+// Hook for getting all chapters for a novel (including unpublished) - Author Workflow
+export function useAuthorNovelChapters(novelSlug: string) {
+  return useApi<{
+    novel: { id: number; title: string; slug: string; author: string };
+    chapters: AuthorChapterWithStatus[];
+  } | null>(
+    () =>
+      novelSlug
+        ? authorService.getNovelChapters(novelSlug)
+        : Promise.resolve(null),
+    [novelSlug],
+  );
 }

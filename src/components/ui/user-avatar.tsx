@@ -38,7 +38,7 @@ export function UserAvatar({
     switch (role) {
       case "admin":
         return <Crown className="h-3 w-3" />;
-      case "moderator":
+      case "editor":
         return <Shield className="h-3 w-3" />;
       case "author":
         return <PenTool className="h-3 w-3" />;

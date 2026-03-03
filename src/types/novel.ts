@@ -179,6 +179,7 @@ export interface CreateChapterRequest {
   content: string;
   is_free?: boolean;
   published_at?: string;
+  save_as_draft?: boolean;
 }
 
 // Image Upload Types
@@ -197,4 +198,5 @@ export interface UpdateChapterRequest {
   content?: string;
   is_free?: boolean;
   published_at?: string;
+  save_as_draft?: boolean;
 }

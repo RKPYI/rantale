@@ -1,6 +1,6 @@
 import { User } from "@/types/api";
 
-export type UserRole = "user" | "author" | "moderator" | "admin";
+export type UserRole = "user" | "author" | "editor" | "admin";
 
 export interface RoleInfo {
   name: string;
@@ -21,12 +21,12 @@ export const ROLE_CONFIG: Record<UserRole, RoleInfo> = {
     bgColor: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
     icon: "✍️",
   },
-  moderator: {
-    name: "Moderator",
+  editor: {
+    name: "Editor",
     color: "text-purple-600",
     bgColor:
       "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-    icon: "🛡️",
+    icon: "�",
   },
   admin: {
     name: "Admin",
@@ -38,7 +38,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleInfo> = {
 
 export function getUserRole(user: User): UserRole {
   if (user.is_admin || user.role === 3) return "admin";
-  if (user.role === 2) return "moderator";
+  if (user.role === 2) return "editor";
   if (user.role === 1) return "author";
   return "user";
 }

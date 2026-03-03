@@ -40,6 +40,24 @@ export const chapterService = {
     };
   },
 
+  // Get chapter for an author's own novel (includes unpublished/drafts)
+  async getAuthorChapter(
+    novelSlug: string,
+    chapterNumber: number,
+  ): Promise<{
+    novel: { id: number; title: string; slug: string; author: string };
+    chapter: Chapter;
+  }> {
+    // Backend endpoint: GET /author/novels/{novel-slug}/chapters/{chapterNumber}
+    const response = await apiClient.get<ChapterDetailResponse>(
+      `/author/novels/${novelSlug}/chapters/${chapterNumber}`,
+    );
+    return {
+      novel: response.data.novel,
+      chapter: response.data.chapter,
+    };
+  },
+
   // Admin-only operations (require authentication and admin role)
   async createChapter(
     novelSlug: string,

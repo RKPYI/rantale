@@ -336,7 +336,7 @@ export function ProfileSettings() {
                       : user.role === 1
                         ? "Author"
                         : user.role === 2
-                          ? "Moderator"
+                          ? "Editor"
                           : "Admin"}
                   </Badge>
                 </div>

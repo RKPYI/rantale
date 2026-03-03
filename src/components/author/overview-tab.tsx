@@ -161,6 +161,30 @@ export function OverviewTab({
         )}
       </div>
 
+      {/* Chapter Workflow Alert */}
+      {!statsLoading &&
+        stats?.chapter_workflow &&
+        (stats.chapter_workflow.pending_review > 0 ||
+          stats.chapter_workflow.revision_requested > 0) && (
+          <Alert>
+            <FileText className="h-4 w-4" />
+            <AlertDescription>
+              {stats.chapter_workflow.pending_review > 0 && (
+                <span className="mr-4">
+                  <strong>{stats.chapter_workflow.pending_review}</strong>{" "}
+                  chapter(s) pending editor review
+                </span>
+              )}
+              {stats.chapter_workflow.revision_requested > 0 && (
+                <span className="text-destructive">
+                  <strong>{stats.chapter_workflow.revision_requested}</strong>{" "}
+                  chapter(s) need revision
+                </span>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
       {/* Top Novel Highlight */}
       {!statsLoading && stats?.top_novel && (
         <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-transparent">
