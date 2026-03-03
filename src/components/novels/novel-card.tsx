@@ -21,7 +21,7 @@ import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelCardProps {
   novel: Novel;
-  size?: "default" | "compact" | "featured" | "horizontal" | "ranked";
+  size?: "default" | "compact" | "featured" | "horizontal" | "ranked" | "browse";
   className?: string;
   rank?: number;
 }
@@ -36,6 +36,7 @@ export function NovelCard({
   const isFeatured = size === "featured";
   const isHorizontal = size === "horizontal";
   const isRanked = size === "ranked";
+  const isBrowse = size === "browse";
   const styling = getNovelStyling(novel, "normal");
 
   const getRankIcon = (rank: number) => {
@@ -52,6 +53,94 @@ export function NovelCard({
     if (rank <= 10) return "from-blue-400 via-blue-500 to-blue-600";
     return "from-purple-400 via-purple-500 to-purple-600";
   };
+
+  // Browse layout — compact vertical card for horizontal scroll rows
+  if (isBrowse) {
+    return (
+      <Link
+        href={`/novels/${novel.slug}`}
+        className="focus-visible:ring-ring block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      >
+        <Card
+          className={cn(
+            "group relative w-[150px] flex-shrink-0 overflow-hidden pt-0 transition-all duration-300 hover:scale-[1.03] hover:shadow-lg sm:w-[160px] md:w-[170px]",
+            className,
+          )}
+        >
+          {/* Cover */}
+          <div className="relative aspect-[2/3] overflow-hidden">
+            {novel.cover_image ? (
+              <Image
+                src={novel.cover_image}
+                alt={novel.title}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                sizes="170px"
+              />
+            ) : (
+              <div className="from-muted to-muted/50 flex h-full w-full items-center justify-center bg-gradient-to-br">
+                <BookOpen className="text-muted-foreground h-10 w-10" />
+              </div>
+            )}
+
+            {/* Status badge */}
+            <Badge
+              variant={getStatusColor(novel.status)}
+              className="absolute top-1.5 left-1.5 text-[10px]"
+              tabIndex={-1}
+            >
+              {novel.status.charAt(0).toUpperCase() + novel.status.slice(1)}
+            </Badge>
+
+            {/* Featured/Trending — icon only */}
+            {(novel.is_featured || novel.is_trending) && (
+              <div
+                className={cn(
+                  "absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full shadow-md",
+                  novel.is_featured
+                    ? "bg-gradient-to-br from-amber-400 to-amber-600"
+                    : "bg-gradient-to-br from-blue-400 to-blue-600",
+                )}
+              >
+                {novel.is_featured ? (
+                  <Crown className="h-3 w-3 text-white" />
+                ) : (
+                  <TrendingUp className="h-3 w-3 text-white" />
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Info — fixed height to keep cards consistent */}
+          <CardContent className="flex h-[80px] flex-col justify-between p-2 sm:h-[88px] md:h-[96px]">
+            <div className="space-y-0.5">
+              <h3 className="group-hover:text-primary line-clamp-2 text-xs font-semibold leading-tight transition-colors sm:text-sm">
+                {novel.title}
+              </h3>
+              <p className="text-muted-foreground truncate text-[10px] sm:text-xs">
+                {novel.author ?? "Anonymous"}
+              </p>
+            </div>
+            <div className="text-muted-foreground flex items-center gap-2 text-[10px] sm:text-xs">
+              {novel.rating !== null && novel.rating !== undefined && (
+                <div className="flex items-center gap-0.5">
+                  <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                  <span>{formatRating(novel.rating)}</span>
+                </div>
+              )}
+              {novel.views !== null && novel.views !== undefined && (
+                <div className="flex items-center gap-0.5">
+                  <Eye className="h-3 w-3" />
+                  <span>{formatNumber(novel.views)}</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    );
+  }
+
 
   // Horizontal layout (cover left, content right)
   if (isHorizontal) {

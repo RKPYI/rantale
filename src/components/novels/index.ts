@@ -7,3 +7,4 @@ export { NovelRating } from "./ui/novel-rating";
 export { LatestUpdates } from "./latest-updates";
 export { RelatedNovels } from "./related-novels";
 export { NovelCoverUpload } from "./novel-cover-upload";
+export { GenreNovelRow } from "./genre-novel-row";

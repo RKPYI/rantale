@@ -156,7 +156,7 @@ export function Navbar() {
           {/* Navigation Links - Desktop only */}
           <div className="hidden items-center space-x-4 lg:flex">
             <Link
-              href="/search"
+              href="/browse"
               className="text-muted-foreground hover:text-foreground text-sm font-medium whitespace-nowrap transition-colors"
             >
               Browse

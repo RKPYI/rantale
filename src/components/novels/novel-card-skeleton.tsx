@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface NovelCardSkeletonProps {
-  size?: "default" | "compact" | "featured" | "horizontal";
+  size?: "default" | "compact" | "featured" | "horizontal" | "browse";
   className?: string;
 }
 
@@ -16,6 +16,29 @@ export function NovelCardSkeleton({
   const isCompact = size === "compact";
   const isFeatured = size === "featured";
   const isHorizontal = size === "horizontal";
+  const isBrowse = size === "browse";
+
+  // Browse layout skeleton
+  if (isBrowse) {
+    return (
+      <Card
+        className={cn(
+          "w-[150px] flex-shrink-0 overflow-hidden pt-0 sm:w-[160px] md:w-[170px]",
+          className,
+        )}
+      >
+        <Skeleton className="aspect-[3/4] w-full" />
+        <CardContent className="space-y-1.5 p-2">
+          <Skeleton className="h-3.5 w-full" />
+          <Skeleton className="h-3 w-3/4" />
+          <div className="flex gap-2">
+            <Skeleton className="h-3 w-8" />
+            <Skeleton className="h-3 w-10" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Horizontal layout skeleton
   if (isHorizontal) {
