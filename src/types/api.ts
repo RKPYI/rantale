@@ -12,6 +12,7 @@ export * from "./rating";
 export * from "./reading-progress";
 export * from "./admin";
 export * from "./author";
+export * from "./editor";
 export * from "./library";
 export * from "./notification";
 export * from "./contact";

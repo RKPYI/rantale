@@ -245,7 +245,7 @@ export function OverviewTab() {
               <p className="text-2xl font-bold text-orange-600">
                 {stats?.users?.by_role?.moderators || 0}
               </p>
-              <p className="text-muted-foreground text-xs">Moderators</p>
+              <p className="text-muted-foreground text-xs">Editors</p>
             </div>
             <div className="rounded-lg border p-3 text-center">
               <p className="text-2xl font-bold text-red-600">

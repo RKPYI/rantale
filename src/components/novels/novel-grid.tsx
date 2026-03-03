@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 interface NovelGridProps {
   novels?: Novel[];
   loading?: boolean;
-  size?: "default" | "compact" | "featured" | "horizontal";
+  size?: "default" | "compact" | "featured" | "horizontal" | "browse";
   maxItems?: number;
   emptyMessage?: string;
   emptyIcon?: "book" | "clock" | "star";

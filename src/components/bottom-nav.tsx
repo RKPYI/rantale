@@ -40,7 +40,7 @@ export function BottomNav() {
       icon: Home,
     },
     {
-      href: "/search",
+      href: "/browse",
       label: "Browse",
       icon: Search,
     },

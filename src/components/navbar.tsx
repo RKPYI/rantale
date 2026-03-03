@@ -156,7 +156,7 @@ export function Navbar() {
           {/* Navigation Links - Desktop only */}
           <div className="hidden items-center space-x-4 lg:flex">
             <Link
-              href="/search"
+              href="/browse"
               className="text-muted-foreground hover:text-foreground text-sm font-medium whitespace-nowrap transition-colors"
             >
               Browse
@@ -485,9 +485,8 @@ export function Navbar() {
                       </Link>
                     </DropdownMenuItem>
 
-                    {/* Author Dashboard Link */}
+                    {/* Author Dashboard Link - Only for authors and admins */}
                     {(getUserRole(user) === "author" ||
-                      getUserRole(user) === "moderator" ||
                       getUserRole(user) === "admin") && (
                       <DropdownMenuItem asChild>
                         <Link href="/author">
@@ -497,9 +496,20 @@ export function Navbar() {
                       </DropdownMenuItem>
                     )}
 
+                    {/* Editor Dashboard Link - For editors and admins */}
+                    {(getUserRole(user) === "editor" ||
+                      getUserRole(user) === "admin") && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/editor">
+                          <PenTool className="mr-2 h-4 w-4" />
+                          Editor Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+
                     {/* Admin Dashboard Link */}
                     {(getUserRole(user) === "admin" ||
-                      getUserRole(user) === "moderator") && (
+                      getUserRole(user) === "editor") && (
                       <DropdownMenuItem asChild>
                         <Link href="/admin">
                           <Shield className="mr-2 h-4 w-4" />

@@ -6,10 +6,11 @@ import {
   AuthorApplicationsResponse,
   AuthorApplicationStatusResponse,
   AuthorNovelsResponse,
-  MessageResponse,
-  Novel,
   AuthorStats,
   AuthorNovel,
+  AuthorChaptersResponse,
+  AuthorChapterWithStatus,
+  SubmitForReviewResponse,
 } from "@/types/api";
 
 export const authorService = {
@@ -107,6 +108,32 @@ export const authorService = {
   // Get author statistics
   async getStats(): Promise<AuthorStats> {
     const response = await apiClient.get<AuthorStats>("/author/stats");
+    return response.data;
+  },
+
+  // Get all chapters for a novel (including unpublished) - Author Workflow
+  async getNovelChapters(novelSlug: string): Promise<{
+    novel: { id: number; title: string; slug: string; author: string };
+    chapters: AuthorChapterWithStatus[];
+  }> {
+    const response = await apiClient.get<AuthorChaptersResponse>(
+      `/author/novels/${novelSlug}/chapters`,
+    );
+    return {
+      novel: response.data.novel,
+      chapters: response.data.chapters,
+    };
+  },
+
+  // Submit chapter for review (after revision)
+  async submitChapterForReview(
+    novelSlug: string,
+    chapterId: number,
+  ): Promise<SubmitForReviewResponse> {
+    const response = await apiClient.post<SubmitForReviewResponse>(
+      `/novels/${novelSlug}/chapters/${chapterId}/submit-for-review`,
+      {},
+    );
     return response.data;
   },
 };

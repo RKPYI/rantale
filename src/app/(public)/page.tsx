@@ -53,7 +53,7 @@ export default function Home() {
         <HeroSection
           primaryButtonScrollTo="main-content-tabs"
           secondaryButtonText="Browse Novels"
-          secondaryButtonHref="/search"
+          secondaryButtonHref="/browse"
         />
 
         {/* Continue Reading Section - Only show if user is authenticated and has reading progress */}

@@ -26,8 +26,9 @@ export default function AuthorPage() {
   }
 
   const userRole = getUserRole(user);
-  const showDashboard =
-    userRole === "author" || userRole === "moderator" || userRole === "admin";
+  // Only authors and admins can access the author dashboard
+  // Editors cannot create novels or chapters, they only review
+  const showDashboard = userRole === "author" || userRole === "admin";
 
   return (
     <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8">

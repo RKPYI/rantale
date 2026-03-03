@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Save } from "lucide-react";
+import { Save, FileEdit, Send } from "lucide-react";
 import { useNovelChapters } from "@/hooks/use-chapters";
 import { chapterService } from "@/services/chapters";
 import { AuthorNovel, ChapterSummary, Chapter } from "@/types/api";
@@ -46,6 +46,7 @@ export function ChapterDialog({
     is_free: true,
   });
   const [saving, setSaving] = useState(false);
+  const [savingAsDraft, setSavingAsDraft] = useState(false);
   const [error, setError] = useState<string>("");
   const [loadingContent, setLoadingContent] = useState(false);
 
@@ -69,7 +70,7 @@ export function ChapterDialog({
           // Fetch full chapter content from API
           setLoadingContent(true);
           try {
-            const response = await chapterService.getChapter(
+            const response = await chapterService.getAuthorChapter(
               novel.slug,
               chapter.chapter_number,
             );
@@ -115,20 +116,45 @@ export function ChapterDialog({
     }
   }, [isEditing, chapter, isOpen, novel, chaptersData]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e: React.FormEvent,
+    saveAsDraft: boolean = false,
+  ) => {
     e.preventDefault();
     if (!novel) return;
 
     setError("");
-    setSaving(true);
+    if (saveAsDraft) {
+      setSavingAsDraft(true);
+    } else {
+      setSaving(true);
+    }
 
     try {
       if (isEditing && chapter) {
-        await chapterService.updateChapter(novel.slug, chapter.id, formData);
-        toast.success("Chapter updated successfully!");
+        await chapterService.updateChapter(novel.slug, chapter.id, {
+          ...formData,
+          save_as_draft: saveAsDraft,
+        });
+        if (saveAsDraft) {
+          toast.success("Chapter saved as draft!");
+        } else {
+          toast.success("Chapter updated and submitted for review!");
+        }
       } else {
-        await chapterService.createChapter(novel.slug, formData);
-        toast.success("Chapter created successfully!");
+        await chapterService.createChapter(novel.slug, {
+          ...formData,
+          save_as_draft: saveAsDraft,
+        });
+        if (saveAsDraft) {
+          toast.success(
+            "Chapter saved as draft! You can continue editing later.",
+          );
+        } else {
+          toast.success(
+            "Chapter created and submitted for review! An editor will review it shortly.",
+          );
+        }
       }
       await onSuccess();
       onClose();
@@ -162,6 +188,7 @@ export function ChapterDialog({
       );
     } finally {
       setSaving(false);
+      setSavingAsDraft(false);
     }
   };
 
@@ -288,19 +315,38 @@ export function ChapterDialog({
               Cancel
             </Button>
             <Button
+              type="button"
+              variant="secondary"
+              onClick={(e) => handleSubmit(e, true)}
+              disabled={saving || savingAsDraft || loadingContent}
+              className="w-full text-xs sm:w-auto sm:text-sm"
+            >
+              {savingAsDraft ? (
+                <>
+                  <span className="mr-2 animate-spin">⏳</span>
+                  Saving Draft...
+                </>
+              ) : (
+                <>
+                  <FileEdit className="mr-2 h-4 w-4" />
+                  Save as Draft
+                </>
+              )}
+            </Button>
+            <Button
               type="submit"
-              disabled={saving || loadingContent}
+              disabled={saving || savingAsDraft || loadingContent}
               className="w-full text-xs sm:w-auto sm:text-sm"
             >
               {saving ? (
                 <>
                   <span className="mr-2 animate-spin">⏳</span>
-                  Saving...
+                  Submitting...
                 </>
               ) : (
                 <>
-                  <Save className="mr-2 h-4 w-4" />
-                  {isEditing ? "Update Chapter" : "Create Chapter"}
+                  <Send className="mr-2 h-4 w-4" />
+                  {isEditing ? "Update & Submit" : "Submit for Review"}
                 </>
               )}
             </Button>

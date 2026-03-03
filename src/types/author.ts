@@ -88,6 +88,12 @@ export interface AuthorStats {
     want_to_read: number;
   };
   top_novel: TopNovel | null;
+  chapter_workflow?: {
+    pending_review: number;
+    revision_requested: number;
+    approved: number;
+    draft: number;
+  };
 }
 
 export interface AuthorNovel {
