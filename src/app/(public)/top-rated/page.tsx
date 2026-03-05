@@ -103,7 +103,7 @@ export default function TopRatedPage() {
         <Card>
           <CardContent className="p-8 text-center">
             <TrendingUp className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-            <h3 className="mb-2 text-xl font-medium">No Novels Found</h3>
+            <h3 className="mb-2 text-xl font-medium">No Books Found</h3>
             <p className="text-muted-foreground">
               Check back later for top-rated content.
             </p>
@@ -143,12 +143,12 @@ export default function TopRatedPage() {
             <div className="mb-2 flex items-center justify-center gap-2">
               <Trophy className="h-8 w-8 text-yellow-500" />
               <h1 className="bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 bg-clip-text text-4xl font-bold text-transparent">
-                Top Rated Novels
+                Top Rated Books
               </h1>
               <Trophy className="h-8 w-8 text-yellow-500" />
             </div>
             <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-              Discover the highest-rated and most popular novels in our
+              Discover the highest-rated and most popular books in our
               collection. These masterpieces have captivated thousands of
               readers worldwide.
             </p>
@@ -187,7 +187,7 @@ export default function TopRatedPage() {
               <div className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-xl font-semibold">
                   <Star className="h-5 w-5 text-yellow-500" />
-                  Top Rated Novels
+                  Top Rated Books
                 </h2>
                 <p className="text-muted-foreground text-sm">
                   Based on user ratings
@@ -202,7 +202,7 @@ export default function TopRatedPage() {
               <div className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-xl font-semibold">
                   <Eye className="h-5 w-5 text-blue-500" />
-                  Most Viewed Novels
+                  Most Viewed Books
                 </h2>
                 <p className="text-muted-foreground text-sm">
                   Based on total views
@@ -219,12 +219,12 @@ export default function TopRatedPage() {
             <TrendingUp className="text-primary mx-auto mb-4 h-12 w-12" />
             <h3 className="mb-2 text-xl font-semibold">Discover More</h3>
             <p className="text-muted-foreground mb-4">
-              Explore our full collection of novels with advanced filtering and
+              Explore our full collection of books with advanced filtering and
               search
             </p>
             <div className="flex justify-center gap-2">
               <Link href="/search">
-                <Button>Browse All Novels</Button>
+                <Button>Browse All Books</Button>
               </Link>
               <Link href="/genres">
                 <Button variant="outline">View by Genre</Button>

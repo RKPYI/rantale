@@ -29,6 +29,7 @@ interface ChapterDialogProps {
   isEditing: boolean;
   novel: AuthorNovel | null;
   onSuccess: () => void | Promise<void>;
+  readOnly?: boolean;
 }
 
 export function ChapterDialog({
@@ -38,6 +39,7 @@ export function ChapterDialog({
   isEditing,
   novel,
   onSuccess,
+  readOnly = false,
 }: ChapterDialogProps) {
   const [formData, setFormData] = useState({
     chapter_number: 1,
@@ -197,7 +199,11 @@ export function ChapterDialog({
       <DialogContent className="max-h-[95vh] max-w-[95vw] overflow-y-auto lg:max-w-6xl">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">
-            {isEditing ? "Edit Chapter" : "Create New Chapter"}
+            {readOnly
+              ? "View Chapter"
+              : isEditing
+                ? "Edit Chapter"
+                : "Create New Chapter"}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
             {novel
@@ -252,7 +258,8 @@ export function ChapterDialog({
                 }
                 min={1}
                 required
-                disabled={loadingContent}
+                disabled={loadingContent || readOnly}
+                readOnly={readOnly}
                 className="text-sm"
               />
             </div>
@@ -269,7 +276,8 @@ export function ChapterDialog({
                 }
                 placeholder="Enter chapter title"
                 required
-                disabled={loadingContent}
+                disabled={loadingContent || readOnly}
+                readOnly={readOnly}
                 className="text-sm"
               />
             </div>
@@ -279,12 +287,13 @@ export function ChapterDialog({
             <MarkdownEditor
               value={formData.content}
               onChange={(content) =>
-                setFormData((prev) => ({ ...prev, content }))
+                !readOnly && setFormData((prev) => ({ ...prev, content }))
               }
               label="Chapter Content"
               placeholder="Write your chapter content here... (Markdown supported)"
               rows={20}
               required
+              readOnly={readOnly}
             />
           </div>
 
@@ -295,7 +304,7 @@ export function ChapterDialog({
               onCheckedChange={(checked) =>
                 setFormData((prev) => ({ ...prev, is_free: !!checked }))
               }
-              disabled={loadingContent}
+              disabled={loadingContent || readOnly}
             />
             <Label
               htmlFor="is_free"
@@ -312,44 +321,48 @@ export function ChapterDialog({
               onClick={onClose}
               className="w-full text-xs sm:w-auto sm:text-sm"
             >
-              Cancel
+              {readOnly ? "Close" : "Cancel"}
             </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={(e) => handleSubmit(e, true)}
-              disabled={saving || savingAsDraft || loadingContent}
-              className="w-full text-xs sm:w-auto sm:text-sm"
-            >
-              {savingAsDraft ? (
-                <>
-                  <span className="mr-2 animate-spin">⏳</span>
-                  Saving Draft...
-                </>
-              ) : (
-                <>
-                  <FileEdit className="mr-2 h-4 w-4" />
-                  Save as Draft
-                </>
-              )}
-            </Button>
-            <Button
-              type="submit"
-              disabled={saving || savingAsDraft || loadingContent}
-              className="w-full text-xs sm:w-auto sm:text-sm"
-            >
-              {saving ? (
-                <>
-                  <span className="mr-2 animate-spin">⏳</span>
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  {isEditing ? "Update & Submit" : "Submit for Review"}
-                </>
-              )}
-            </Button>
+            {!readOnly && (
+              <>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={(e) => handleSubmit(e, true)}
+                  disabled={saving || savingAsDraft || loadingContent}
+                  className="w-full text-xs sm:w-auto sm:text-sm"
+                >
+                  {savingAsDraft ? (
+                    <>
+                      <span className="mr-2 animate-spin">⏳</span>
+                      Saving Draft...
+                    </>
+                  ) : (
+                    <>
+                      <FileEdit className="mr-2 h-4 w-4" />
+                      Save as Draft
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={saving || savingAsDraft || loadingContent}
+                  className="w-full text-xs sm:w-auto sm:text-sm"
+                >
+                  {saving ? (
+                    <>
+                      <span className="mr-2 animate-spin">⏳</span>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      {isEditing ? "Update & Submit" : "Submit for Review"}
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

@@ -93,9 +93,9 @@ export function NovelBrowserComponent() {
       <div className="space-y-6">
         {/* Page header — left-aligned, consistent with other pages */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Novel Browser</h1>
+          <h1 className="text-3xl font-bold">Book Browser</h1>
           <p className="text-muted-foreground">
-            Explore our collection of novels with advanced filtering and search
+            Explore our collection of books with advanced filtering and search
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export function NovelBrowserComponent() {
                 <div className="relative">
                   <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                   <Input
-                    placeholder="Search novels by title, author, or description…"
+                    placeholder="Search books by title, student, or description…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -219,7 +219,7 @@ export function NovelBrowserComponent() {
                   <NovelGrid
                     novels={searchResults ?? undefined}
                     loading={searchLoading}
-                    emptyMessage={`No novels found matching "${searchQuery}".`}
+                    emptyMessage={`No books found matching "${searchQuery}".`}
                   />
                 </CardContent>
               </Card>
@@ -229,7 +229,7 @@ export function NovelBrowserComponent() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Novels</span>
+                  <span>Books</span>
                   {pagination && (
                     <span className="text-muted-foreground text-sm font-normal">
                       {pagination.from}-{pagination.to} of{" "}
@@ -248,7 +248,7 @@ export function NovelBrowserComponent() {
                 <NovelGrid
                   novels={novels?.data}
                   loading={novelsLoading}
-                  emptyMessage="No novels found with the current filters."
+                  emptyMessage="No books found with the current filters."
                 />
 
                 {/* Pagination */}
@@ -291,13 +291,13 @@ export function NovelBrowserComponent() {
           <TabsContent value="popular">
             <Card>
               <CardHeader>
-                <CardTitle>Popular Novels</CardTitle>
+                <CardTitle>Popular Books</CardTitle>
               </CardHeader>
               <CardContent>
                 <NovelGrid
                   novels={popularNovels ?? undefined}
                   loading={popularLoading}
-                  emptyMessage="No popular novels available."
+                  emptyMessage="No popular books available."
                   emptyIcon="book"
                 />
               </CardContent>
@@ -308,13 +308,13 @@ export function NovelBrowserComponent() {
           <TabsContent value="latest">
             <Card>
               <CardHeader>
-                <CardTitle>Latest Novels</CardTitle>
+                <CardTitle>Latest Books</CardTitle>
               </CardHeader>
               <CardContent>
                 <NovelGrid
                   novels={latestNovels ?? undefined}
                   loading={latestLoading}
-                  emptyMessage="No latest novels available."
+                  emptyMessage="No latest books available."
                   emptyIcon="clock"
                 />
               </CardContent>
@@ -325,13 +325,13 @@ export function NovelBrowserComponent() {
           <TabsContent value="recommended">
             <Card>
               <CardHeader>
-                <CardTitle>Recommended Novels</CardTitle>
+                <CardTitle>Recommended Books</CardTitle>
               </CardHeader>
               <CardContent>
                 <NovelGrid
                   novels={recommendedNovels ?? undefined}
                   loading={recommendedLoading}
-                  emptyMessage="No recommended novels available."
+                  emptyMessage="No recommended books available."
                   emptyIcon="star"
                 />
               </CardContent>

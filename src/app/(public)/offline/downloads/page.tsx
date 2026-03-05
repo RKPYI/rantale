@@ -90,7 +90,7 @@ export default function OfflineDownloadsPage() {
   // Group chapters by novel
   const chaptersByNovel = chapters.reduce(
     (acc, chapter) => {
-      const novelTitle = chapter.novelTitle || "Unknown Novel";
+      const novelTitle = chapter.novelTitle || "Unknown Book";
       if (!acc[novelTitle]) {
         acc[novelTitle] = [];
       }
@@ -196,7 +196,7 @@ export default function OfflineDownloadsPage() {
               </p>
               <p className="text-muted-foreground">
                 From {Object.keys(chaptersByNovel).length}{" "}
-                {Object.keys(chaptersByNovel).length === 1 ? "novel" : "novels"}
+                {Object.keys(chaptersByNovel).length === 1 ? "book" : "books"}
               </p>
             </div>
             {chapters.length > 0 && (
@@ -218,14 +218,14 @@ export default function OfflineDownloadsPage() {
               No chapters downloaded yet.
               <br />
               {isOnline ? (
-                <>Browse novels and download chapters to read them offline.</>
+                <>Browse books and download chapters to read them offline.</>
               ) : (
                 <>Connect to the internet to download chapters.</>
               )}
             </p>
             {isOnline && (
               <Link href="/" className="mt-4">
-                <Button>Browse Novels</Button>
+                <Button>Browse Books</Button>
               </Link>
             )}
           </CardContent>

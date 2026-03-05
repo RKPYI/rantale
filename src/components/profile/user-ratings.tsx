@@ -286,11 +286,11 @@ export function UserRatings() {
             <Star className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
             <h3 className="mb-2 text-lg font-medium">No ratings yet</h3>
             <p className="text-muted-foreground mb-4">
-              You haven't rated any novels yet. Start reading and share your
+              You haven't rated any books yet. Start reading and share your
               thoughts!
             </p>
             <Button asChild variant="outline">
-              <Link href="/">Browse Novels</Link>
+              <Link href="/">Browse Books</Link>
             </Button>
           </div>
         )}

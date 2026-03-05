@@ -38,7 +38,7 @@ function GenreItem({ genre }: { genre: Genre }) {
           <div className="mt-1 flex items-center gap-2">
             <div className="text-muted-foreground flex items-center gap-1 text-sm">
               <Users className="h-3 w-3" />
-              <span>{novelCount} novels</span>
+              <span>{novelCount} books</span>
             </div>
           </div>
         </div>

@@ -355,7 +355,7 @@ export function RatingSection({
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setUserReview(e.target.value)
                     }
-                    placeholder="Share your thoughts about this novel..."
+                    placeholder="Share your thoughts about this book..."
                     rows={3}
                   />
                 </div>

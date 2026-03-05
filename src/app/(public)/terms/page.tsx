@@ -21,7 +21,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "Terms of Service for Rantale - A non-profit novel reading platform",
+    "Terms of Service for Rantale - A non-profit book reading platform",
 };
 
 export default function TermsPage() {

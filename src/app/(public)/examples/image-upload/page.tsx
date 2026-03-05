@@ -21,10 +21,10 @@ export default function ImageUploadDemo() {
   // Mock novel data for demo
   const mockNovel = {
     id: 1,
-    title: "Sample Novel",
-    slug: "sample-novel",
+    title: "Sample Book",
+    slug: "sample-book",
     author: "Author Name",
-    description: "A sample novel for testing cover upload",
+    description: "A sample book for testing cover upload",
     status: "ongoing" as const,
     cover_image: null,
     total_chapters: 0,
@@ -58,14 +58,14 @@ export default function ImageUploadDemo() {
       <div>
         <h1 className="text-3xl font-bold">Image Upload Demo</h1>
         <p className="text-muted-foreground mt-2">
-          Test avatar and novel cover upload functionality
+          Test avatar and book cover upload functionality
         </p>
       </div>
 
       <Tabs defaultValue="avatar" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="avatar">Avatar Upload</TabsTrigger>
-          <TabsTrigger value="cover">Novel Cover Upload</TabsTrigger>
+          <TabsTrigger value="cover">Book Cover Upload</TabsTrigger>
         </TabsList>
 
         <TabsContent value="avatar" className="space-y-4">
@@ -98,10 +98,10 @@ export default function ImageUploadDemo() {
         <TabsContent value="cover" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Upload Novel Cover</CardTitle>
+              <CardTitle>Upload Book Cover</CardTitle>
               <CardDescription>
-                Upload or update the cover image for your novel. Authors can
-                manage covers for their own novels.
+                Upload or update the cover image for your book. Students can
+                manage covers for their own books.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -130,9 +130,9 @@ export default function ImageUploadDemo() {
           <Alert>
             <InfoIcon className="h-4 w-4" />
             <AlertDescription>
-              <strong>Note:</strong> This demo uses a mock novel. In production,
-              you can only upload covers for novels you own. The actual endpoint
-              requires author authentication.
+              <strong>Note:</strong> This demo uses a mock book. In production,
+              you can only upload covers for books you own. The actual endpoint
+              requires student authentication.
             </AlertDescription>
           </Alert>
         </TabsContent>

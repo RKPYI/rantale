@@ -1,73 +1,30 @@
 /**
  * Editor Workflow Types
- * Types related to the editorial workflow for chapter publishing
+ * Types related to the editorial workflow for chapter review
+ * Based on EDITOR_WORKFLOW_FRONTEND_GUIDE.md
  */
 
 import { PaginatedResponse } from "./common";
-import { User } from "./user";
 
-// Chapter Status
-export type ChapterStatus =
+// Chapter statuses in the review workflow
+export type ChapterReviewStatus =
   | "draft"
   | "pending_review"
   | "approved"
   | "revision_requested"
   | "pending_update";
 
-// Chapter Review Actions
-export type ChapterReviewAction = "approved" | "revision_requested";
+// Review action types
+export type ReviewAction = "approved" | "revision_requested";
 
-// Review Info attached to chapters
-export interface ChapterReview {
-  id: number;
-  chapter_id: number;
-  action: ChapterReviewAction;
-  notes: string | null;
-  created_at: string;
-  editor?: {
-    id: number;
-    name: string;
-  };
-}
+// ---------------------
+// Stats
+// ---------------------
 
-// Extended chapter summary with workflow info (for author view)
-export interface AuthorChapterWithStatus {
-  id: number;
-  title: string;
-  chapter_number: number;
-  word_count: number;
-  status: ChapterStatus;
-  reviewed_at: string | null;
-  created_at: string;
-  published_at: string | null;
-  latest_review: ChapterReview | null;
-  pending_title: string | null;
-  pending_content: string | null;
-}
-
-// Author chapters response
-export interface AuthorChaptersResponse {
-  message: string;
-  novel: {
-    id: number;
-    title: string;
-    slug: string;
-    author: string;
-  };
-  chapters: AuthorChapterWithStatus[];
-}
-
-// Chapter workflow stats (part of author stats)
-export interface ChapterWorkflowStats {
-  pending_review: number;
-  revision_requested: number;
-  approved: number;
-  draft: number;
-}
-
-// Editor Statistics
 export interface EditorStats {
   pending_review: number;
+  available_to_claim: number;
+  my_claimed_chapters: number;
   my_reviews_today: number;
   my_reviews_this_week: number;
   my_total_reviews: number;
@@ -80,74 +37,57 @@ export interface EditorStatsResponse {
   stats: EditorStats;
 }
 
-// Claim info attached to pending chapters
-export interface ChapterClaimInfo {
-  is_claimed: boolean;
-  is_claimed_by_me: boolean;
-  can_review: boolean;
-  claimed_by_editor: string | null;
+// ---------------------
+// Group Info
+// ---------------------
+
+export interface EditorGroupMember {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  user_role: string;
+  group_role: "editor" | "author";
+  joined_at: string;
 }
 
-// Pending chapter for editor review
+export interface EditorGroupInfo {
+  id: number;
+  name: string;
+  tag: string;
+  description: string | null;
+  created_at: string;
+  member_count: number;
+  pending_chapters_from_group: number;
+  members: EditorGroupMember[];
+}
+
+export interface EditorGroupInfoResponse {
+  message: string;
+  group: EditorGroupInfo | null;
+}
+
+// ---------------------
+// Pending Chapters
+// ---------------------
+
 export interface PendingChapter {
   id: number;
   title: string;
   chapter_number: number;
+  status: ChapterReviewStatus;
   word_count: number;
-  status: ChapterStatus;
   created_at: string;
   novel: {
     id: number;
     title: string;
     slug: string;
     author: string;
-    user: {
-      id: number;
-      name: string;
-    };
   };
-  // Claim system fields
+  claimed_by_editor: { id: number; name: string } | null;
   is_claimed: boolean;
   is_claimed_by_me: boolean;
   can_review: boolean;
-  claimed_by_editor: string | null;
-}
-
-// Claimed chapter (from /editor/my-claimed-chapters)
-export interface ClaimedChapter {
-  id: number;
-  title: string;
-  chapter_number: number;
-  word_count: number;
-  status: ChapterStatus;
-  created_at: string;
-  novel: {
-    id: number;
-    title: string;
-    slug: string;
-    author: string;
-    user: {
-      id: number;
-      name: string;
-    };
-  };
-  claim_expires_at: string;
-  claim_hours_remaining: number;
-}
-
-// Claimed chapters response
-export interface ClaimedChaptersResponse {
-  message: string;
-  chapters: ClaimedChapter[];
-}
-
-// Claim/unclaim response
-export interface ClaimChapterResponse {
-  message: string;
-}
-
-export interface UnclaimChapterResponse {
-  message: string;
 }
 
 export interface PendingChaptersResponse {
@@ -155,98 +95,118 @@ export interface PendingChaptersResponse {
   chapters: PaginatedResponse<PendingChapter>;
 }
 
-// Chapter details for editor review
-export interface ChapterForReview {
+// ---------------------
+// My Claimed Chapters
+// ---------------------
+
+export interface ClaimedChapter {
+  id: number;
+  title: string;
+  chapter_number: number;
+  status: ChapterReviewStatus;
+  claimed_at: string;
+  claim_expires_at: string;
+  claim_hours_remaining: number;
+  novel: {
+    id: number;
+    title: string;
+    slug: string;
+    author: string;
+  };
+}
+
+export interface ClaimedChaptersResponse {
+  message: string;
+  chapters: ClaimedChapter[];
+}
+
+// ---------------------
+// Chapter Detail (for review)
+// ---------------------
+
+export interface ChapterReviewRecord {
+  id: number;
+  action: ReviewAction;
+  notes: string | null;
+  created_at: string;
+  editor: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface ChapterDetail {
   id: number;
   title: string;
   content: string;
   chapter_number: number;
   word_count: number;
-  status: ChapterStatus;
-  created_at: string;
+  status: ChapterReviewStatus;
+  pending_title: string | null;
+  pending_content: string | null;
+  claimed_by: number | null;
+  claimed_at: string | null;
+  claim_expires_at: string | null;
   novel: {
     id: number;
     title: string;
     slug: string;
     author: string;
     user_id: number;
-    user: User;
   };
-  reviews: ChapterReview[];
-  reviewer: User | null;
-  pending_title: string | null;
-  pending_content: string | null;
+  reviews: ChapterReviewRecord[];
+  reviewer: { id: number; name: string } | null;
+  claimed_by_editor: { id: number; name: string } | null;
 }
 
-export interface ChapterForReviewResponse {
+export interface EditorChapterDetailResponse {
   message: string;
-  chapter: ChapterForReview;
+  chapter: ChapterDetail;
 }
 
-// Approve chapter request/response
+// ---------------------
+// Claim / Unclaim
+// ---------------------
+
+export interface ClaimChapterResponse {
+  message: string;
+  chapter: PendingChapter;
+  claim_expires_at: string;
+}
+
+export interface UnclaimChapterResponse {
+  message: string;
+}
+
+// ---------------------
+// Approve / Request Revision
+// ---------------------
+
 export interface ApproveChapterRequest {
   notes?: string;
 }
 
 export interface ApproveChapterResponse {
   message: string;
-  chapter: {
-    id: number;
-    title: string;
-    status: "approved";
-    published_at: string;
-    reviewed_at: string;
-    novel: {
-      id: number;
-      title: string;
-      slug: string;
-    };
-    reviewer: {
-      id: number;
-      name: string;
-    };
-  };
+  chapter: ChapterDetail;
 }
 
-// Request revision request/response
 export interface RequestRevisionRequest {
   notes: string;
 }
 
 export interface RequestRevisionResponse {
   message: string;
-  chapter: {
-    id: number;
-    title: string;
-    status: "revision_requested";
-    reviewed_at: string;
-    novel: {
-      id: number;
-      title: string;
-      slug: string;
-    };
-    reviewer: {
-      id: number;
-      name: string;
-    };
-    latest_review: ChapterReview;
-  };
+  chapter: ChapterDetail;
 }
 
-// Submit for review response
-export interface SubmitForReviewResponse {
-  message: string;
-  chapter: {
-    id: number;
-    status: "pending_review";
-  };
-}
+// ---------------------
+// Review History
+// ---------------------
 
-// Review history item
 export interface ReviewHistoryItem {
   id: number;
-  chapter_id: number;
-  action: ChapterReviewAction;
+  action: ReviewAction;
   notes: string | null;
   created_at: string;
   chapter: {
@@ -254,11 +214,6 @@ export interface ReviewHistoryItem {
     title: string;
     chapter_number: number;
     novel_id: number;
-    novel: {
-      id: number;
-      title: string;
-      slug: string;
-    };
   };
 }
 

@@ -16,7 +16,7 @@ export default function BrowsePage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Browse by Genre</h1>
           <p className="text-muted-foreground">
-            Explore novels across every genre, sorted by the most popular reads.
+            Explore books across every genre, sorted by the most popular reads.
           </p>
         </div>
 
@@ -41,9 +41,7 @@ export default function BrowsePage() {
           <Card>
             <CardContent className="p-8 text-center">
               <BookOpen className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-              <h3 className="mb-2 text-xl font-medium">
-                Error Loading Genres
-              </h3>
+              <h3 className="mb-2 text-xl font-medium">Error Loading Genres</h3>
               <p className="text-muted-foreground mb-4">{error}</p>
               <button
                 onClick={() => window.location.reload()}
@@ -54,9 +52,7 @@ export default function BrowsePage() {
             </CardContent>
           </Card>
         ) : genres && genres.length > 0 ? (
-          genres.map((genre) => (
-            <GenreNovelRow key={genre.id} genre={genre} />
-          ))
+          genres.map((genre) => <GenreNovelRow key={genre.id} genre={genre} />)
         ) : (
           <Card>
             <CardContent className="p-8 text-center">

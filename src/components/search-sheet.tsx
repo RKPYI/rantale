@@ -78,14 +78,14 @@ export function SearchSheet({ trigger }: SearchSheetProps) {
       </SheetTrigger>
       <SheetContent side="top" className="h-[90vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Search Novels</SheetTitle>
+          <SheetTitle>Search Books</SheetTitle>
         </SheetHeader>
 
         <div className="mt-4">
           <div className="relative">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
-              placeholder="Search novels, authors..."
+              placeholder="Search books, students..."
               className="w-full pr-10 pl-10"
               value={searchQuery}
               onChange={handleSearchChange}
@@ -274,7 +274,7 @@ export function SearchSheet({ trigger }: SearchSheetProps) {
             ) : (
               <div className="py-8 text-center">
                 <BookOpen className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
-                <p className="text-muted-foreground text-sm">No novels found</p>
+                <p className="text-muted-foreground text-sm">No books found</p>
                 <p className="text-muted-foreground text-xs">
                   Try different keywords
                 </p>

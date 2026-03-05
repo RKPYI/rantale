@@ -33,7 +33,7 @@ export function ReadingStats() {
           <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
           <h3 className="text-lg font-medium">No reading data available</h3>
           <p className="text-muted-foreground">
-            Start reading novels to see your statistics
+            Start reading books to see your statistics
           </p>
         </CardContent>
       </Card>
@@ -55,7 +55,7 @@ export function ReadingStats() {
             <p className="text-2xl font-bold">
               {readingProgress.total_novels_reading}
             </p>
-            <p className="text-muted-foreground text-sm">Novels Read</p>
+            <p className="text-muted-foreground text-sm">Books Read</p>
           </CardContent>
         </Card>
 
@@ -171,7 +171,7 @@ export function ReadingStats() {
               Library Status
             </CardTitle>
             <p className="text-muted-foreground mt-1 text-sm">
-              Novels organized in your library ({library.total_novels} total)
+              Books organized in your library ({library.total_novels} total)
             </p>
           </CardHeader>
           <CardContent>
@@ -238,7 +238,7 @@ export function ReadingStats() {
 
               {library.total_novels === 0 && (
                 <p className="text-muted-foreground py-4 text-center text-sm">
-                  No novels in library yet
+                  No books in library yet
                 </p>
               )}
             </div>
@@ -254,8 +254,8 @@ export function ReadingStats() {
             Overall Statistics
           </CardTitle>
           <p className="text-muted-foreground mt-1 text-sm">
-            <strong>{readingProgress.total_novels_reading} novels</strong> with
-            reading progress, <strong>{library.total_novels} novels</strong>{" "}
+            <strong>{readingProgress.total_novels_reading} books</strong> with
+            reading progress, <strong>{library.total_novels} books</strong>{" "}
             organized in library
           </p>
         </CardHeader>

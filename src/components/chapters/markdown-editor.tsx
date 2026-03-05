@@ -45,6 +45,7 @@ interface MarkdownEditorProps {
   className?: string;
   fontSize?: number;
   lineHeight?: number;
+  readOnly?: boolean;
 }
 
 export function MarkdownEditor({
@@ -57,9 +58,10 @@ export function MarkdownEditor({
   className,
   fontSize = 14,
   lineHeight = 1.6,
+  readOnly = false,
 }: MarkdownEditorProps) {
   const [activeTab, setActiveTab] = useState<"edit" | "preview" | "split">(
-    "split",
+    readOnly ? "preview" : "split",
   );
 
   // Helper function to insert markdown syntax
@@ -316,6 +318,8 @@ export function MarkdownEditor({
       placeholder={placeholder}
       rows={rows}
       required={required}
+      disabled={readOnly}
+      readOnly={readOnly}
       className="resize-none font-mono text-sm"
       style={{
         fontSize: `${fontSize}px`,
@@ -348,21 +352,23 @@ export function MarkdownEditor({
       </div>
 
       {/* Markdown Toolbar */}
-      <div className="bg-muted/30 flex flex-wrap gap-1 rounded-md border p-2">
-        {toolbarButtons.map((button, index) => (
-          <Button
-            key={index}
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={button.action}
-            title={button.label}
-            className="h-8 w-8 p-0"
-          >
-            <button.icon className="h-4 w-4" />
-          </Button>
-        ))}
-      </div>
+      {!readOnly && (
+        <div className="bg-muted/30 flex flex-wrap gap-1 rounded-md border p-2">
+          {toolbarButtons.map((button, index) => (
+            <Button
+              key={index}
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={button.action}
+              title={button.label}
+              className="h-8 w-8 p-0"
+            >
+              <button.icon className="h-4 w-4" />
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Editor Tabs */}
       <Tabs

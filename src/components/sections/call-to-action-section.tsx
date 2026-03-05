@@ -17,8 +17,8 @@ interface CallToActionSectionProps {
 }
 
 export function CallToActionSection({
-  title = "Ready to Start Your Reading Journey?",
-  description = "Join thousands of readers discovering amazing stories every day. Create your free account and dive into a world of endless possibilities.",
+  title = "Ready to Start Reading & Sharing?",
+  description = "Join fellow students who read great books and share their understanding. Create your free account, start reading, and upload your notebook today.",
   primaryButtonText = "Sign Up Free",
   primaryButtonHref = "/register",
   secondaryButtonText = "Learn More",

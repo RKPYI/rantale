@@ -110,7 +110,7 @@ export default function SearchPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Search Novels</h1>
+          <h1 className="text-3xl font-bold">Search Books</h1>
           <p className="text-muted-foreground">
             Discover your next favorite story from our collection
           </p>
@@ -122,7 +122,7 @@ export default function SearchPage() {
             <div className="relative">
               <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
               <Input
-                placeholder="Search by title, author, or description..."
+                placeholder="Search by title, student, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 text-base"
@@ -238,11 +238,11 @@ export default function SearchPage() {
                   <h2 className="text-xl font-semibold">
                     {debouncedQuery
                       ? `Results for "${debouncedQuery}"`
-                      : "All Novels"}
+                      : "All Books"}
                   </h2>
                   {filteredResults.length > 0 && (
                     <p className="text-muted-foreground">
-                      {filteredResults.length} novel
+                      {filteredResults.length} book
                       {filteredResults.length !== 1 ? "s" : ""} found
                     </p>
                   )}
@@ -296,7 +296,7 @@ export default function SearchPage() {
                     Start Your Search
                   </h3>
                   <p className="text-muted-foreground">
-                    Enter a search term to discover amazing novels
+                    Enter a search term to discover amazing books
                   </p>
                 </CardContent>
               </Card>
@@ -314,7 +314,7 @@ export default function SearchPage() {
               <Card>
                 <CardContent className="p-12 text-center">
                   <LoadingThrobber
-                    message="Searching novels..."
+                    message="Searching books..."
                     variant="soft"
                     size="lg"
                   />
@@ -351,7 +351,7 @@ export default function SearchPage() {
                   <BookOpen className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
                   <h3 className="mb-2 text-xl font-medium">No Results Found</h3>
                   <p className="text-muted-foreground mb-4">
-                    No novels match your search criteria. Try different keywords
+                    No books match your search criteria. Try different keywords
                     or filters.
                   </p>
                   <Button variant="outline" onClick={clearFilters}>

@@ -274,7 +274,7 @@ export default function PWADiagnosticsPage() {
         await offlineService.removeChapter(String(mockChapter.id));
       }
 
-      await offlineService.downloadChapter(mockChapter, "Diagnostics Novel");
+      await offlineService.downloadChapter(mockChapter, "Diagnostics Book");
       const isDownloaded = offlineService.isChapterDownloaded(
         String(mockChapter.id),
       );

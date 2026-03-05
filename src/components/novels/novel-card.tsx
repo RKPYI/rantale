@@ -21,7 +21,13 @@ import { NovelBadge } from "./ui/novel-badge";
 
 interface NovelCardProps {
   novel: Novel;
-  size?: "default" | "compact" | "featured" | "horizontal" | "ranked" | "browse";
+  size?:
+    | "default"
+    | "compact"
+    | "featured"
+    | "horizontal"
+    | "ranked"
+    | "browse";
   className?: string;
   rank?: number;
 }
@@ -114,7 +120,7 @@ export function NovelCard({
           {/* Info — fixed height to keep cards consistent */}
           <CardContent className="flex h-[80px] flex-col justify-between p-2 sm:h-[88px] md:h-[96px]">
             <div className="space-y-0.5">
-              <h3 className="group-hover:text-primary line-clamp-2 text-xs font-semibold leading-tight transition-colors sm:text-sm">
+              <h3 className="group-hover:text-primary line-clamp-2 text-xs leading-tight font-semibold transition-colors sm:text-sm">
                 {novel.title}
               </h3>
               <p className="text-muted-foreground truncate text-[10px] sm:text-xs">
@@ -140,7 +146,6 @@ export function NovelCard({
       </Link>
     );
   }
-
 
   // Horizontal layout (cover left, content right)
   if (isHorizontal) {

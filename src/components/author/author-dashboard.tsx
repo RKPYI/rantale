@@ -31,6 +31,7 @@ export function AuthorDashboard() {
   );
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingChapter, setIsEditingChapter] = useState(false);
+  const [isChapterReadOnly, setIsChapterReadOnly] = useState(false);
   const [deleteNovelDialog, setDeleteNovelDialog] = useState<{
     isOpen: boolean;
     novel: { id: number; slug: string; title: string } | null;
@@ -83,13 +84,13 @@ export function AuthorDashboard() {
     try {
       await novelService.deleteNovel(deleteNovelDialog.novel.slug);
       await refetchNovels();
-      toast.success("Novel deleted successfully!");
+      toast.success("Book deleted successfully!");
       setDeleteNovelDialog({ isOpen: false, novel: null });
     } catch (error) {
       logAndToastError(
         error,
-        "Failed to delete novel",
-        "Failed to delete novel. Please try again.",
+        "Failed to delete book",
+        "Failed to delete book. Please try again.",
       );
     }
   };
@@ -106,10 +107,10 @@ export function AuthorDashboard() {
 
       if (result.unauthorized_novels && result.unauthorized_novels.length > 0) {
         toast.warning(
-          `Deleted ${result.deleted_count} novel(s), but ${result.unauthorized_novels.length} were skipped due to permissions.`,
+          `Deleted ${result.deleted_count} book(s), but ${result.unauthorized_novels.length} were skipped due to permissions.`,
         );
       } else {
-        toast.success(`Successfully deleted ${result.deleted_count} novel(s)!`);
+        toast.success(`Successfully deleted ${result.deleted_count} book(s)!`);
       }
 
       setSelectedNovelIds(new Set());
@@ -117,8 +118,8 @@ export function AuthorDashboard() {
     } catch (error) {
       logAndToastError(
         error,
-        "Failed to bulk delete novels",
-        "Failed to delete novels. Please try again.",
+        "Failed to bulk delete books",
+        "Failed to delete books. Please try again.",
       );
     } finally {
       setIsBulkDeleting(false);
@@ -149,9 +150,9 @@ export function AuthorDashboard() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Author Dashboard</h1>
+          <h1 className="text-2xl font-bold sm:text-3xl">Student Dashboard</h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Manage your novels and track your performance
+            Manage your books and track your performance
           </p>
         </div>
         <Button
@@ -163,7 +164,7 @@ export function AuthorDashboard() {
           className="w-full sm:w-auto"
         >
           <PlusCircle className="mr-2 h-4 w-4" />
-          New Novel
+          New Book
         </Button>
       </div>
 
@@ -174,7 +175,7 @@ export function AuthorDashboard() {
               Overview
             </TabsTrigger>
             <TabsTrigger value="novels" className="text-xs sm:text-sm">
-              Novels
+              Books
             </TabsTrigger>
             <TabsTrigger value="chapters" className="text-xs sm:text-sm">
               Chapters
@@ -250,10 +251,11 @@ export function AuthorDashboard() {
               setIsEditingChapter(false);
               setIsChapterDialogOpen(true);
             }}
-            onEditChapter={(novel, chapter) => {
+            onEditChapter={(novel, chapter, readOnly) => {
               setSelectedNovel(novel);
               setSelectedChapter(chapter);
               setIsEditingChapter(true);
+              setIsChapterReadOnly(!!readOnly);
               setIsChapterDialogOpen(true);
             }}
             onRefetchChapters={handleRefetchChapters}
@@ -284,10 +286,14 @@ export function AuthorDashboard() {
       {/* Chapter Creation/Editing Dialog */}
       <ChapterDialog
         isOpen={isChapterDialogOpen}
-        onClose={() => setIsChapterDialogOpen(false)}
+        onClose={() => {
+          setIsChapterDialogOpen(false);
+          setIsChapterReadOnly(false);
+        }}
         chapter={selectedChapter ?? undefined}
         isEditing={isEditingChapter}
         novel={selectedNovel}
+        readOnly={isChapterReadOnly}
         onSuccess={async () => {
           await refetchNovels();
           if (refetchChaptersRef.current) {
@@ -303,13 +309,13 @@ export function AuthorDashboard() {
           setDeleteNovelDialog({ isOpen, novel: deleteNovelDialog.novel })
         }
         onConfirm={handleDeleteNovel}
-        title="Delete Novel?"
+        title="Delete Book?"
         description={
           deleteNovelDialog.novel
             ? `This will permanently delete "${deleteNovelDialog.novel.title}" and all its chapters. This action cannot be undone.`
-            : "This will permanently delete this novel and all its chapters. This action cannot be undone."
+            : "This will permanently delete this book and all its chapters. This action cannot be undone."
         }
-        confirmText="Delete Novel"
+        confirmText="Delete Book"
         isLoading={false}
       />
 
@@ -318,9 +324,9 @@ export function AuthorDashboard() {
         open={bulkDeleteNovelsDialog}
         onOpenChange={setBulkDeleteNovelsDialog}
         onConfirm={handleBulkDeleteNovels}
-        title="Delete Multiple Novels?"
-        description={`This will permanently delete ${selectedNovelIds.size} selected novel(s) and all their chapters. This action cannot be undone.`}
-        confirmText={`Delete ${selectedNovelIds.size} Novel(s)`}
+        title="Delete Multiple Books?"
+        description={`This will permanently delete ${selectedNovelIds.size} selected book(s) and all their chapters. This action cannot be undone.`}
+        confirmText={`Delete ${selectedNovelIds.size} Book(s)`}
         isLoading={isBulkDeleting}
       />
     </div>

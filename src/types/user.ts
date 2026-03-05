@@ -7,10 +7,11 @@
 export interface User {
   id: number;
   name: string;
+  username: string;
   email: string;
   email_verified_at: string | null;
   email_verified: boolean;
-  role: number; // 0=user, 1=author, 2=moderator, 3=admin
+  role: number; // 0=user, 1=author, 2=editor, 3=admin
   provider?: string; // email|google
   provider_id?: string | null;
   avatar: string | null;
@@ -80,6 +81,8 @@ export interface ChangePasswordRequest {
 
 // User Profile Statistics
 export interface UserProfileStats {
+  user_id: number;
+  name: string;
   username: string;
   member_since: string;
   reading_progress: {

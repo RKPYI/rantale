@@ -2,31 +2,38 @@ import { apiClient } from "@/lib/api-client";
 import {
   EditorStatsResponse,
   EditorStats,
+  EditorGroupInfoResponse,
+  EditorGroupInfo,
   PendingChaptersResponse,
-  ChapterForReview,
-  ChapterForReviewResponse,
-  ApproveChapterRequest,
-  ApproveChapterResponse,
-  RequestRevisionRequest,
-  RequestRevisionResponse,
-  ReviewHistoryResponse,
-  PaginatedResponse,
-  ReviewHistoryItem,
   PendingChapter,
-  ClaimedChapter,
   ClaimedChaptersResponse,
+  ClaimedChapter,
+  EditorChapterDetailResponse,
+  ChapterDetail,
   ClaimChapterResponse,
   UnclaimChapterResponse,
+  ApproveChapterResponse,
+  RequestRevisionResponse,
+  ReviewHistoryResponse,
+  ReviewHistoryItem,
+  PaginatedResponse,
 } from "@/types/api";
 
 export const editorService = {
-  // Get editor statistics
+  // Get editor dashboard stats
   async getStats(): Promise<EditorStats> {
     const response = await apiClient.get<EditorStatsResponse>("/editor/stats");
     return response.data.stats;
   },
 
-  // Get pending chapters for review
+  // Get editor's group info
+  async getGroupInfo(): Promise<EditorGroupInfo | null> {
+    const response =
+      await apiClient.get<EditorGroupInfoResponse>("/editor/group");
+    return response.data.group;
+  },
+
+  // Get pending chapters (paginated)
   async getPendingChapters(
     page?: number,
     perPage?: number,
@@ -42,9 +49,33 @@ export const editorService = {
     return response.data.chapters;
   },
 
-  // Get chapter details for review
-  async getChapterForReview(chapterId: number): Promise<ChapterForReview> {
-    const response = await apiClient.get<ChapterForReviewResponse>(
+  // Get my claimed chapters
+  async getClaimedChapters(): Promise<ClaimedChapter[]> {
+    const response = await apiClient.get<ClaimedChaptersResponse>(
+      "/editor/my-claimed-chapters",
+    );
+    return response.data.chapters;
+  },
+
+  // Claim a chapter for review
+  async claimChapter(chapterId: number): Promise<ClaimChapterResponse> {
+    const response = await apiClient.post<ClaimChapterResponse>(
+      `/editor/chapters/${chapterId}/claim`,
+    );
+    return response.data;
+  },
+
+  // Release a claimed chapter
+  async unclaimChapter(chapterId: number): Promise<UnclaimChapterResponse> {
+    const response = await apiClient.post<UnclaimChapterResponse>(
+      `/editor/chapters/${chapterId}/unclaim`,
+    );
+    return response.data;
+  },
+
+  // Get full chapter details for review (requires claiming first)
+  async getChapterDetail(chapterId: number): Promise<ChapterDetail> {
+    const response = await apiClient.get<EditorChapterDetailResponse>(
       `/editor/chapters/${chapterId}`,
     );
     return response.data.chapter;
@@ -53,11 +84,14 @@ export const editorService = {
   // Approve a chapter
   async approveChapter(
     chapterId: number,
-    data?: ApproveChapterRequest,
+    notes?: string,
   ): Promise<ApproveChapterResponse> {
+    const data: { notes?: string } = {};
+    if (notes) data.notes = notes;
+
     const response = await apiClient.post<ApproveChapterResponse>(
       `/editor/chapters/${chapterId}/approve`,
-      data || {},
+      data,
     );
     return response.data;
   },
@@ -65,16 +99,16 @@ export const editorService = {
   // Request revision for a chapter
   async requestRevision(
     chapterId: number,
-    data: RequestRevisionRequest,
+    notes: string,
   ): Promise<RequestRevisionResponse> {
     const response = await apiClient.post<RequestRevisionResponse>(
       `/editor/chapters/${chapterId}/request-revision`,
-      data,
+      { notes },
     );
     return response.data;
   },
 
-  // Get review history
+  // Get review history (paginated)
   async getReviewHistory(
     perPage?: number,
   ): Promise<PaginatedResponse<ReviewHistoryItem>> {
@@ -86,31 +120,5 @@ export const editorService = {
       params,
     );
     return response.data.reviews;
-  },
-
-  // Claim a chapter for review
-  async claimChapter(chapterId: number): Promise<ClaimChapterResponse> {
-    const response = await apiClient.post<ClaimChapterResponse>(
-      `/editor/chapters/${chapterId}/claim`,
-      {},
-    );
-    return response.data;
-  },
-
-  // Release a claimed chapter
-  async unclaimChapter(chapterId: number): Promise<UnclaimChapterResponse> {
-    const response = await apiClient.post<UnclaimChapterResponse>(
-      `/editor/chapters/${chapterId}/unclaim`,
-      {},
-    );
-    return response.data;
-  },
-
-  // Get chapters claimed by the current editor
-  async getMyClaimedChapters(): Promise<ClaimedChapter[]> {
-    const response = await apiClient.get<ClaimedChaptersResponse>(
-      "/editor/my-claimed-chapters",
-    );
-    return response.data.chapters;
   },
 };

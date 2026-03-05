@@ -24,18 +24,18 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "https://rantale.randk.me",
   ),
   title: {
-    default: "Rantale - Your Novel Reading Platform",
+    default: "Rantale - Your Book Reading Platform",
     template: "%s | Rantale",
   },
   description:
-    "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres, track your reading progress, and join a vibrant community of readers and authors.",
+    "Discover and read amazing books on Rantale. Browse stories across multiple genres, track your reading progress, and share your notebook with fellow students.",
   keywords: [
-    "novels",
-    "web novels",
+    "books",
     "reading",
+    "notebook",
+    "students",
     "stories",
     "fiction",
-    "books",
     "online reading",
     "Rantale",
   ],
@@ -66,23 +66,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "/",
     siteName: "Rantale",
-    title: "Rantale - Your Novel Reading Platform",
+    title: "Rantale - Your Book Reading Platform",
     description:
-      "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
+      "Discover and read amazing books on Rantale. Browse stories across multiple genres.",
     images: [
       {
         url: "/rantale-dark.svg",
         width: 1200,
         height: 630,
-        alt: "Rantale - Novel Reading Platform",
+        alt: "Rantale - Book Reading Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rantale - Your Novel Reading Platform",
+    title: "Rantale - Your Book Reading Platform",
     description:
-      "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
+      "Discover and read amazing books on Rantale. Browse stories across multiple genres.",
     images: ["/rantale-dark.svg"],
     creator: "@rantale",
   },

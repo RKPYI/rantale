@@ -62,7 +62,7 @@ export function NovelsTab({
         <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 flex-shrink-0" />
-            <span className="truncate">My Novels</span>
+            <span className="truncate">My Books</span>
           </span>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             {selectedNovelIds.size > 0 && (
@@ -79,7 +79,7 @@ export function NovelsTab({
             )}
             <Button onClick={onCreateNovel} className="w-full sm:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="sm:inline">New Novel</span>
+              <span className="sm:inline">New Book</span>
             </Button>
           </div>
         </CardTitle>
@@ -126,11 +126,17 @@ export function NovelsTab({
                     onCheckedChange={() => onToggleSelection(novel.id)}
                     className="mt-1 flex-shrink-0 sm:mt-0"
                   />
-                  <img
-                    src={novel.cover_image || "/placeholder-book.jpg"}
-                    alt={novel.title}
-                    className="h-16 w-12 flex-shrink-0 rounded object-cover"
-                  />
+                  {novel.cover_image ? (
+                    <img
+                      src={novel.cover_image}
+                      alt={novel.title}
+                      className="h-16 w-12 flex-shrink-0 rounded object-cover"
+                    />
+                  ) : (
+                    <div className="from-muted to-muted/50 flex h-16 w-12 flex-shrink-0 items-center justify-center rounded bg-gradient-to-br">
+                      <BookOpen className="text-muted-foreground h-6 w-6" />
+                    </div>
+                  )}
                   <div className="min-w-0 flex-1 space-y-1">
                     <h4 className="truncate text-sm font-medium sm:text-base">
                       {novel.title}
@@ -182,7 +188,7 @@ export function NovelsTab({
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => onEditNovel(novel)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit Novel
+                        Edit Book
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onManageChapters(novel)}>
                         <FileText className="mr-2 h-4 w-4" />
@@ -199,7 +205,7 @@ export function NovelsTab({
                         }
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Novel
+                        Delete Book
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -210,13 +216,13 @@ export function NovelsTab({
         ) : (
           <div className="py-8 text-center">
             <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-            <h3 className="text-base font-medium sm:text-lg">No novels yet</h3>
+            <h3 className="text-base font-medium sm:text-lg">No books yet</h3>
             <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-              Start your writing journey by creating your first novel.
+              Start your journey by creating your first book.
             </p>
             <Button onClick={onCreateNovel}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create Novel
+              Create Book
             </Button>
           </div>
         )}

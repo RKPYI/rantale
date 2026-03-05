@@ -36,7 +36,11 @@ interface ChaptersTabProps {
   novels: AuthorNovel[] | null;
   refetchNovels: () => void;
   onCreateChapter: (novel: AuthorNovel) => void;
-  onEditChapter: (novel: AuthorNovel, chapter: ChapterSummary) => void;
+  onEditChapter: (
+    novel: AuthorNovel,
+    chapter: ChapterSummary,
+    readOnly?: boolean,
+  ) => void;
   onRefetchChapters?: (refetch: () => Promise<void>) => void;
 }
 
@@ -166,10 +170,10 @@ export function ChaptersTab({
           <div className="py-8 text-center">
             <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
             <h3 className="text-base font-medium sm:text-lg">
-              No Novels Available
+              No Books Available
             </h3>
             <p className="text-muted-foreground text-sm sm:text-base">
-              Create a novel first to manage chapters.
+              Create a book first to manage chapters.
             </p>
           </div>
         </CardContent>
@@ -184,7 +188,7 @@ export function ChaptersTab({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 flex-shrink-0" />
-            <span className="truncate">Select Novel</span>
+            <span className="truncate">Select Book</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -330,7 +334,7 @@ export function ChaptersTab({
                             </Link>
                           </Button>
                         )}
-                        {/* Edit button - disabled for pending_review and pending_update */}
+                        {/* Edit/View button */}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -338,20 +342,23 @@ export function ChaptersTab({
                             onEditChapter(
                               currentNovel,
                               chapter as unknown as ChapterSummary,
+                              chapter.status === "pending_review",
                             )
                           }
-                          disabled={
-                            chapter.status === "pending_review" ||
-                            chapter.status === "pending_update"
-                          }
+                          disabled={chapter.status === "pending_update"}
                           title={
-                            chapter.status === "pending_review" ||
-                            chapter.status === "pending_update"
-                              ? "Cannot edit while pending review"
-                              : undefined
+                            chapter.status === "pending_review"
+                              ? "View chapter (read-only while pending review)"
+                              : chapter.status === "pending_update"
+                                ? "Cannot edit while pending review"
+                                : "Edit chapter"
                           }
                         >
-                          <Edit className="h-4 w-4" />
+                          {chapter.status === "pending_review" ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <Edit className="h-4 w-4" />
+                          )}
                         </Button>
                         <Button
                           variant="ghost"

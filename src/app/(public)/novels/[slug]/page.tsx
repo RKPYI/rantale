@@ -47,8 +47,8 @@ export async function generateMetadata({
     };
   } catch (error) {
     return {
-      title: "Novel Not Found",
-      description: "The requested novel could not be found.",
+      title: "Book Not Found",
+      description: "The requested book could not be found.",
     };
   }
 }

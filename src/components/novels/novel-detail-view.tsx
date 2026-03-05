@@ -148,12 +148,12 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
     setIsDeleting(true);
     try {
       await novelService.deleteNovel(novel.slug);
-      toast.success("Novel deleted successfully");
+      toast.success("Book deleted successfully");
       router.push("/novels");
       router.refresh();
     } catch (error) {
       console.error("Failed to delete novel:", error);
-      toast.error("Failed to delete novel. Please try again.");
+      toast.error("Failed to delete book. Please try again.");
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);
@@ -235,7 +235,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                     size="lg"
                   >
                     <Edit className="mr-2 h-4 w-4" />
-                    Edit Novel (Admin)
+                    Edit Book (Admin)
                   </Button>
                   <Button
                     onClick={() => setShowDeleteDialog(true)}
@@ -244,7 +244,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                     size="lg"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Novel (Admin)
+                    Delete Book (Admin)
                   </Button>
                 </>
               )}
@@ -510,7 +510,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 <div className="text-muted-foreground py-12 text-center">
                   <BookOpen className="mx-auto mb-4 h-12 w-12" />
                   <h3 className="mb-2 font-medium">No chapters available</h3>
-                  <p>This novel doesn&apos;t have any chapters yet.</p>
+                  <p>This book doesn&apos;t have any chapters yet.</p>
                 </div>
               )}
             </CardContent>
@@ -567,7 +567,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 disabled={isDeleting}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                {isDeleting ? "Deleting..." : "Delete Novel"}
+                {isDeleting ? "Deleting..." : "Delete Book"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

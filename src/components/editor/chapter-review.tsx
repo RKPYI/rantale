@@ -1,242 +1,270 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   CheckCircle,
-  AlertCircle,
-  User,
-  BookOpen,
-  Clock,
+  RotateCcw,
+  Loader2,
   FileText,
-  History,
+  Clock,
+  Unlock,
+  AlertTriangle,
 } from "lucide-react";
-import { useEditorChapterForReview } from "@/hooks/use-editor";
-import { editorService } from "@/services/editor";
 import {
-  PendingChapter,
-  ClaimedChapter,
-  ChapterReview as ChapterReviewType,
-} from "@/types/api";
-import { ChapterStatusBadge } from "./chapter-status-badge";
-import { MarkdownRenderer } from "@/components/chapters/markdown-renderer";
-import { formatDistanceToNow, format } from "date-fns";
-import { formatNumber } from "@/lib/novel-utils";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { editorService } from "@/services/editor";
+import { ChapterDetail } from "@/types/api";
+import { logAndToastError } from "@/lib/error-utils";
 import { toast } from "sonner";
-import { logAndToastError } from "@/lib/utils";
-
-// Accept either PendingChapter or ClaimedChapter
-type ReviewableChapter = PendingChapter | ClaimedChapter;
+import { ChapterStatusBadge } from "./chapter-status-badge";
 
 interface ChapterReviewProps {
-  chapter: ReviewableChapter;
+  chapterId: number;
   onBack: () => void;
   onReviewComplete: () => void;
 }
 
 export function ChapterReview({
-  chapter,
+  chapterId,
   onBack,
   onReviewComplete,
 }: ChapterReviewProps) {
-  const [isApproving, setIsApproving] = useState(false);
-  const [isRequestingRevision, setIsRequestingRevision] = useState(false);
-  const [approvalNotes, setApprovalNotes] = useState("");
-  const [revisionNotes, setRevisionNotes] = useState("");
-  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
-  const [showRevisionDialog, setShowRevisionDialog] = useState(false);
+  const [chapter, setChapter] = useState<ChapterDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [action, setAction] = useState<"approve" | "revision" | null>(null);
+  const [unclaiming, setUnclaiming] = useState(false);
 
-  const {
-    data: chapterDetails,
-    loading,
-    error,
-  } = useEditorChapterForReview(chapter.id);
+  useEffect(() => {
+    const fetchChapter = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await editorService.getChapterDetail(chapterId);
+        setChapter(data);
+      } catch (err) {
+        const message =
+          err && typeof err === "object" && "message" in err
+            ? (err as { message: string }).message
+            : "Failed to load chapter. You may need to claim it first.";
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChapter();
+  }, [chapterId]);
 
   const handleApprove = async () => {
-    setIsApproving(true);
+    setAction("approve");
+    setSubmitting(true);
     try {
-      await editorService.approveChapter(chapter.id, {
-        notes: approvalNotes || undefined,
-      });
-      const successMessage =
-        chapter.status === "pending_update"
-          ? "Chapter update approved successfully!"
-          : "Chapter approved and published successfully!";
-      toast.success(successMessage);
-      setShowApprovalDialog(false);
+      await editorService.approveChapter(chapterId, notes.trim() || undefined);
+      toast.success("Chapter approved and published!");
       onReviewComplete();
     } catch (err) {
       logAndToastError(err, "Failed to approve chapter");
     } finally {
-      setIsApproving(false);
+      setSubmitting(false);
+      setAction(null);
     }
   };
 
   const handleRequestRevision = async () => {
-    if (!revisionNotes.trim()) {
-      toast.error("Please provide revision notes for the author");
+    if (!notes.trim()) {
+      toast.error("Please provide revision notes for the student.");
       return;
     }
-
-    setIsRequestingRevision(true);
+    setAction("revision");
+    setSubmitting(true);
     try {
-      await editorService.requestRevision(chapter.id, {
-        notes: revisionNotes,
-      });
-      const successMessage =
-        chapter.status === "pending_update"
-          ? "Update rejected. Original content remains published."
-          : "Revision request sent to the author";
-      toast.success(successMessage);
-      setShowRevisionDialog(false);
+      await editorService.requestRevision(chapterId, notes.trim());
+      toast.success("Revision requested. The student has been notified.");
       onReviewComplete();
     } catch (err) {
       logAndToastError(err, "Failed to request revision");
     } finally {
-      setIsRequestingRevision(false);
+      setSubmitting(false);
+      setAction(null);
+    }
+  };
+
+  const handleUnclaim = async () => {
+    setUnclaiming(true);
+    try {
+      await editorService.unclaimChapter(chapterId);
+      toast.success("Chapter claim released.");
+      onBack();
+    } catch (err) {
+      logAndToastError(err, "Failed to release claim");
+    } finally {
+      setUnclaiming(false);
     }
   };
 
   if (loading) {
+    return <ChapterReviewSkeleton />;
+  }
+
+  if (error || !chapter) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-96 w-full" />
+      <div className="space-y-4">
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error || "Chapter not found."}</AlertDescription>
+        </Alert>
       </div>
     );
   }
 
-  if (error || !chapterDetails) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error || "Failed to load chapter details"}
-        </AlertDescription>
-      </Alert>
-    );
-  }
+  const isPendingUpdate = chapter.status === "pending_update";
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Queue
-          </Button>
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-xl font-bold sm:text-2xl">{chapter.title}</h1>
+          <p className="text-muted-foreground text-sm">
+            Chapter {chapter.chapter_number} · {chapter.novel.title} · by{" "}
+            {chapter.novel.author}
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowRevisionDialog(true)}
-            className="text-destructive hover:text-destructive"
-          >
-            <AlertCircle className="mr-2 h-4 w-4" />
-            {chapterDetails?.status === "pending_update"
-              ? "Reject Update"
-              : "Request Revision"}
-          </Button>
-          <Button onClick={() => setShowApprovalDialog(true)}>
-            <CheckCircle className="mr-2 h-4 w-4" />
-            {chapterDetails?.status === "pending_update"
-              ? "Approve Update"
-              : "Approve & Publish"}
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleUnclaim}
+          disabled={unclaiming}
+        >
+          {unclaiming ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Unlock className="mr-2 h-4 w-4" />
+          )}
+          Unclaim
+        </Button>
       </div>
 
-      {/* Chapter Info Card */}
+      {/* Meta Info */}
+      <div className="flex flex-wrap gap-3">
+        <Badge variant="outline" className="flex items-center gap-1">
+          <FileText className="h-3 w-3" />
+          {chapter.word_count.toLocaleString()} words
+        </Badge>
+        <ChapterStatusBadge status={chapter.status} />
+        {chapter.claim_expires_at && (
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            Claim expires {new Date(chapter.claim_expires_at).toLocaleString()}
+          </Badge>
+        )}
+      </div>
+
+      {/* Pending Update Notice */}
+      {isPendingUpdate && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            This is a <strong>content update</strong> for an already-published
+            chapter. The author has submitted changes to the title and/or
+            content. Approving will apply the changes; requesting revision will
+            discard them and keep the original.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Chapter Content */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="text-xl">
-                Chapter {chapterDetails.chapter_number}: {chapterDetails.title}
-              </CardTitle>
-              <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-3 text-sm">
-                <span className="flex items-center gap-1">
-                  <BookOpen className="h-4 w-4" />
-                  {chapterDetails.novel.title}
-                </span>
-                <span className="flex items-center gap-1">
-                  <User className="h-4 w-4" />
-                  {chapterDetails.novel.author}
-                </span>
-                <span className="flex items-center gap-1">
-                  <FileText className="h-4 w-4" />
-                  {formatNumber(chapterDetails.word_count)} words
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  Submitted{" "}
-                  {formatDistanceToNow(new Date(chapterDetails.created_at), {
-                    addSuffix: true,
-                  })}
-                </span>
-              </div>
-            </div>
-            <ChapterStatusBadge status={chapterDetails.status} />
-          </div>
+          <CardTitle>
+            {isPendingUpdate ? "Published Content" : "Chapter Content"}
+          </CardTitle>
         </CardHeader>
+        <CardContent>
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: chapter.content }}
+          />
+        </CardContent>
       </Card>
 
+      {/* Pending Content (for updates) */}
+      {isPendingUpdate && chapter.pending_content && (
+        <Card className="border-amber-500/50">
+          <CardHeader>
+            <CardTitle className="text-amber-600 dark:text-amber-400">
+              Proposed Changes
+            </CardTitle>
+            {chapter.pending_title && (
+              <CardDescription>
+                New title: <strong>{chapter.pending_title}</strong>
+              </CardDescription>
+            )}
+          </CardHeader>
+          <CardContent>
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: chapter.pending_content }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Previous Reviews */}
-      {chapterDetails.reviews && chapterDetails.reviews.length > 0 && (
+      {chapter.reviews.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <History className="h-5 w-5" />
-              Previous Reviews
-            </CardTitle>
+            <CardTitle className="text-base">Previous Reviews</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {chapterDetails.reviews.map((review: ChapterReviewType) => (
-                <div
-                  key={review.id}
-                  className="bg-muted/30 rounded-lg border p-3"
-                >
-                  <div className="mb-2 flex items-center gap-2">
-                    <Badge
-                      variant="outline"
-                      className={
-                        review.action === "approved"
-                          ? "border-0 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "border-0 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                      }
-                    >
-                      {review.action === "approved"
-                        ? "Approved"
-                        : "Revision Requested"}
-                    </Badge>
-                    {review.editor && (
-                      <span className="text-muted-foreground text-sm">
+              {chapter.reviews.map((review) => (
+                <div key={review.id} className="rounded-md border p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          review.action === "approved"
+                            ? "default"
+                            : "destructive"
+                        }
+                        className="text-xs"
+                      >
+                        {review.action === "approved"
+                          ? "Approved"
+                          : "Revision Requested"}
+                      </Badge>
+                      <span className="text-muted-foreground">
                         by {review.editor.name}
                       </span>
-                    )}
-                    <span className="text-muted-foreground text-sm">
-                      {format(new Date(review.created_at), "MMM d, yyyy")}
+                    </div>
+                    <span className="text-muted-foreground text-xs">
+                      {new Date(review.created_at).toLocaleDateString()}
                     </span>
                   </div>
                   {review.notes && (
-                    <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+                    <p className="text-muted-foreground mt-2 text-sm">
                       {review.notes}
                     </p>
                   )}
@@ -247,200 +275,91 @@ export function ChapterReview({
         </Card>
       )}
 
-      {/* Pending Update Notice */}
-      {chapterDetails.status === "pending_update" && (
-        <Alert className="border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20">
-          <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <AlertDescription className="text-blue-800 dark:text-blue-300">
-            <strong>This is an update to a published chapter.</strong> The
-            original content is still visible to readers. Review the pending
-            changes below.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Chapter Content - Show pending content for pending_update, regular content otherwise */}
+      {/* Review Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            {chapterDetails.status === "pending_update" ? (
-              <>
-                <span>Pending Changes</span>
-                <Badge
-                  variant="outline"
-                  className="border-0 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                >
-                  Update
-                </Badge>
-              </>
-            ) : (
-              "Chapter Content"
-            )}
-          </CardTitle>
-          {chapterDetails.status === "pending_update" &&
-            chapterDetails.pending_title && (
-              <p className="text-muted-foreground text-sm">
-                <strong>New Title:</strong> {chapterDetails.pending_title}
-                {chapterDetails.pending_title !== chapterDetails.title && (
-                  <span className="ml-2 text-xs">
-                    (was: {chapterDetails.title})
-                  </span>
-                )}
-              </p>
-            )}
+          <CardTitle>Review Decision</CardTitle>
+          <CardDescription>
+            {isPendingUpdate
+              ? "Approve the content update or request revision (discards changes)."
+              : "Approve the chapter for publication or request the student to revise it."}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <MarkdownRenderer
-            content={
-              chapterDetails.status === "pending_update" &&
-              chapterDetails.pending_content
-                ? chapterDetails.pending_content
-                : chapterDetails.content
-            }
-          />
-        </CardContent>
-      </Card>
-
-      {/* Original Content (for pending_update only) */}
-      {chapterDetails.status === "pending_update" && (
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle className="text-muted-foreground flex items-center gap-2">
-              <span>Original Published Content</span>
-              <Badge
-                variant="outline"
-                className="border-0 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-              >
-                Current
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MarkdownRenderer
-              content={chapterDetails.content}
-              className="opacity-75"
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="review-notes">
+              Review Notes{" "}
+              <span className="text-muted-foreground text-xs">
+                (required for revision requests, max 2000 chars)
+              </span>
+            </Label>
+            <Textarea
+              id="review-notes"
+              placeholder="Add notes for the student..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+              maxLength={2000}
             />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Approve Dialog */}
-      <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {chapterDetails.status === "pending_update"
-                ? "Approve Update"
-                : "Approve Chapter"}
-            </DialogTitle>
-            <DialogDescription>
-              {chapterDetails.status === "pending_update"
-                ? "This will apply the pending changes to the published chapter."
-                : "This will publish the chapter and make it visible to readers."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="approval-notes">Notes (optional)</Label>
-              <Textarea
-                id="approval-notes"
-                placeholder="Add any notes for the author (optional)..."
-                value={approvalNotes}
-                onChange={(e) => setApprovalNotes(e.target.value)}
-                rows={3}
-              />
-            </div>
+            <p className="text-muted-foreground text-right text-xs">
+              {notes.length}/2000
+            </p>
           </div>
-          <DialogFooter>
+
+          <div className="flex gap-3">
             <Button
-              variant="outline"
-              onClick={() => setShowApprovalDialog(false)}
-              disabled={isApproving}
+              onClick={handleApprove}
+              disabled={submitting}
+              className="bg-green-600 hover:bg-green-700"
             >
-              Cancel
-            </Button>
-            <Button onClick={handleApprove} disabled={isApproving}>
-              {isApproving ? (
-                <>
-                  <span className="mr-2 animate-spin">⏳</span>
-                  Approving...
-                </>
+              {submitting && action === "approve" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  {chapterDetails.status === "pending_update"
-                    ? "Approve Update"
-                    : "Approve & Publish"}
-                </>
+                <CheckCircle className="mr-2 h-4 w-4" />
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Request Revision Dialog */}
-      <Dialog open={showRevisionDialog} onOpenChange={setShowRevisionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {chapterDetails.status === "pending_update"
-                ? "Reject Update"
-                : "Request Revision"}
-            </DialogTitle>
-            <DialogDescription>
-              {chapterDetails.status === "pending_update"
-                ? "This will reject the pending changes. The original content will remain published."
-                : "The author will receive your feedback and can resubmit the chapter after making changes."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="revision-notes">
-                Revision Notes <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="revision-notes"
-                placeholder="Explain what needs to be changed..."
-                value={revisionNotes}
-                onChange={(e) => setRevisionNotes(e.target.value)}
-                rows={5}
-                required
-              />
-              <p className="text-muted-foreground text-xs">
-                Be specific about what needs to be improved or corrected.
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowRevisionDialog(false)}
-              disabled={isRequestingRevision}
-            >
-              Cancel
+              Approve
             </Button>
             <Button
               variant="destructive"
               onClick={handleRequestRevision}
-              disabled={isRequestingRevision || !revisionNotes.trim()}
+              disabled={submitting}
             >
-              {isRequestingRevision ? (
-                <>
-                  <span className="mr-2 animate-spin">⏳</span>
-                  Sending...
-                </>
+              {submitting && action === "revision" ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <AlertCircle className="mr-2 h-4 w-4" />
-                  {chapterDetails.status === "pending_update"
-                    ? "Reject Update"
-                    : "Request Revision"}
-                </>
+                <RotateCcw className="mr-2 h-4 w-4" />
               )}
+              Request Revision
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ChapterReviewSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-10 w-10" />
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-64" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+      </div>
+      <div className="flex gap-3">
+        <Skeleton className="h-6 w-24" />
+        <Skeleton className="h-6 w-24" />
+      </div>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
     </div>
   );
 }

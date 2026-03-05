@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, Filter, Search } from "lucide-react";
+import { BookOpen, Upload, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -18,14 +18,14 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({
-  title = "Discover Amazing",
-  subtitle = "Web Novels",
-  description = "Immerse yourself in captivating stories from talented authors around the world. Read, discover, and fall in love with your next favorite novel.",
+  title = "Read, Learn &",
+  subtitle = "Share Your Notes",
+  description = "A platform built for students — discover books, dive into reading, and upload your notebook to share what you've read and what you understand.",
   primaryButtonText = "Start Reading",
   primaryButtonHref = "/search",
   primaryButtonScrollTo,
-  secondaryButtonText = "Browse Genres",
-  secondaryButtonHref = "/genres",
+  secondaryButtonText = "Browse Books",
+  secondaryButtonHref = "/browse",
   className,
 }: HeroSectionProps) {
   const handlePrimaryClick = (e: React.MouseEvent) => {
@@ -74,7 +74,7 @@ export function HeroSection({
             )}
             <Link href={secondaryButtonHref}>
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                <Search className="mr-2 h-5 w-5" />
+                <Upload className="mr-2 h-5 w-5" />
                 {secondaryButtonText}
               </Button>
             </Link>

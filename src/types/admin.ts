@@ -214,3 +214,68 @@ export interface ContactRespondRequest {
 export interface ContactUpdateStatusRequest {
   status: "new" | "read" | "replied";
 }
+
+// Editorial Group Types
+
+export interface EditorialGroupMember {
+  id: number;
+  name: string;
+  username: string;
+  avatar: string | null;
+  role: "editor" | "author";
+  joined_at: string;
+}
+
+export interface EditorialGroup {
+  id: number;
+  name: string;
+  slug: string;
+  tag: string;
+  description: string | null;
+  is_active: boolean;
+  editor: EditorialGroupMember | null;
+  authors: EditorialGroupMember[];
+  member_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EditorialGroupsResponse {
+  message: string;
+  groups: EditorialGroup[];
+}
+
+export interface EditorialGroupResponse {
+  message: string;
+  group: EditorialGroup;
+}
+
+export interface CreateEditorialGroupRequest {
+  name: string;
+  tag: string;
+  description?: string;
+}
+
+export interface UpdateEditorialGroupRequest {
+  name?: string;
+  tag?: string;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface AddEditorMemberRequest {
+  username: string;
+  role: "editor";
+}
+
+export interface AddAuthorMembersRequest {
+  usernames: string[];
+  role: "author";
+}
+
+export type AddMemberRequest = AddEditorMemberRequest | AddAuthorMembersRequest;
+
+export interface AddMemberConflictResponse {
+  message: string;
+  conflicts?: string[];
+}

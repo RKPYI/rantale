@@ -162,8 +162,8 @@ export function AnalyticsTab({
               <div className="space-y-1">
                 <Alert className="mb-3">
                   <AlertDescription className="text-xs">
-                    These metrics only track users who added your novels to
-                    their library. Total readers may be higher.
+                    These metrics only track users who added your books to their
+                    library. Total readers may be higher.
                   </AlertDescription>
                 </Alert>
                 <MetricRow
@@ -236,7 +236,7 @@ export function AnalyticsTab({
                   icon={Star}
                 />
                 <MetricRow
-                  label="High-Rated Novels"
+                  label="High-Rated Books"
                   value={stats.quality_stats.novels_above_4_stars}
                   sublabel="4+ stars"
                 />
@@ -290,7 +290,7 @@ export function AnalyticsTab({
             ) : stats ? (
               <div className="space-y-1">
                 <MetricRow
-                  label="Total Novels"
+                  label="Total Books"
                   value={stats.content_stats.total_novels}
                 />
                 <MetricRow
@@ -302,7 +302,7 @@ export function AnalyticsTab({
                   value={formatNumber(stats.content_stats.total_words)}
                 />
                 <MetricRow
-                  label="Avg. Chapters/Novel"
+                  label="Avg. Chapters/Book"
                   value={stats.content_stats.avg_chapters_per_novel.toFixed(1)}
                 />
                 <div className="mt-4 grid grid-cols-2 gap-3 border-t pt-4">
@@ -336,7 +336,7 @@ export function AnalyticsTab({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5 flex-shrink-0" />
-            <span className="truncate">Most Viewed Novels</span>
+            <span className="truncate">Most Viewed Books</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -367,7 +367,7 @@ export function AnalyticsTab({
             </div>
           ) : (
             <p className="text-muted-foreground py-8 text-center text-xs sm:text-sm">
-              No published novels yet.
+              No published books yet.
             </p>
           )}
         </CardContent>

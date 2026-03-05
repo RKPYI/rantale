@@ -2,10 +2,10 @@ import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Rantale - Your Novel Reading Platform",
+    name: "Rantale - Your Book Reading Platform",
     short_name: "Rantale",
     description:
-      "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres, track your reading progress, and enjoy offline reading.",
+      "Discover and read amazing books on Rantale. Browse stories across multiple genres, track your reading progress, and enjoy offline reading.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

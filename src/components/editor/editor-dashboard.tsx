@@ -2,66 +2,36 @@
 
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
-import {
-  useEditorStats,
-  useEditorPendingChapters,
-  useEditorMyClaimedChapters,
-} from "@/hooks/use-editor";
-import { PendingChapter, ClaimedChapter } from "@/types/api";
 
 import { EditorOverviewTab } from "./overview-tab";
 import { PendingChaptersTab } from "./pending-chapters-tab";
-import { MyClaimedChaptersTab } from "./my-claimed-chapters-tab";
+import { MyClaimsTab } from "./my-claims-tab";
 import { ReviewHistoryTab } from "./review-history-tab";
 import { ChapterReview } from "./chapter-review";
 
 export function EditorDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [selectedChapter, setSelectedChapter] = useState<
-    PendingChapter | ClaimedChapter | null
-  >(null);
+  const [reviewingChapterId, setReviewingChapterId] = useState<number | null>(
+    null,
+  );
 
-  const { error: statsError, refetch: refetchStats } = useEditorStats();
-  const { refetch: refetchPending } = useEditorPendingChapters();
-  const { refetch: refetchClaimed } = useEditorMyClaimedChapters();
-
-  if (statsError) {
-    return (
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load editor dashboard: {statsError}
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  const handleReviewChapter = (chapter: PendingChapter | ClaimedChapter) => {
-    setSelectedChapter(chapter);
+  const handleReviewChapter = (chapterId: number) => {
+    setReviewingChapterId(chapterId);
   };
 
   const handleBackToQueue = () => {
-    setSelectedChapter(null);
+    setReviewingChapterId(null);
   };
 
-  const handleReviewComplete = async () => {
-    setSelectedChapter(null);
-    // Refresh all data after review
-    await Promise.all([refetchStats(), refetchPending(), refetchClaimed()]);
-  };
-
-  const handleClaimSuccess = async () => {
-    // Refresh claimed chapters when a claim is made from the pending queue
-    await refetchClaimed();
+  const handleReviewComplete = () => {
+    setReviewingChapterId(null);
   };
 
   // If a chapter is selected for review, show the review view
-  if (selectedChapter) {
+  if (reviewingChapterId !== null) {
     return (
       <ChapterReview
-        chapter={selectedChapter}
+        chapterId={reviewingChapterId}
         onBack={handleBackToQueue}
         onReviewComplete={handleReviewComplete}
       />
@@ -83,11 +53,11 @@ export function EditorDashboard() {
             <TabsTrigger value="overview" className="text-xs sm:text-sm">
               Overview
             </TabsTrigger>
-            <TabsTrigger value="pending" className="text-xs sm:text-sm">
-              Pending Review
-            </TabsTrigger>
-            <TabsTrigger value="claimed" className="text-xs sm:text-sm">
+            <TabsTrigger value="claims" className="text-xs sm:text-sm">
               My Claims
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="text-xs sm:text-sm">
+              Pending Chapters
             </TabsTrigger>
             <TabsTrigger value="history" className="text-xs sm:text-sm">
               Review History
@@ -99,15 +69,12 @@ export function EditorDashboard() {
           <EditorOverviewTab />
         </TabsContent>
 
-        <TabsContent value="pending" className="mt-6">
-          <PendingChaptersTab
-            onReviewChapter={handleReviewChapter}
-            onClaimSuccess={handleClaimSuccess}
-          />
+        <TabsContent value="claims" className="mt-6">
+          <MyClaimsTab onReviewChapter={handleReviewChapter} />
         </TabsContent>
 
-        <TabsContent value="claimed" className="mt-6">
-          <MyClaimedChaptersTab onReviewChapter={handleReviewChapter} />
+        <TabsContent value="pending" className="mt-6">
+          <PendingChaptersTab onReviewChapter={handleReviewChapter} />
         </TabsContent>
 
         <TabsContent value="history" className="mt-6">

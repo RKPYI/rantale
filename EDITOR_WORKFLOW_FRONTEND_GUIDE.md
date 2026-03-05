@@ -1,261 +1,67 @@
-# Editor Workflow - Frontend Integration Guide
+# Editor Dashboard — Frontend API Guide
 
-> This document explains the new editorial workflow system for chapter
-> publishing. Frontend developers should update the web application to support
-> these changes.
-
-## Overview
-
-The role system has been updated:
-
-- **Moderator** role has been renamed to **Editor** (role value `2` remains the
-  same)
-- **Editors** can NO longer create novels or chapters
-- **Editors** can only review and approve/reject chapters created by authors
-- **Authors** can create novels and chapters, but chapters now require editor
-  approval before publishing
-- **Admins** have full access (can do everything authors and editors can do)
-
-## Role Changes
-
-| Role   | Value | Can Create Novels | Can Create Chapters | Can Review Chapters |
-| ------ | ----- | ----------------- | ------------------- | ------------------- |
-| User   | 0     | ❌                | ❌                  | ❌                  |
-| Author | 1     | ✅                | ✅                  | ❌                  |
-| Editor | 2     | ❌                | ❌                  | ✅                  |
-| Admin  | 3     | ✅                | ✅                  | ✅                  |
-
-## Chapter Status Flow
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     CHAPTER WORKFLOW                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│   Author creates chapter                                     │
-│            │                                                 │
-│            ▼                                                 │
-│   ┌─────────────────┐                                        │
-│   │ pending_review  │ ◄──────────────────────┐               │
-│   └────────┬────────┘                        │               │
-│            │                                 │               │
-│            ▼                                 │               │
-│   ┌─────────────────┐                        │               │
-│   │  Editor Review  │                        │               │
-│   └────────┬────────┘                        │               │
-│            │                                 │               │
-│     ┌──────┴──────┐                          │               │
-│     │             │                          │               │
-│     ▼             ▼                          │               │
-│ ┌────────┐  ┌──────────────────┐             │               │
-│ │approved│  │revision_requested│             │               │
-│ └────┬───┘  └────────┬─────────┘             │               │
-│      │               │                       │               │
-│      ▼               ▼                       │               │
-│  Published     Author fixes                  │               │
-│  (visible)     and resubmits ────────────────┘               │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Chapter Statuses
-
-| Status               | Description                                 | Visible to Public |
-| -------------------- | ------------------------------------------- | ----------------- |
-| `draft`              | Not yet submitted (reserved for future use) | ❌                |
-| `pending_review`     | Awaiting editor approval                    | ❌                |
-| `approved`           | Approved and published                      | ✅                |
-| `revision_requested` | Editor requested changes                    | ❌                |
+> Complete reference for building the editor dashboard UI. All endpoints require
+> `Authorization: Bearer {token}` and the user must have `role = editor` or
+> `admin`.
 
 ---
 
-## API Changes
-
-### Public Chapter Endpoints (No Changes Required)
-
-These endpoints now only return **approved/published** chapters:
+## Base URL
 
 ```
-GET /api/novels/{slug}/chapters
-GET /api/novels/{slug}/chapters/{chapterNumber}
-```
-
-**Note:** Unpublished chapters are automatically hidden from public view.
-
----
-
-## New Author Endpoints
-
-### 1. Get All Chapters (Including Unpublished)
-
-Authors need to see all their chapters including those pending review or needing
-revision.
-
-```http
-GET /api/author/novels/{slug}/chapters
-Authorization: Bearer {token}
-```
-
-**Response:**
-
-```json
-{
-  "message": "All chapters for novel: Novel Title",
-  "novel": {
-    "id": 1,
-    "title": "Novel Title",
-    "slug": "novel-title",
-    "author": "Author Name"
-  },
-  "chapters": [
-    {
-      "id": 1,
-      "title": "Chapter 1",
-      "chapter_number": 1,
-      "word_count": 2500,
-      "status": "approved",
-      "reviewed_at": "2026-02-03T10:00:00Z",
-      "created_at": "2026-02-01T08:00:00Z",
-      "published_at": "2026-02-03T10:00:00Z",
-      "latest_review": null
-    },
-    {
-      "id": 2,
-      "title": "Chapter 2",
-      "chapter_number": 2,
-      "word_count": 3000,
-      "status": "revision_requested",
-      "reviewed_at": "2026-02-02T14:00:00Z",
-      "created_at": "2026-02-02T08:00:00Z",
-      "published_at": null,
-      "latest_review": {
-        "id": 5,
-        "chapter_id": 2,
-        "action": "revision_requested",
-        "notes": "Please fix the grammar issues in paragraph 3.",
-        "created_at": "2026-02-02T14:00:00Z"
-      }
-    },
-    {
-      "id": 3,
-      "title": "Chapter 3",
-      "chapter_number": 3,
-      "word_count": 2800,
-      "status": "pending_review",
-      "reviewed_at": null,
-      "created_at": "2026-02-03T08:00:00Z",
-      "published_at": null,
-      "latest_review": null
-    }
-  ]
-}
-```
-
-### 2. Create Chapter (Behavior Changed)
-
-When an author creates a chapter, it now starts with `pending_review` status
-instead of being published immediately.
-
-```http
-POST /api/novels/{slug}/chapters
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "title": "Chapter Title",
-  "content": "Chapter content...",
-  "chapter_number": 1,
-  "is_free": true
-}
-```
-
-**Response (Author):**
-
-```json
-{
-  "message": "Chapter created successfully and submitted for review",
-  "chapter": {
-    "id": 1,
-    "title": "Chapter Title",
-    "status": "pending_review",
-    "published_at": null
-  }
-}
-```
-
-**Response (Admin - bypasses review):**
-
-```json
-{
-  "message": "Chapter created and published successfully",
-  "chapter": {
-    "id": 1,
-    "title": "Chapter Title",
-    "status": "approved",
-    "published_at": "2026-02-03T10:00:00Z"
-  }
-}
-```
-
-### 3. Submit Chapter for Review (After Revision)
-
-After an author fixes a chapter that had revision requested, they submit it for
-review again.
-
-```http
-POST /api/novels/{slug}/chapters/{chapterId}/submit-for-review
-Authorization: Bearer {token}
-```
-
-**Response:**
-
-```json
-{
-  "message": "Chapter submitted for review successfully",
-  "chapter": {
-    "id": 2,
-    "status": "pending_review"
-  }
-}
-```
-
-### 4. Author Stats (Updated)
-
-The author stats endpoint now includes chapter workflow information:
-
-```http
-GET /api/author/stats
-Authorization: Bearer {token}
-```
-
-**New fields in response:**
-
-```json
-{
-  "content_stats": { ... },
-  "engagement_stats": { ... },
-  "quality_stats": { ... },
-  "reader_engagement": { ... },
-  "top_novel": { ... },
-  "chapter_workflow": {
-    "pending_review": 3,
-    "revision_requested": 1,
-    "approved": 25,
-    "draft": 0
-  }
-}
+/api/editor
 ```
 
 ---
 
-## New Editor Endpoints
+## Authentication & Roles
 
-### 1. Get Editor Stats
+| Role     | Access                                                    |
+| -------- | --------------------------------------------------------- |
+| `editor` | Full access to all `/api/editor/*` endpoints              |
+| `admin`  | Full access (admins can also unclaim/approve any chapter) |
+| `author` | ❌ 403 — "Editor privileges required"                     |
 
-```http
-GET /api/editor/stats
-Authorization: Bearer {token}
+---
+
+## Chapter Statuses
+
+These statuses drive the entire review workflow:
+
 ```
+draft → pending_review → approved (published)
+                       → revision_requested → (author edits) → pending_review
+approved → pending_update → approved (update applied)
+                          → approved (update rejected, original kept)
+```
+
+| Status               | Meaning                                      | Visible to Readers? |
+| -------------------- | -------------------------------------------- | ------------------- |
+| `draft`              | Author is still writing, not submitted       | No                  |
+| `pending_review`     | Submitted by author, awaiting editor review  | No                  |
+| `approved`           | Reviewed and published                       | **Yes**             |
+| `revision_requested` | Editor asked author to revise                | No                  |
+| `pending_update`     | Published chapter has a pending content edit | Yes (old content)   |
+
+---
+
+## Claiming System
+
+Editors **must claim** a chapter before they can review it. This prevents two
+editors from reviewing the same chapter simultaneously.
+
+- **Claim duration:** 24 hours (auto-expires after that)
+- **One editor per chapter** at a time
+- **Editors can unclaim** voluntarily
+- **Admins can unclaim** any chapter
+
+---
+
+## Endpoints
+
+### 1. `GET /api/editor/stats`
+
+Editor dashboard statistics.
 
 **Response:**
 
@@ -263,27 +69,109 @@ Authorization: Bearer {token}
 {
   "message": "Editor stats retrieved successfully",
   "stats": {
-    "pending_review": 15,
+    "pending_review": 12,
+    "available_to_claim": 8,
+    "my_claimed_chapters": 2,
     "my_reviews_today": 5,
     "my_reviews_this_week": 23,
-    "my_total_reviews": 156,
-    "approvals_today": 4,
-    "revisions_requested_today": 1
+    "my_total_reviews": 142,
+    "approvals_today": 3,
+    "revisions_requested_today": 2
   }
 }
 ```
 
-### 2. Get Pending Chapters
+| Field                       | Type | Description                                 |
+| --------------------------- | ---- | ------------------------------------------- |
+| `pending_review`            | int  | Total chapters pending review (all editors) |
+| `available_to_claim`        | int  | Chapters not claimed or with expired claims |
+| `my_claimed_chapters`       | int  | Chapters you currently have claimed         |
+| `my_reviews_today`          | int  | Reviews you completed today                 |
+| `my_reviews_this_week`      | int  | Reviews you completed this week             |
+| `my_total_reviews`          | int  | All-time review count                       |
+| `approvals_today`           | int  | Chapters you approved today                 |
+| `revisions_requested_today` | int  | Revision requests you sent today            |
 
-```http
-GET /api/editor/pending-chapters
-Authorization: Bearer {token}
+---
+
+### 2. `GET /api/editor/group`
+
+Returns the editorial group the editor belongs to, its members, and how many
+pending chapters come from the group's authors.
+
+**Response (assigned to a group):**
+
+```json
+{
+  "message": "Group info retrieved successfully",
+  "group": {
+    "id": 1,
+    "name": "Fantasy Team",
+    "tag": "FT",
+    "description": "Handles all fantasy genre novels",
+    "created_at": "2026-03-01T00:00:00.000000Z",
+    "member_count": 5,
+    "pending_chapters_from_group": 3,
+    "members": [
+      {
+        "id": 10,
+        "name": "Jane Editor",
+        "username": "jane_editor",
+        "email": "jane@example.com",
+        "user_role": "editor",
+        "group_role": "editor",
+        "joined_at": "2026-03-01T00:00:00.000000Z"
+      },
+      {
+        "id": 20,
+        "name": "John Author",
+        "username": "john_author",
+        "email": "john@example.com",
+        "user_role": "author",
+        "group_role": "author",
+        "joined_at": "2026-03-02T00:00:00.000000Z"
+      }
+    ]
+  }
+}
 ```
+
+**Response (not in any group):**
+
+```json
+{
+  "message": "You are not assigned to any editorial group.",
+  "group": null
+}
+```
+
+| Field                               | Type     | Description                                    |
+| ----------------------------------- | -------- | ---------------------------------------------- |
+| `group.id`                          | int      | Group ID                                       |
+| `group.name`                        | string   | Group display name                             |
+| `group.tag`                         | string   | Short tag/abbreviation                         |
+| `group.description`                 | string   | Group description                              |
+| `group.member_count`                | int      | Total members (editors + authors)              |
+| `group.pending_chapters_from_group` | int      | Pending chapters from this group's authors     |
+| `members[].id`                      | int      | User ID                                        |
+| `members[].name`                    | string   | Display name                                   |
+| `members[].username`                | string   | Unique username                                |
+| `members[].user_role`               | string   | System-wide role (`editor`, `author`, `admin`) |
+| `members[].group_role`              | string   | Role within this group (`editor` or `author`)  |
+| `members[].joined_at`               | ISO 8601 | When the member joined the group               |
+
+---
+
+### 3. `GET /api/editor/pending-chapters`
+
+Paginated list of all chapters awaiting review. Shows claim status per chapter.
 
 **Query Parameters:**
 
-- `page` (default: 1)
-- `per_page` (default: 15)
+| Param      | Type | Default | Description    |
+| ---------- | ---- | ------- | -------------- |
+| `page`     | int  | 1       | Page number    |
+| `per_page` | int  | 15      | Items per page |
 
 **Response:**
 
@@ -291,40 +179,145 @@ Authorization: Bearer {token}
 {
   "message": "Pending chapters retrieved successfully",
   "chapters": {
-    "current_page": 1,
     "data": [
       {
-        "id": 5,
-        "title": "The Beginning",
-        "chapter_number": 1,
-        "word_count": 3500,
+        "id": 42,
+        "title": "The Dragon's Return",
+        "chapter_number": 5,
         "status": "pending_review",
-        "created_at": "2026-02-03T08:00:00Z",
+        "word_count": 3200,
+        "created_at": "2026-03-03T10:00:00.000000Z",
         "novel": {
-          "id": 2,
-          "title": "Epic Fantasy",
-          "slug": "epic-fantasy",
-          "author": "Jane Doe",
-          "user": {
-            "id": 10,
-            "name": "Jane Doe"
-          }
-        }
+          "id": 7,
+          "title": "Dragon Wars",
+          "slug": "dragon-wars",
+          "author": "John Author"
+        },
+        "claimed_by_editor": null,
+        "is_claimed": false,
+        "is_claimed_by_me": false,
+        "can_review": false
       }
     ],
-    "total": 15,
+    "current_page": 1,
+    "last_page": 3,
     "per_page": 15,
-    "last_page": 1
+    "total": 35
   }
 }
 ```
 
-### 3. Get Chapter Details for Review
+**Per-chapter fields:**
 
-```http
-GET /api/editor/chapters/{chapterId}
-Authorization: Bearer {token}
+| Field               | Type        | Description                                                      |
+| ------------------- | ----------- | ---------------------------------------------------------------- |
+| `is_claimed`        | bool        | Is this chapter currently claimed by any editor?                 |
+| `is_claimed_by_me`  | bool        | Is this chapter claimed by the current editor?                   |
+| `can_review`        | bool        | Can the current editor review this? (same as `is_claimed_by_me`) |
+| `claimed_by_editor` | object/null | `{id, name}` of the claiming editor, or null                     |
+| `status`            | string      | `pending_review` or `pending_update`                             |
+
+---
+
+### 4. `GET /api/editor/my-claimed-chapters`
+
+Chapters the current editor has claimed and is actively reviewing.
+
+**Response:**
+
+```json
+{
+  "message": "Your claimed chapters retrieved successfully",
+  "chapters": [
+    {
+      "id": 42,
+      "title": "The Dragon's Return",
+      "chapter_number": 5,
+      "status": "pending_review",
+      "claimed_at": "2026-03-04T08:00:00.000000Z",
+      "claim_expires_at": "2026-03-05T08:00:00.000000Z",
+      "claim_hours_remaining": 18,
+      "novel": {
+        "id": 7,
+        "title": "Dragon Wars",
+        "slug": "dragon-wars",
+        "author": "John Author"
+      }
+    }
+  ]
+}
 ```
+
+| Field                   | Type     | Description                    |
+| ----------------------- | -------- | ------------------------------ |
+| `claim_expires_at`      | ISO 8601 | When the 24-hour claim expires |
+| `claim_hours_remaining` | int      | Hours left on the claim (0-24) |
+
+---
+
+### 5. `POST /api/editor/chapters/{chapter}/claim`
+
+Claim a chapter for review.
+
+**Request:** No body needed.
+
+**Success (200):**
+
+```json
+{
+  "message": "Chapter claimed successfully. You have 24 hours to review it.",
+  "chapter": { "..." },
+  "claim_expires_at": "2026-03-05T08:00:00.000000Z"
+}
+```
+
+**Already claimed (409):**
+
+```json
+{
+  "message": "This chapter is already claimed by another editor. Please try a different chapter.",
+  "claimed_by": "Jane Editor"
+}
+```
+
+**Not reviewable (400):**
+
+```json
+{
+  "message": "This chapter is not available for review",
+  "current_status": "approved"
+}
+```
+
+---
+
+### 6. `POST /api/editor/chapters/{chapter}/unclaim`
+
+Release a claimed chapter so others can claim it.
+
+**Request:** No body needed.
+
+**Success (200):**
+
+```json
+{
+  "message": "Chapter claim released successfully. Other editors can now claim it."
+}
+```
+
+**Not your claim (403):**
+
+```json
+{
+  "message": "You can only release chapters that you have claimed"
+}
+```
+
+---
+
+### 7. `GET /api/editor/chapters/{chapter}`
+
+Get full chapter details for review. **Requires claiming first.**
 
 **Response:**
 
@@ -332,130 +325,128 @@ Authorization: Bearer {token}
 {
   "message": "Chapter details retrieved successfully",
   "chapter": {
-    "id": 5,
-    "title": "The Beginning",
-    "content": "Full chapter content here...",
-    "chapter_number": 1,
-    "word_count": 3500,
+    "id": 42,
+    "title": "The Dragon's Return",
+    "content": "<p>Full HTML content of the chapter...</p>",
+    "chapter_number": 5,
+    "word_count": 3200,
     "status": "pending_review",
-    "created_at": "2026-02-03T08:00:00Z",
+    "pending_title": null,
+    "pending_content": null,
+    "claimed_by": 10,
+    "claimed_at": "2026-03-04T08:00:00.000000Z",
+    "claim_expires_at": "2026-03-05T08:00:00.000000Z",
     "novel": {
-      "id": 2,
-      "title": "Epic Fantasy",
-      "slug": "epic-fantasy",
-      "author": "Jane Doe",
-      "user_id": 10,
-      "user": {
-        "id": 10,
-        "name": "Jane Doe",
-        "email": "jane@example.com"
-      }
+      "id": 7,
+      "title": "Dragon Wars",
+      "slug": "dragon-wars",
+      "author": "John Author",
+      "user_id": 20
     },
     "reviews": [
       {
-        "id": 3,
+        "id": 1,
         "action": "revision_requested",
-        "notes": "Previous revision notes...",
-        "created_at": "2026-02-02T10:00:00Z",
-        "editor": {
-          "id": 5,
-          "name": "Editor Name"
-        }
+        "notes": "Please fix the ending paragraph.",
+        "created_at": "2026-03-03T14:00:00.000000Z",
+        "editor": { "id": 10, "name": "Jane Editor" }
       }
     ],
-    "reviewer": null
+    "reviewer": null,
+    "claimed_by_editor": { "id": 10, "name": "Jane Editor" }
   }
 }
 ```
 
-### 4. Approve Chapter
+**For `pending_update` chapters:** `pending_title` and `pending_content` will
+contain the author's proposed changes. The existing `title` and `content` are
+the currently-published versions.
 
-```http
-POST /api/editor/chapters/{chapterId}/approve
-Authorization: Bearer {token}
-Content-Type: application/json
+**Not claimed (403):**
 
+```json
 {
-  "notes": "Great chapter! Minor formatting fixed." // optional
+  "message": "You must claim this chapter before you can review it."
 }
 ```
 
-**Response:**
+---
+
+### 8. `POST /api/editor/chapters/{chapter}/approve`
+
+Approve a chapter (publishes it) or approve a pending content update.
+
+**Request:**
+
+```json
+{
+  "notes": "Great chapter! (optional)"
+}
+```
+
+**Success (200):**
 
 ```json
 {
   "message": "Chapter approved and published successfully",
-  "chapter": {
-    "id": 5,
-    "title": "The Beginning",
-    "status": "approved",
-    "published_at": "2026-02-03T12:00:00Z",
-    "reviewed_at": "2026-02-03T12:00:00Z",
-    "novel": {
-      "id": 2,
-      "title": "Epic Fantasy",
-      "slug": "epic-fantasy"
-    },
-    "reviewer": {
-      "id": 5,
-      "name": "Editor Name"
-    }
-  }
+  "chapter": { "..." }
 }
 ```
 
-### 5. Request Revision
+**Behavior:**
 
-```http
-POST /api/editor/chapters/{chapterId}/request-revision
-Authorization: Bearer {token}
-Content-Type: application/json
+- For `pending_review` chapters → status becomes `approved`, sets `published_at`
+- For `pending_update` chapters → applies `pending_title`/`pending_content` to
+  the live content, clears pending fields
+- Author receives a notification of type `chapter_approved`
 
+---
+
+### 9. `POST /api/editor/chapters/{chapter}/request-revision`
+
+Request the author to revise the chapter.
+
+**Request:**
+
+```json
 {
-  "notes": "Please fix the following issues:\n1. Grammar error in paragraph 2\n2. Missing character description\n3. Timeline inconsistency with chapter 3"
+  "notes": "The ending needs work. Please expand the dialogue in section 3."
 }
 ```
 
-**Notes field is required!**
+| Field   | Type   | Required | Validation |
+| ------- | ------ | -------- | ---------- |
+| `notes` | string | **Yes**  | max 2000   |
 
-**Response:**
+**Success (200):**
 
 ```json
 {
   "message": "Revision requested successfully",
-  "chapter": {
-    "id": 5,
-    "title": "The Beginning",
-    "status": "revision_requested",
-    "reviewed_at": "2026-02-03T12:00:00Z",
-    "novel": {
-      "id": 2,
-      "title": "Epic Fantasy",
-      "slug": "epic-fantasy"
-    },
-    "reviewer": {
-      "id": 5,
-      "name": "Editor Name"
-    },
-    "latest_review": {
-      "id": 8,
-      "action": "revision_requested",
-      "notes": "Please fix the following issues..."
-    }
-  }
+  "chapter": { "..." }
 }
 ```
 
-### 6. Get Review History
+**Behavior:**
 
-```http
-GET /api/editor/review-history
-Authorization: Bearer {token}
-```
+- For `pending_review` → status becomes `revision_requested`, author can edit
+  and resubmit
+- For `pending_update` → clears `pending_title`/`pending_content`, status
+  reverts to `approved` (original stays published)
+- Author receives a notification of type `chapter_revision_requested` with the
+  notes
+
+---
+
+### 10. `GET /api/editor/review-history`
+
+Paginated history of all reviews performed by this editor.
 
 **Query Parameters:**
 
-- `per_page` (default: 15)
+| Param      | Type | Default | Description    |
+| ---------- | ---- | ------- | -------------- |
+| `per_page` | int  | 15      | Items per page |
 
 **Response:**
 
@@ -463,161 +454,117 @@ Authorization: Bearer {token}
 {
   "message": "Review history retrieved successfully",
   "reviews": {
-    "current_page": 1,
     "data": [
       {
-        "id": 8,
-        "chapter_id": 5,
+        "id": 1,
         "action": "approved",
-        "notes": null,
-        "created_at": "2026-02-03T12:00:00Z",
+        "notes": "Well written!",
+        "created_at": "2026-03-04T10:00:00.000000Z",
         "chapter": {
-          "id": 5,
-          "title": "The Beginning",
-          "chapter_number": 1,
-          "novel_id": 2,
-          "novel": {
-            "id": 2,
-            "title": "Epic Fantasy",
-            "slug": "epic-fantasy"
-          }
+          "id": 42,
+          "title": "The Dragon's Return",
+          "chapter_number": 5,
+          "novel_id": 7
         }
       }
     ],
-    "total": 156,
-    "per_page": 15
+    "current_page": 1,
+    "last_page": 5,
+    "per_page": 15,
+    "total": 72
   }
 }
 ```
 
----
-
-## Frontend UI Recommendations
-
-### Author Dashboard
-
-1. **Chapter List View**
-   - Show status badges: `Pending Review` (yellow), `Approved` (green),
-     `Revision Requested` (red)
-   - For `revision_requested` chapters, show the editor's notes prominently
-   - Add "Submit for Review" button for `revision_requested` chapters
-
-2. **Chapter Stats Widget**
-   - Display the `chapter_workflow` stats from author stats endpoint
-   - Show alerts if there are chapters needing revision
-
-3. **Chapter Creation**
-   - Update success message to indicate chapter is submitted for review
-   - Inform authors that chapters will be published after editor approval
-
-### Editor Dashboard
-
-1. **Pending Reviews Queue**
-   - Show list of chapters pending review sorted by oldest first
-   - Display novel title, author name, chapter title, word count
-   - Quick actions: View, Approve, Request Revision
-
-2. **Review Page**
-   - Full chapter content display
-   - Previous review history (if any)
-   - Action buttons: Approve (optional notes) or Request Revision (required
-     notes)
-   - Rich text editor for revision notes
-
-3. **Stats Widget**
-   - Today's reviews
-   - Pending queue count
-   - Weekly activity
-
-### Notifications
-
-Authors receive notifications when:
-
-- Chapter is **approved**: "Your chapter 'Chapter Title' for 'Novel Title' has
-  been approved and published."
-- **Revision requested**: "Your chapter 'Chapter Title' for 'Novel Title' needs
-  revision." (includes revision notes in notification data)
-
-The notification data includes:
-
-```json
-{
-  "chapter_id": 5,
-  "chapter_title": "The Beginning",
-  "chapter_number": 1,
-  "novel_id": 2,
-  "novel_title": "Epic Fantasy",
-  "novel_slug": "epic-fantasy",
-  "revision_notes": "..." // only for revision_requested
-}
-```
+| `action` values      | Meaning                |
+| -------------------- | ---------------------- |
+| `approved`           | Chapter was approved   |
+| `revision_requested` | Revision was requested |
 
 ---
 
 ## Error Responses
 
-### Common Errors
+All endpoints return standard error shapes:
 
-**Unauthorized (401):**
+| HTTP Code | Meaning                                              |
+| --------- | ---------------------------------------------------- |
+| `401`     | Not authenticated — missing or invalid token         |
+| `403`     | Not an editor/admin — "Editor privileges required"   |
+| `400`     | Invalid action for the chapter's current status      |
+| `409`     | Conflict — chapter already claimed by another editor |
 
-```json
-{
-  "success": false,
-  "message": "Authentication required"
-}
+---
+
+## Suggested Dashboard Layout
+
 ```
-
-**Forbidden - Not Author (403):**
-
-```json
-{
-  "success": false,
-  "message": "Author privileges required. Please apply for author status.",
-  "current_role": 0,
-  "required_roles": ["author", "admin"]
-}
-```
-
-**Forbidden - Not Editor (403):**
-
-```json
-{
-  "success": false,
-  "message": "Editor privileges required",
-  "current_role": 1,
-  "required_roles": ["editor", "admin"]
-}
-```
-
-**Invalid Status for Approval (400):**
-
-```json
-{
-  "message": "This chapter cannot be approved in its current status",
-  "current_status": "approved"
-}
-```
-
-**Invalid Status for Submission (400):**
-
-```json
-{
-  "message": "This chapter cannot be submitted for review in its current status",
-  "current_status": "pending_review"
-}
+┌──────────────────────────────────────────────────────────┐
+│  EDITOR DASHBOARD                                        │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  ┌─ Stats Cards (GET /editor/stats) ──────────────────┐  │
+│  │ Pending: 12  │ Available: 8  │ My Claims: 2        │  │
+│  │ Today: 5     │ This Week: 23 │ Total: 142          │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  ┌─ My Group (GET /editor/group) ─────────────────────┐  │
+│  │ Group: Fantasy Team [FT]                           │  │
+│  │ Pending from group: 3                              │  │
+│  │ Members:                                           │  │
+│  │  👤 jane_editor (editor)                           │  │
+│  │  👤 john_author (author)                           │  │
+│  │  👤 alice_writer (author)                          │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  ┌─ My Claimed Chapters (/editor/my-claimed-chapters)─┐  │
+│  │ Ch.5 "The Dragon's Return" - Dragon Wars  18h left │  │
+│  │  [Review] [Unclaim]                                │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  ┌─ Pending Chapters (GET /editor/pending-chapters) ──┐  │
+│  │ Ch.3 "New Beginning" - Story A  🔓 Available       │  │
+│  │  [Claim]                                           │  │
+│  │ Ch.7 "Update" - Story B  🔒 Claimed by Bob        │  │
+│  │  (unavailable)                                     │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  ┌─ Review History (GET /editor/review-history) ──────┐  │
+│  │ ✅ Approved "Ch.4 The Battle" - 2h ago             │  │
+│  │ ↩️ Revision "Ch.2 Intro" - yesterday               │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Migration Notes
+## Review Workflow (Step by Step)
 
-- All existing chapters have been migrated to `approved` status
-- Existing users with role `2` (formerly Moderator) are now Editors
-- No data loss - all existing functionality for approved chapters works the same
+```
+1. Editor opens dashboard          → GET /editor/stats
+                                   → GET /editor/group
+                                   → GET /editor/my-claimed-chapters
+
+2. Editor browses pending          → GET /editor/pending-chapters
+
+3. Editor claims a chapter         → POST /editor/chapters/{id}/claim
+
+4. Editor reads the chapter        → GET /editor/chapters/{id}
+
+5a. Editor approves               → POST /editor/chapters/{id}/approve
+5b. Editor requests revision      → POST /editor/chapters/{id}/request-revision
+
+6. (Optional) Editor unclaims     → POST /editor/chapters/{id}/unclaim
+```
 
 ---
 
-## Questions?
+## Notifications (Author-side)
 
-Contact the backend team for any clarification on these endpoints or workflow
-changes.
+When an editor takes action, the author receives a notification:
+
+| Notification Type            | Trigger                   | Data Fields                            |
+| ---------------------------- | ------------------------- | -------------------------------------- |
+| `chapter_approved`           | Editor approves a chapter | `chapter_id`, `novel_id`, `novel_slug` |
+| `chapter_revision_requested` | Editor requests revision  | Same + `revision_notes`                |

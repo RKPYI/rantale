@@ -190,7 +190,7 @@ export function Navbar() {
           <div className="relative">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
-              placeholder="Search novels, authors..."
+              placeholder="Search books, students..."
               className="w-full pr-10 pl-10"
               value={searchQuery}
               onChange={handleSearchChange}
@@ -367,7 +367,7 @@ export function Navbar() {
                   <div className="p-4 text-center">
                     <BookOpen className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
                     <p className="text-muted-foreground text-sm">
-                      No novels found
+                      No books found
                     </p>
                     <p className="text-muted-foreground text-xs">
                       Try different keywords
@@ -491,7 +491,7 @@ export function Navbar() {
                       <DropdownMenuItem asChild>
                         <Link href="/author">
                           <PenTool className="mr-2 h-4 w-4" />
-                          Author Dashboard
+                          Student Dashboard
                         </Link>
                       </DropdownMenuItem>
                     )}

@@ -121,7 +121,7 @@ export function OverviewTab({
         ) : stats ? (
           <>
             <StatCard
-              title="Total Novels"
+              title="Total Books"
               value={stats.content_stats.total_novels}
               icon={BookOpen}
               variant="primary"
@@ -191,7 +191,7 @@ export function OverviewTab({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Award className="h-5 w-5 text-yellow-500" />
-              Top Performing Novel
+              Top Performing Book
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -202,7 +202,7 @@ export function OverviewTab({
                 </h4>
                 <Button variant="link" size="sm" asChild className="h-auto p-0">
                   <Link href={`/novels/${stats.top_novel.slug}`}>
-                    View Novel →
+                    View Book →
                   </Link>
                 </Button>
               </div>
@@ -245,7 +245,7 @@ export function OverviewTab({
           <CardTitle className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <span className="flex items-center gap-2">
               <BookOpen className="h-5 w-5 flex-shrink-0" />
-              <span className="truncate">Recent Novels</span>
+              <span className="truncate">Recent Books</span>
             </span>
             <Button
               variant="ghost"
@@ -278,11 +278,17 @@ export function OverviewTab({
                   className="hover:bg-muted/50 flex items-center justify-between gap-4 rounded-lg border p-3 transition-colors sm:p-4"
                 >
                   <div className="flex min-w-0 flex-1 items-center space-x-3 sm:space-x-4">
-                    <img
-                      src={novel.cover_image || "/placeholder-book.jpg"}
-                      alt={novel.title}
-                      className="h-12 w-9 flex-shrink-0 rounded object-cover sm:h-16 sm:w-12"
-                    />
+                    {novel.cover_image ? (
+                      <img
+                        src={novel.cover_image}
+                        alt={novel.title}
+                        className="h-12 w-9 flex-shrink-0 rounded object-cover sm:h-16 sm:w-12"
+                      />
+                    ) : (
+                      <div className="from-muted to-muted/50 flex h-12 w-9 flex-shrink-0 items-center justify-center rounded bg-gradient-to-br sm:h-16 sm:w-12">
+                        <BookOpen className="text-muted-foreground h-5 w-5 sm:h-6 sm:w-6" />
+                      </div>
+                    )}
                     <div className="min-w-0 flex-1">
                       <h4 className="truncate text-sm font-medium sm:text-base">
                         {novel.title}
@@ -328,15 +334,13 @@ export function OverviewTab({
           ) : (
             <div className="py-8 text-center">
               <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-              <h3 className="text-base font-medium sm:text-lg">
-                No novels yet
-              </h3>
+              <h3 className="text-base font-medium sm:text-lg">No books yet</h3>
               <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-                Start your writing journey by creating your first novel.
+                Start your writing journey by creating your first book.
               </p>
               <Button onClick={onCreateNovel}>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Create Novel
+                Create Book
               </Button>
             </div>
           )}

@@ -27,7 +27,7 @@ export default function Home() {
     "@type": "WebSite",
     name: "Rantale",
     description:
-      "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
+      "Read books and share what you understand. Rantale helps students discover great reads and upload their reading notebooks.",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://rantale.randk.me",
     potentialAction: {
       "@type": "SearchAction",
@@ -52,7 +52,7 @@ export default function Home() {
         {/* Hero Section */}
         <HeroSection
           primaryButtonScrollTo="main-content-tabs"
-          secondaryButtonText="Browse Novels"
+          secondaryButtonText="Browse Books"
           secondaryButtonHref="/browse"
         />
 
@@ -69,7 +69,7 @@ export default function Home() {
         <section className="py-12 lg:py-16">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
-              title="Featured Novels"
+              title="Featured Books"
               icon={Crown}
               viewAllHref="/top-rated"
             />
@@ -92,7 +92,7 @@ export default function Home() {
             <div className="mt-8 text-center">
               <Link href="/recently-updated">
                 <Button variant="outline" size="lg">
-                  Explore More Novels
+                  Explore More Books
                 </Button>
               </Link>
             </div>

@@ -9,6 +9,7 @@ import {
   AdminSystemHealth,
   AdminContactsResponse,
   AdminContactResponse,
+  EditorialGroup,
   User,
   AuthorApplication,
 } from "@/types/api";
@@ -44,10 +45,7 @@ export function useAdminUsers(
 }
 
 export function useUpdateUser() {
-  return useApi<User>(
-    () => Promise.resolve({} as User), // Use refetch with adminService.updateUser
-    [],
-  );
+  return useApi<User>(() => Promise.resolve({} as User), []);
 }
 
 // Content Moderation
@@ -80,14 +78,14 @@ export function useAdminAuthorApplication(applicationId: number) {
 
 export function useApproveAuthorApplication() {
   return useApi<AuthorApplication>(
-    () => Promise.resolve({} as AuthorApplication), // Use refetch with adminService.approveAuthorApplication
+    () => Promise.resolve({} as AuthorApplication),
     [],
   );
 }
 
 export function useRejectAuthorApplication() {
   return useApi<AuthorApplication>(
-    () => Promise.resolve({} as AuthorApplication), // Use refetch with adminService.rejectAuthorApplication
+    () => Promise.resolve({} as AuthorApplication),
     [],
   );
 }
@@ -98,10 +96,7 @@ export function useAdminComments(page?: number) {
 }
 
 export function useToggleCommentApproval() {
-  return useApi(
-    () => Promise.resolve({}), // Use refetch with adminService.toggleCommentApproval
-    [],
-  );
+  return useApi(() => Promise.resolve({}), []);
 }
 
 // Contact Management
@@ -116,5 +111,17 @@ export function useAdminContact(contactId: number) {
   return useApi<AdminContactResponse>(
     () => adminService.getContact(contactId),
     [contactId],
+  );
+}
+
+// Editorial Group Management
+export function useEditorialGroups() {
+  return useApi<EditorialGroup[]>(() => adminService.getEditorialGroups(), []);
+}
+
+export function useEditorialGroup(id: number | null) {
+  return useApi<EditorialGroup | null>(
+    () => (id ? adminService.getEditorialGroup(id) : Promise.resolve(null)),
+    [id],
   );
 }

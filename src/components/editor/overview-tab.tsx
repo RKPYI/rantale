@@ -1,182 +1,255 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Users,
   Clock,
   CheckCircle,
-  AlertCircle,
-  FileText,
-  TrendingUp,
-  Calendar,
+  Eye,
+  CalendarDays,
+  BarChart3,
+  AlertTriangle,
+  RotateCcw,
+  Loader2,
 } from "lucide-react";
-import { useEditorStats } from "@/hooks/use-editor";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import {
+  useEditorStats,
+  useEditorGroupInfo,
+  useEditorClaimedChapters,
+} from "@/hooks/use-editor";
 
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ElementType;
-  subtitle?: string;
-  variant?: "default" | "primary" | "success" | "warning" | "danger";
+export function EditorOverviewTab() {
+  const {
+    data: stats,
+    loading: statsLoading,
+    error: statsError,
+  } = useEditorStats();
+  const {
+    data: groupInfo,
+    loading: groupLoading,
+    error: groupError,
+  } = useEditorGroupInfo();
+  const { data: claimedChapters, loading: claimedLoading } =
+    useEditorClaimedChapters();
+
+  if (statsLoading || groupLoading || claimedLoading) {
+    return <OverviewSkeleton />;
+  }
+
+  return (
+    <div className="space-y-6">
+      {statsError && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load editor stats: {statsError}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Stats Cards */}
+      {stats && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <StatCard
+            icon={<Clock className="h-5 w-5 text-amber-500" />}
+            iconBg="bg-amber-500/10"
+            label="Pending Review"
+            value={stats.pending_review}
+          />
+          <StatCard
+            icon={<Eye className="h-5 w-5 text-blue-500" />}
+            iconBg="bg-blue-500/10"
+            label="Available to Claim"
+            value={stats.available_to_claim}
+          />
+          <StatCard
+            icon={<BarChart3 className="h-5 w-5 text-purple-500" />}
+            iconBg="bg-purple-500/10"
+            label="My Claims"
+            value={stats.my_claimed_chapters}
+          />
+          <StatCard
+            icon={<CheckCircle className="h-5 w-5 text-green-500" />}
+            iconBg="bg-green-500/10"
+            label="Reviews Today"
+            value={stats.my_reviews_today}
+          />
+          <StatCard
+            icon={<CalendarDays className="h-5 w-5 text-indigo-500" />}
+            iconBg="bg-indigo-500/10"
+            label="This Week"
+            value={stats.my_reviews_this_week}
+          />
+          <StatCard
+            icon={<BarChart3 className="h-5 w-5 text-slate-500" />}
+            iconBg="bg-slate-500/10"
+            label="Total Reviews"
+            value={stats.my_total_reviews}
+          />
+          <StatCard
+            icon={<CheckCircle className="h-5 w-5 text-emerald-500" />}
+            iconBg="bg-emerald-500/10"
+            label="Approved Today"
+            value={stats.approvals_today}
+          />
+          <StatCard
+            icon={<RotateCcw className="h-5 w-5 text-orange-500" />}
+            iconBg="bg-orange-500/10"
+            label="Revisions Today"
+            value={stats.revisions_requested_today}
+          />
+        </div>
+      )}
+
+      {/* Group Info */}
+      {groupInfo ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Users className="h-5 w-5" />
+              My Group: {groupInfo.name}
+              <Badge variant="outline" className="text-xs">
+                {groupInfo.tag}
+              </Badge>
+            </CardTitle>
+            {groupInfo.description && (
+              <p className="text-muted-foreground text-sm">
+                {groupInfo.description}
+              </p>
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="text-muted-foreground mb-3 text-sm">
+              {groupInfo.member_count} member(s) ·{" "}
+              {groupInfo.pending_chapters_from_group} chapter(s) pending from
+              this group
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {groupInfo.members.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-2 rounded-md border p-2"
+                >
+                  <div className="bg-muted flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium">
+                    {member.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium">{member.name}</span>
+                    <span className="text-muted-foreground ml-1">
+                      @{member.username}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {member.group_role}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : groupError ? (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Could not load group info. You may not be assigned to a group yet.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            You are not assigned to any editorial group.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* My Claimed Chapters Summary */}
+      {claimedChapters && claimedChapters.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              My Claimed Chapters ({claimedChapters.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {claimedChapters.map((ch) => (
+                <div
+                  key={ch.id}
+                  className="flex items-center justify-between rounded-md border p-3"
+                >
+                  <div>
+                    <p className="text-sm font-medium">
+                      Ch.{ch.chapter_number} &quot;{ch.title}&quot;
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      {ch.novel.title} · by {ch.novel.author}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      ch.claim_hours_remaining <= 4 ? "destructive" : "outline"
+                    }
+                    className="text-xs"
+                  >
+                    <Clock className="mr-1 h-3 w-3" />
+                    {Math.floor(ch.claim_hours_remaining)}h left
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
 }
 
 function StatCard({
-  title,
+  icon,
+  iconBg,
+  label,
   value,
-  icon: Icon,
-  subtitle,
-  variant = "default",
-}: StatCardProps) {
-  const variantStyles = {
-    default: "bg-background",
-    primary: "bg-primary/5 border-primary/20",
-    success: "bg-green-500/5 border-green-500/20",
-    warning: "bg-yellow-500/5 border-yellow-500/20",
-    danger: "bg-red-500/5 border-red-500/20",
-  };
-
-  const iconStyles = {
-    default: "bg-muted text-muted-foreground",
-    primary: "bg-primary/10 text-primary",
-    success: "bg-green-500/10 text-green-600 dark:text-green-400",
-    warning: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
-    danger: "bg-red-500/10 text-red-600 dark:text-red-400",
-  };
-
+}: {
+  icon: React.ReactNode;
+  iconBg: string;
+  label: string;
+  value: number;
+}) {
   return (
-    <Card
-      className={cn("transition-all hover:shadow-md", variantStyles[variant])}
-    >
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex items-center justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="text-muted-foreground truncate text-xs font-medium sm:text-sm">
-              {title}
-            </p>
-            <p className="truncate text-xl font-bold sm:text-2xl">{value}</p>
-            {subtitle && (
-              <p className="text-muted-foreground truncate text-xs">
-                {subtitle}
-              </p>
-            )}
-          </div>
-          <div
-            className={cn(
-              "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg sm:h-12 sm:w-12",
-              iconStyles[variant],
-            )}
-          >
-            <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </div>
+    <Card>
+      <CardContent className="flex items-center gap-3 p-4">
+        <div className={`rounded-lg p-2.5 ${iconBg}`}>{icon}</div>
+        <div>
+          <p className="text-muted-foreground text-xs">{label}</p>
+          <p className="text-xl font-bold">{value}</p>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-export function EditorOverviewTab() {
-  const { data: stats, loading } = useEditorStats();
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4 sm:p-6">
-                <Skeleton className="mb-2 h-4 w-24" />
-                <Skeleton className="h-8 w-16" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!stats) {
-    return null;
-  }
-
+function OverviewSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard
-          title="Pending Review"
-          value={stats.pending_review}
-          icon={Clock}
-          variant={stats.pending_review > 0 ? "warning" : "default"}
-          subtitle={stats.pending_review > 0 ? "Awaiting action" : "All clear"}
-        />
-        <StatCard
-          title="Reviews Today"
-          value={stats.my_reviews_today}
-          icon={FileText}
-          variant="primary"
-        />
-        <StatCard
-          title="This Week"
-          value={stats.my_reviews_this_week}
-          icon={Calendar}
-        />
-        <StatCard
-          title="Total Reviews"
-          value={stats.my_total_reviews}
-          icon={TrendingUp}
-        />
-        <StatCard
-          title="Approved Today"
-          value={stats.approvals_today}
-          icon={CheckCircle}
-          variant="success"
-        />
-        <StatCard
-          title="Revisions Today"
-          value={stats.revisions_requested_today}
-          icon={AlertCircle}
-          variant={stats.revisions_requested_today > 0 ? "danger" : "default"}
-        />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-4">
+              <Skeleton className="h-14 w-full" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* Quick Tips Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Editor Guidelines</CardTitle>
+          <Skeleton className="h-6 w-48" />
         </CardHeader>
         <CardContent>
-          <ul className="text-muted-foreground space-y-2 text-sm">
-            <li className="flex items-start gap-2">
-              <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600" />
-              <span>
-                <strong>Claim</strong> a chapter before reviewing it. Claims
-                last 24 hours and prevent other editors from reviewing the same
-                chapter simultaneously.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
-              <span>
-                <strong>Approve</strong> chapters that meet quality standards
-                and are ready for publication.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
-              <span>
-                <strong>Request revision</strong> for chapters that need
-                improvements. Always provide specific, constructive feedback.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-600" />
-              <span>
-                Review chapters in order of submission (oldest first) to ensure
-                fair treatment of all authors. Claims expire after 24 hours if
-                no action is taken.
-              </span>
-            </li>
-          </ul>
+          <Skeleton className="h-24 w-full" />
         </CardContent>
       </Card>
     </div>

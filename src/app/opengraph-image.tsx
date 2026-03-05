@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
 // Image metadata
-export const alt = "Rantale - Your Novel Reading Platform";
+export const alt = "Rantale - Your Book Reading Platform";
 export const size = {
   width: 1200,
   height: 630,

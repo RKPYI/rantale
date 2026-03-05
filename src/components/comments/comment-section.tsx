@@ -353,7 +353,7 @@ export function CommentSection({
               onSubmit={handleCreateComment}
               isSpoiler={isSpoiler}
               onSpoilerChange={setIsSpoiler}
-              placeholder="Share your thoughts about this novel/chapter..."
+              placeholder="Share your thoughts about this book/chapter..."
               submitText="Post Comment"
               isSubmitting={submittingComment}
             />

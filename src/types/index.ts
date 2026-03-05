@@ -89,7 +89,43 @@ export type {
   AdminModerationResponse,
   AdminSystemHealth,
   ErrorMessage,
+  EditorialGroup,
+  EditorialGroupMember,
+  EditorialGroupsResponse,
+  EditorialGroupResponse,
+  CreateEditorialGroupRequest,
+  UpdateEditorialGroupRequest,
+  AddEditorMemberRequest,
+  AddAuthorMembersRequest,
+  AddMemberRequest,
+  AddMemberConflictResponse,
 } from "./admin";
+
+// Editor types
+export type {
+  ChapterReviewStatus,
+  ReviewAction,
+  EditorStats,
+  EditorStatsResponse,
+  EditorGroupMember,
+  EditorGroupInfo,
+  EditorGroupInfoResponse,
+  PendingChapter,
+  PendingChaptersResponse,
+  ClaimedChapter,
+  ClaimedChaptersResponse,
+  ChapterReviewRecord,
+  ChapterDetail,
+  EditorChapterDetailResponse,
+  ClaimChapterResponse,
+  UnclaimChapterResponse,
+  ApproveChapterRequest,
+  ApproveChapterResponse,
+  RequestRevisionRequest,
+  RequestRevisionResponse,
+  ReviewHistoryItem,
+  ReviewHistoryResponse,
+} from "./editor";
 
 export * from "./author";
 export * from "./library";

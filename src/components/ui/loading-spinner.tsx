@@ -126,7 +126,7 @@ export function NovelSearchLoading() {
     <Card>
       <CardContent className="p-8">
         <LoadingThrobber
-          message="Searching novels..."
+          message="Searching books..."
           variant="soft"
           size="md"
         />
@@ -143,7 +143,7 @@ export function NovelContentLoading() {
     <Card>
       <CardContent className="p-6">
         <LoadingSpinner
-          message="Loading novel..."
+          message="Loading book..."
           subMessage="Preparing your reading experience"
           variant="novel"
           size="md"

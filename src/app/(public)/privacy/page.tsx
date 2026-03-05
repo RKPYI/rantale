@@ -16,7 +16,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Privacy policy for Rantale - A non-profit novel reading platform",
+    "Privacy policy for Rantale - A non-profit book reading platform",
 };
 
 export default function PrivacyPage() {
@@ -108,10 +108,10 @@ export default function PrivacyPage() {
                 2. Content You Create
               </h3>
               <ul className="text-muted-foreground ml-6 list-disc space-y-2">
-                <li>Novels, chapters, and stories you publish</li>
+                <li>Books, chapters, and stories you publish</li>
                 <li>Comments and ratings you post</li>
                 <li>Library entries and reading lists you create</li>
-                <li>Author applications and related information</li>
+                <li>Student applications and related information</li>
               </ul>
             </div>
 
@@ -260,7 +260,7 @@ export default function PrivacyPage() {
                 order, or to protect our rights and users' safety
               </li>
               <li>
-                <strong>Public content:</strong> Novels, comments, and profiles
+                <strong>Public content:</strong> Books, comments, and profiles
                 you choose to make public are visible to other users and search
                 engines
               </li>

@@ -23,14 +23,23 @@ export function CommentHeader({
       <div className="flex items-center gap-3">
         <UserAvatar user={comment.user} size="md" showBadge={true} />
         <div>
-          <UserInfo
-            user={comment.user}
-            showRole={true}
-            showVerificationStatus={true}
-          />
+          <div className="flex items-center gap-2">
+            <UserInfo
+              user={comment.user}
+              showRole={true}
+              showVerificationStatus={true}
+            />
+          </div>
           <div className="text-muted-foreground flex items-center gap-2 text-xs">
-            <Clock className="h-3 w-3" />
-            {formatCommentTime(comment.created_at)}
+            {comment.user.username && (
+              <span className="text-muted-foreground/70">
+                @{comment.user.username}
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {formatCommentTime(comment.created_at)}
+            </span>
             {isCommentEdited(comment) && (
               <span className="text-amber-600 dark:text-amber-400">
                 ({getCommentModifiedText(comment)})

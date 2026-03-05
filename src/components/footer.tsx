@@ -44,8 +44,8 @@ export function Footer() {
               )}
             </Link>
             <p className="text-muted-foreground max-w-xs text-sm">
-              Discover and read amazing novels from around the world. Join our
-              community of readers and authors.
+              Discover and read amazing books from around the world. Join our
+              community of students and readers.
             </p>
             <div className="flex items-center space-x-3">
               <Button variant="ghost" size="sm" asChild>
@@ -89,7 +89,7 @@ export function Footer() {
                   href="/search"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  All Novels
+                  All Books
                 </Link>
               </li> */}
               {/* <li>
@@ -220,7 +220,7 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           <div className="text-muted-foreground flex items-center space-x-4 text-sm">
             <span>
-              © 2025 Rantale. All novel rights belong to their respective
+              © 2025 Rantale. All book rights belong to their respective
               authors.
             </span>
           </div>

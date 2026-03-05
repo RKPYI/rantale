@@ -45,7 +45,7 @@ export function RelatedNovels({
           loading={loading}
           maxItems={actualMaxItems}
           size={layout}
-          emptyMessage="No related novels found"
+          emptyMessage="No related books found"
           emptyIcon="book"
           skeletonCount={isDesktop ? desktopMaxItems : mobileMaxItems}
         />

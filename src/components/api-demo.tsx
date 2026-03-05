@@ -109,7 +109,7 @@ export function ApiDemoComponent() {
             <div className="relative">
               <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
               <Input
-                placeholder="Search novels... (type at least 3 characters)"
+                placeholder="Search books... (type at least 3 characters)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -207,7 +207,7 @@ export function ApiDemoComponent() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">No popular novels available</p>
+            <p className="text-muted-foreground">No popular books available</p>
           )}
         </CardContent>
       </Card>
@@ -290,7 +290,7 @@ export function ApiDemoComponent() {
               </div>
             </div>
           ) : (
-            <p className="text-muted-foreground">No novels available</p>
+            <p className="text-muted-foreground">No books available</p>
           )}
         </CardContent>
       </Card>

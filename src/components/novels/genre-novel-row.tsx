@@ -41,7 +41,7 @@ export function GenreNovelRow({ genre, className }: GenreNovelRowProps) {
         }
       } catch (err) {
         if (!cancelled) {
-          setError("Failed to load novels");
+          setError("Failed to load books");
         }
       } finally {
         if (!cancelled) {

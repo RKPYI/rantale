@@ -142,7 +142,7 @@ export function LibraryActionButton({
       const message =
         error instanceof Error
           ? error.message
-          : "Failed to add novel to library";
+          : "Failed to add book to library";
       toast.error(message);
     }
   };

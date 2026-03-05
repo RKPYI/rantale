@@ -10,6 +10,7 @@ class ApiClient {
     this.baseURL = env.API_BASE_URL;
     this.defaultHeaders = {
       "Content-Type": "application/json",
+      Accept: "application/json",
     };
   }
 

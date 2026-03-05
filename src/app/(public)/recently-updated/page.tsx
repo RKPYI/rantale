@@ -258,7 +258,7 @@ export default function RecentlyUpdatedPage() {
         <Card className="border-destructive/50">
           <CardContent className="p-8 text-center">
             <TrendingUp className="text-destructive mx-auto mb-4 h-16 w-16" />
-            <h3 className="mb-2 text-xl font-medium">Unable to Load Novels</h3>
+            <h3 className="mb-2 text-xl font-medium">Unable to Load Books</h3>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => window.location.reload()} variant="outline">
               Try Again
@@ -274,7 +274,7 @@ export default function RecentlyUpdatedPage() {
           <CardContent className="p-8 text-center">
             <Clock className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
             <h3 className="mb-2 text-xl font-medium">
-              No Recently Updated Novels
+              No Recently Updated Books
             </h3>
             <p className="text-muted-foreground">
               Check back later for fresh content.
@@ -295,7 +295,7 @@ export default function RecentlyUpdatedPage() {
           <Card className="border-dashed">
             <CardContent className="p-6 text-center">
               <p className="text-muted-foreground mb-4">
-                Want to see more recently updated novels?
+                Want to see more recently updated books?
               </p>
               <Button
                 onClick={() => setLimit((prev) => Math.min(prev + 10, 50))}
@@ -319,14 +319,13 @@ export default function RecentlyUpdatedPage() {
             <div className="mb-2 flex items-center justify-center gap-2">
               <Clock className="h-8 w-8 text-blue-500" />
               <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-4xl font-bold text-transparent">
-                Recently Updated Novels
+                Recently Updated Books
               </h1>
               <Sparkles className="h-8 w-8 text-pink-500" />
             </div>
             <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
-              Discover novels with fresh chapters just published. Stay up to
-              date with your favorite ongoing stories and never miss a new
-              release.
+              Discover books with fresh chapters just published. Stay up to date
+              with your favorite ongoing stories and never miss a new release.
             </p>
             <div className="flex items-center justify-center gap-6 pt-2 text-sm">
               <div className="flex items-center gap-2">
@@ -350,7 +349,7 @@ export default function RecentlyUpdatedPage() {
           <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
             <h2 className="flex items-center gap-2 text-xl font-semibold">
               <TrendingUp className="h-5 w-5 text-green-500" />
-              Active Novels
+              Active Books
             </h2>
             <p className="text-muted-foreground text-sm">
               Sorted by newest chapter first
@@ -365,12 +364,12 @@ export default function RecentlyUpdatedPage() {
             <BookOpen className="text-primary mx-auto mb-4 h-12 w-12" />
             <h3 className="mb-2 text-xl font-semibold">Discover More</h3>
             <p className="text-muted-foreground mb-4">
-              Explore our full collection of novels with advanced filtering and
+              Explore our full collection of books with advanced filtering and
               search
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               <Link href="/search">
-                <Button>Browse All Novels</Button>
+                <Button>Browse All Books</Button>
               </Link>
               <Link href="/genres">
                 <Button variant="outline">View by Genre</Button>

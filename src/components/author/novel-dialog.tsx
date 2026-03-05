@@ -78,7 +78,7 @@ export function NovelDialog({
     try {
       if (isEditing && novel) {
         await novelService.updateNovel(novel.slug, formData);
-        toast.success("Novel updated successfully!");
+        toast.success("Book updated successfully!");
         onSuccess();
         onClose();
       } else {
@@ -92,26 +92,26 @@ export function NovelDialog({
         if (coverImage && createdNovel.slug) {
           try {
             await novelService.uploadNovelCover(createdNovel.slug, coverImage);
-            toast.success("Novel created with cover image!");
+            toast.success("Book created with cover image!");
           } catch (uploadError) {
             console.error("Failed to upload cover:", uploadError);
             toast.success(
-              "Novel created, but cover upload failed. You can add it later.",
+              "Book created, but cover upload failed. You can add it later.",
             );
           }
         } else {
-          toast.success("Novel created successfully!");
+          toast.success("Book created successfully!");
         }
 
         onSuccess();
         onClose();
       }
     } catch (error: unknown) {
-      console.error("Failed to save novel:", error);
+      console.error("Failed to save book:", error);
       handleErrorWithState(
         error,
         setError,
-        "Failed to save novel. Please try again.",
+        "Failed to save book. Please try again.",
       );
     } finally {
       setSaving(false);
@@ -132,12 +132,12 @@ export function NovelDialog({
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-base sm:text-lg">
-            {isEditing ? "Edit Novel" : "Create New Novel"}
+            {isEditing ? "Edit Book" : "Create New Book"}
           </DialogTitle>
           <DialogDescription className="text-xs sm:text-sm">
             {isEditing
-              ? "Update your novel details"
-              : "Create a new novel to start your writing journey"}
+              ? "Update your book details"
+              : "Create a new book to start your writing journey"}
           </DialogDescription>
         </DialogHeader>
 
@@ -160,7 +160,7 @@ export function NovelDialog({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              placeholder="Enter novel title"
+              placeholder="Enter book title"
               required
               className="text-sm"
             />
@@ -179,7 +179,7 @@ export function NovelDialog({
                   description: e.target.value,
                 }))
               }
-              placeholder="Write a compelling description for your novel..."
+              placeholder="Write a compelling description for your book..."
               rows={4}
               required
               className="text-sm"
@@ -208,7 +208,7 @@ export function NovelDialog({
                 aspectRatio="2/3"
                 compress={true}
                 maxWidth={800}
-                placeholder="Upload novel cover image (recommended: 2:3 ratio)"
+                placeholder="Upload book cover image (recommended: 2:3 ratio)"
                 compact={true}
                 showDelete={false}
               />
@@ -290,7 +290,7 @@ export function NovelDialog({
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {isEditing ? "Update Novel" : "Create Novel"}
+                  {isEditing ? "Update Book" : "Create Book"}
                 </>
               )}
             </Button>

@@ -9,6 +9,7 @@ const exampleUsers: User[] = [
   {
     id: 1,
     name: "Jane Doe",
+    username: "janedoe",
     email: "jane@example.com",
     email_verified_at: "2024-01-01T00:00:00Z",
     email_verified: true,
@@ -20,18 +21,20 @@ const exampleUsers: User[] = [
   {
     id: 2,
     name: "John Smith",
+    username: "johnsmith",
     email: "john@example.com",
     email_verified_at: "2024-01-01T00:00:00Z",
     email_verified: true,
     role: 1, // Author
     avatar:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150",
-    bio: "Fantasy author with 5 published novels",
+    bio: "Student with 5 published books",
     is_admin: false,
   },
   {
     id: 3,
     name: "Sarah Wilson",
+    username: "sarahwilson",
     email: "sarah@example.com",
     email_verified_at: "2024-01-01T00:00:00Z",
     email_verified: true,
@@ -44,6 +47,7 @@ const exampleUsers: User[] = [
   {
     id: 4,
     name: "Admin User",
+    username: "adminuser",
     email: "admin@example.com",
     email_verified_at: "2024-01-01T00:00:00Z",
     email_verified: true,
@@ -98,7 +102,7 @@ export default function UserRolesDemoPage() {
                 <p className="text-sm font-medium">Role ID: {user.role}</p>
                 <p className="text-muted-foreground text-xs">
                   {user.role === 0 && "Regular User"}
-                  {user.role === 1 && "Author"}
+                  {user.role === 1 && "Student"}
                   {user.role === 2 && "Moderator"}
                   {user.role === 3 && "Administrator"}
                 </p>
@@ -148,7 +152,7 @@ export default function UserRolesDemoPage() {
               <ul className="text-muted-foreground space-y-1 text-sm">
                 <li>• Crown icon for Administrators</li>
                 <li>• Shield icon for Moderators</li>
-                <li>• Pen tool icon for Authors</li>
+                <li>• Pen tool icon for Students</li>
                 <li>• No badge for regular users</li>
                 <li>• Color-coded badges for each role</li>
               </ul>

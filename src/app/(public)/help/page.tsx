@@ -25,29 +25,29 @@ export default function HelpPage() {
         "You can create an account by clicking the 'Sign up' button in the top right corner of any page. You can register with your email or use Google authentication for quick access.",
     },
     {
-      question: "How do I search for novels?",
+      question: "How do I search for books?",
       answer:
-        "Use the search bar in the navigation to find novels by title, author, or keywords. You can also browse by genre or check our top-rated section for popular recommendations.",
+        "Use the search bar in the navigation to find books by title, student, or keywords. You can also browse by genre or check our top-rated section for popular recommendations.",
     },
     {
-      question: "Can I read novels offline?",
+      question: "Can I read books offline?",
       answer:
-        "Currently, novels need to be read online through our platform. We're working on offline reading features for the future.",
+        "Currently, books need to be read online through our platform. We're working on offline reading features for the future.",
     },
     {
       question: "How do I report inappropriate content?",
       answer:
-        "You can report content by using the report button on any novel or chapter page. Our moderation team reviews all reports promptly.",
+        "You can report content by using the report button on any book or chapter page. Our moderation team reviews all reports promptly.",
     },
     {
-      question: "Can I submit my own novels?",
+      question: "Can I submit my own books?",
       answer:
         "Yes! We welcome original content from authors. Please contact our support team for information about our submission process and guidelines.",
     },
     {
       question: "How does the rating system work?",
       answer:
-        "Readers can rate novels from 1 to 5 stars. The overall rating is calculated from all user ratings to help others discover great content.",
+        "Readers can rate books from 1 to 5 stars. The overall rating is calculated from all user ratings to help others discover great content.",
     },
   ];
 

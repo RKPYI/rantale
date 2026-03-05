@@ -160,9 +160,9 @@ export function AuthorApplicationsTab() {
       {/* Header and Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Author Applications</h3>
+          <h3 className="text-lg font-semibold">Student Applications</h3>
           <p className="text-muted-foreground text-sm">
-            Review and manage author applications
+            Review and manage student applications
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export function AuthorApplicationsTab() {
               <h3 className="text-lg font-medium">No Applications</h3>
               <p className="text-muted-foreground">
                 {statusFilter === "all"
-                  ? "No author applications found"
+                  ? "No student applications found"
                   : `No ${statusFilter} applications found`}
               </p>
             </div>
@@ -376,7 +376,7 @@ export function AuthorApplicationsTab() {
             </DialogTitle>
             <DialogDescription>
               {actionType === "approve"
-                ? "Add optional notes and approve this author application."
+                ? "Add optional notes and approve this student application."
                 : actionType === "reject"
                   ? "Please provide a reason for rejecting this application."
                   : "View detailed information about this application."}

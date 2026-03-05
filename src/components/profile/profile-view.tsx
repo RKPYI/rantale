@@ -133,7 +133,12 @@ export function ProfileView() {
                 <h1 className="text-2xl font-bold break-words sm:text-3xl">
                   {user.name}
                 </h1>
-                <p className="text-muted-foreground text-sm break-all sm:text-base">
+                {user.username && (
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    @{user.username}
+                  </p>
+                )}
+                <p className="text-muted-foreground text-xs break-all sm:text-sm">
                   {user.email}
                 </p>
                 {user.bio && (
@@ -196,8 +201,8 @@ export function ProfileView() {
                   >
                     <Link href="/author">
                       <PenTool className="mr-2 h-4 w-4" />
-                      <span className="sm:hidden">Author</span>
-                      <span className="hidden sm:inline">Become Author</span>
+                      <span className="sm:hidden">Student</span>
+                      <span className="hidden sm:inline">Become Student</span>
                     </Link>
                   </Button>
                 )}
@@ -424,13 +429,17 @@ export function ProfileView() {
                         className="hover:bg-accent flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:gap-4 sm:p-4"
                       >
                         <div className="flex flex-1 items-center gap-3 sm:gap-4">
-                          <img
-                            src={
-                              entry.novel.cover_image || "/placeholder-book.jpg"
-                            }
-                            alt={entry.novel.title}
-                            className="h-14 w-10 flex-shrink-0 rounded object-cover sm:h-16 sm:w-12"
-                          />
+                          {entry.novel.cover_image ? (
+                            <img
+                              src={entry.novel.cover_image}
+                              alt={entry.novel.title}
+                              className="h-14 w-10 flex-shrink-0 rounded object-cover sm:h-16 sm:w-12"
+                            />
+                          ) : (
+                            <div className="from-muted to-muted/50 flex h-14 w-10 flex-shrink-0 items-center justify-center rounded bg-gradient-to-br sm:h-16 sm:w-12">
+                              <BookOpen className="text-muted-foreground h-5 w-5 sm:h-6 sm:w-6" />
+                            </div>
+                          )}
                           <div className="min-w-0 flex-1">
                             <h4 className="truncate text-sm font-medium sm:text-base">
                               {entry.novel.title}
@@ -512,17 +521,17 @@ export function ProfileView() {
           <TabsContent value="author">
             <Card>
               <CardHeader>
-                <CardTitle>Author Dashboard</CardTitle>
+                <CardTitle>Student Dashboard</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">
-                  Access your full author dashboard for novel management and
+                  Access your full student dashboard for book management and
                   analytics.
                 </p>
                 <Button asChild>
                   <Link href="/author">
                     <PenTool className="mr-2 h-4 w-4" />
-                    Go to Author Dashboard
+                    Go to Student Dashboard
                   </Link>
                 </Button>
               </CardContent>

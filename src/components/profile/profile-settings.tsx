@@ -332,7 +332,7 @@ export function ProfileSettings() {
                     {user.role === 0
                       ? "Reader"
                       : user.role === 1
-                        ? "Author"
+                        ? "Student"
                         : user.role === 2
                           ? "Editor"
                           : "Admin"}

@@ -125,3 +125,43 @@ export interface AuthorNovelsResponse {
   message: string;
   novels: AuthorNovel[];
 }
+
+export interface AuthorChapterWithStatus {
+  id: number;
+  title: string;
+  chapter_number: number;
+  word_count: number;
+  status:
+    | "draft"
+    | "pending_review"
+    | "approved"
+    | "revision_requested"
+    | "pending_update";
+  created_at: string;
+  updated_at: string;
+  latest_review?: {
+    id: number;
+    notes: string;
+    decision: string;
+    editor: {
+      id: number;
+      name: string;
+    };
+    created_at: string;
+  };
+}
+
+export interface AuthorChaptersResponse {
+  novel: {
+    id: number;
+    title: string;
+    slug: string;
+    author: string;
+  };
+  chapters: AuthorChapterWithStatus[];
+}
+
+export interface SubmitForReviewResponse {
+  message: string;
+  chapter: AuthorChapterWithStatus;
+}

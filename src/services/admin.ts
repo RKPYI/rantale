@@ -9,6 +9,12 @@ import {
   AdminContactResponse,
   ContactRespondRequest,
   ContactUpdateStatusRequest,
+  EditorialGroupsResponse,
+  EditorialGroupResponse,
+  EditorialGroup,
+  CreateEditorialGroupRequest,
+  UpdateEditorialGroupRequest,
+  AddMemberRequest,
   AuthorApplication,
   User,
   MessageResponse,
@@ -85,7 +91,7 @@ export const adminService = {
     return response.data;
   },
 
-  // Author Applications Management (from existing authorService but for admin context)
+  // Author Applications Management
   async getAllAuthorApplications(page?: number, status?: string) {
     const params: Record<string, string | number> = {};
     if (page) params.page = page;
@@ -169,7 +175,6 @@ export const adminService = {
       "/admin/contacts",
       params,
     );
-    // Response is directly the paginated data, not wrapped
     return response.data || (response as unknown as AdminContactsResponse);
   },
 
@@ -177,7 +182,6 @@ export const adminService = {
     const response = await apiClient.get<AdminContactResponse>(
       `/admin/contacts/${contactId}`,
     );
-    // Response is directly the contact object, not wrapped
     return response.data || (response as unknown as AdminContactResponse);
   },
 
@@ -189,7 +193,6 @@ export const adminService = {
       `/admin/contacts/${contactId}/respond`,
       data,
     );
-    // Response is directly the contact object, not wrapped
     return response.data || (response as unknown as AdminContactResponse);
   },
 
@@ -201,7 +204,6 @@ export const adminService = {
       `/admin/contacts/${contactId}/status`,
       data,
     );
-    // Response is directly the contact object, not wrapped
     return response.data || (response as unknown as AdminContactResponse);
   },
 
@@ -210,5 +212,69 @@ export const adminService = {
       `/admin/contacts/${contactId}`,
     );
     return response.data || (response as unknown as MessageResponse);
+  },
+
+  // Editorial Group Management
+  async getEditorialGroups(): Promise<EditorialGroup[]> {
+    const response = await apiClient.get<EditorialGroupsResponse>(
+      "/admin/editorial-groups",
+    );
+    return response.data.groups;
+  },
+
+  async getEditorialGroup(id: number): Promise<EditorialGroup> {
+    const response = await apiClient.get<EditorialGroupResponse>(
+      `/admin/editorial-groups/${id}`,
+    );
+    return response.data.group;
+  },
+
+  async createEditorialGroup(
+    data: CreateEditorialGroupRequest,
+  ): Promise<EditorialGroup> {
+    const response = await apiClient.post<EditorialGroupResponse>(
+      "/admin/editorial-groups",
+      data,
+    );
+    return response.data.group;
+  },
+
+  async updateEditorialGroup(
+    id: number,
+    data: UpdateEditorialGroupRequest,
+  ): Promise<EditorialGroup> {
+    const response = await apiClient.put<EditorialGroupResponse>(
+      `/admin/editorial-groups/${id}`,
+      data,
+    );
+    return response.data.group;
+  },
+
+  async deleteEditorialGroup(id: number): Promise<MessageResponse> {
+    const response = await apiClient.delete<MessageResponse>(
+      `/admin/editorial-groups/${id}`,
+    );
+    return response.data;
+  },
+
+  async addMemberToGroup(
+    groupId: number,
+    data: AddMemberRequest,
+  ): Promise<EditorialGroup> {
+    const response = await apiClient.post<EditorialGroupResponse>(
+      `/admin/editorial-groups/${groupId}/members`,
+      data,
+    );
+    return response.data.group;
+  },
+
+  async removeMemberFromGroup(
+    groupId: number,
+    username: string,
+  ): Promise<EditorialGroup> {
+    const response = await apiClient.delete<EditorialGroupResponse>(
+      `/admin/editorial-groups/${groupId}/members/${username}`,
+    );
+    return response.data.group;
   },
 };

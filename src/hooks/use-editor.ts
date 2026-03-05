@@ -2,51 +2,42 @@
 
 import { editorService } from "@/services/editor";
 import {
-  EditorStats,
   PaginatedResponse,
   PendingChapter,
-  ChapterForReview,
   ReviewHistoryItem,
+  EditorGroupInfo,
+  EditorStats,
   ClaimedChapter,
 } from "@/types/api";
 import { useApi } from "./use-api";
 
-// Hook for getting editor statistics
+// Hook for getting editor dashboard stats
 export function useEditorStats() {
   return useApi<EditorStats>(() => editorService.getStats(), []);
 }
 
-// Hook for getting pending chapters
-export function useEditorPendingChapters(page?: number, perPage?: number) {
+// Hook for getting editor's group info
+export function useEditorGroupInfo() {
+  return useApi<EditorGroupInfo | null>(() => editorService.getGroupInfo(), []);
+}
+
+// Hook for getting pending chapters (paginated)
+export function useEditorPendingChapters(page?: number) {
   return useApi<PaginatedResponse<PendingChapter>>(
-    () => editorService.getPendingChapters(page, perPage),
-    [page, perPage],
+    () => editorService.getPendingChapters(page),
+    [page],
   );
 }
 
-// Hook for getting chapter details for review
-export function useEditorChapterForReview(chapterId: number | null) {
-  return useApi<ChapterForReview | null>(
-    () =>
-      chapterId
-        ? editorService.getChapterForReview(chapterId)
-        : Promise.resolve(null),
-    [chapterId],
-  );
+// Hook for getting my claimed chapters
+export function useEditorClaimedChapters() {
+  return useApi<ClaimedChapter[]>(() => editorService.getClaimedChapters(), []);
 }
 
-// Hook for getting review history
-export function useEditorReviewHistory(perPage?: number) {
+// Hook for getting review history (paginated)
+export function useEditorReviewHistory(page?: number) {
   return useApi<PaginatedResponse<ReviewHistoryItem>>(
-    () => editorService.getReviewHistory(perPage),
-    [perPage],
-  );
-}
-
-// Hook for getting chapters claimed by the current editor
-export function useEditorMyClaimedChapters() {
-  return useApi<ClaimedChapter[]>(
-    () => editorService.getMyClaimedChapters(),
-    [],
+    () => editorService.getReviewHistory(),
+    [page],
   );
 }

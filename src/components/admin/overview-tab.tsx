@@ -30,7 +30,7 @@ export function OverviewTab() {
           color="blue"
         />
         <MetricCard
-          title="Total Novels"
+          title="Total Books"
           value={stats?.content?.novels || 0}
           icon={BookOpen}
           subtitle={`+${stats?.content?.novels_this_month || 0} this month`}
@@ -64,7 +64,7 @@ export function OverviewTab() {
                 <p className="text-xl font-bold">
                   {stats?.content?.novels || 0}
                 </p>
-                <p className="text-muted-foreground text-sm">Total Novels</p>
+                <p className="text-muted-foreground text-sm">Total Books</p>
               </div>
               <div className="text-center">
                 <p className="text-xl font-bold">
@@ -115,7 +115,7 @@ export function OverviewTab() {
                 <p className="text-2xl font-bold text-purple-600">
                   {stats?.users?.by_role?.authors || 0}
                 </p>
-                <p className="text-muted-foreground text-xs">Authors</p>
+                <p className="text-muted-foreground text-xs">Students</p>
               </div>
               <div className="bg-muted rounded-lg p-3 text-center">
                 <p className="text-2xl font-bold text-orange-600">
@@ -239,7 +239,7 @@ export function OverviewTab() {
               <p className="text-2xl font-bold text-purple-600">
                 {stats?.users?.by_role?.authors || 0}
               </p>
-              <p className="text-muted-foreground text-xs">Authors</p>
+              <p className="text-muted-foreground text-xs">Students</p>
             </div>
             <div className="rounded-lg border p-3 text-center">
               <p className="text-2xl font-bold text-orange-600">
@@ -296,7 +296,7 @@ function getActivityDescription(activity: AdminActivity) {
     case "comment_posted":
       return `${activity.user?.name} commented on "${activity.novel?.title}": ${activity.content?.substring(0, 100)}${(activity.content?.length ?? 0) > 100 ? "..." : ""}`;
     case "application_submitted":
-      return `${activity.user?.name} submitted an author application`;
+      return `${activity.user?.name} submitted a student application`;
     default:
       return "Unknown activity";
   }

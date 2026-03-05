@@ -207,7 +207,7 @@ export function LibraryManager() {
     const count = getTabCount(status);
     switch (status) {
       case "all":
-        return `All Novels (${count})`;
+        return `All Books (${count})`;
       case "favorites":
         return `Favorites (${count})`;
       case "want_to_read":
@@ -342,9 +342,9 @@ export function LibraryManager() {
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
             {activeStatus === "all"
-              ? "All Novels"
+              ? "All Books"
               : activeStatus === "favorites"
-                ? "Favorite Novels"
+                ? "Favorite Books"
                 : getStatusLabel(activeStatus)}
           </CardTitle>
         </CardHeader>
@@ -511,18 +511,18 @@ export function LibraryManager() {
               <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <h3 className="text-lg font-medium">
                 {activeStatus === "all"
-                  ? "No novels in your library"
+                  ? "No books in your library"
                   : activeStatus === "favorites"
-                    ? "No favorite novels yet"
-                    : `No ${getStatusLabel(activeStatus).toLowerCase()} novels`}
+                    ? "No favorite books yet"
+                    : `No ${getStatusLabel(activeStatus).toLowerCase()} books`}
               </h3>
               <p className="text-muted-foreground mb-4">
                 {activeStatus === "all"
-                  ? "Start building your library by adding novels you want to read."
-                  : "Add some novels to your library to get started."}
+                  ? "Start building your library by adding books you want to read."
+                  : "Add some books to your library to get started."}
               </p>
               <Button asChild>
-                <Link href="/">Browse Novels</Link>
+                <Link href="/">Browse Books</Link>
               </Button>
             </div>
           )}
@@ -540,7 +540,7 @@ export function LibraryManager() {
         description={
           deleteDialog.entry
             ? `Are you sure you want to remove "${deleteDialog.entry.novel.title}" from your library? This action cannot be undone.`
-            : "Are you sure you want to remove this novel from your library?"
+            : "Are you sure you want to remove this book from your library?"
         }
         confirmText="Remove"
         isLoading={removing}

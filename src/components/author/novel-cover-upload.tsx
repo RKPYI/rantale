@@ -96,7 +96,7 @@ export function NovelCoverUpload({
       maxWidth={800}
       className={className}
       showDelete={!!currentImage}
-      placeholder="Upload novel cover image"
+      placeholder="Upload book cover image"
       compact={false}
       enableCrop={true}
       cropShape="rect"
