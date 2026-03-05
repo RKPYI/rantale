@@ -12,6 +12,7 @@ import { AuthorApplicationsTab } from "./author-applications-tab";
 import { SystemHealthTab } from "./system-health-tab";
 import { ContactsTab } from "./contacts-tab";
 import { EditorialGroupsTab } from "./editorial-groups-tab";
+import { GenresTab } from "./genres-tab";
 // import { ActivityTab } from "./activity-tab"; // Not production-ready yet
 
 export function AdminDashboard() {
@@ -69,6 +70,9 @@ export function AdminDashboard() {
             <TabsTrigger value="editorial-groups" className="flex-shrink-0">
               Editorial Groups
             </TabsTrigger>
+            <TabsTrigger value="genres" className="flex-shrink-0">
+              Genres
+            </TabsTrigger>
             {/* Activity Tab - Not production-ready yet */}
             {/* <TabsTrigger value="activity" className="flex-shrink-0">
               Activity
@@ -111,6 +115,11 @@ export function AdminDashboard() {
         {/* Editorial Groups Tab */}
         <TabsContent value="editorial-groups" className="mt-6">
           <EditorialGroupsTab />
+        </TabsContent>
+
+        {/* Genres Tab */}
+        <TabsContent value="genres" className="mt-6">
+          <GenresTab />
         </TabsContent>
 
         {/* Activity Tab - Not production-ready yet */}

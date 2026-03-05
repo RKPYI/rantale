@@ -279,3 +279,37 @@ export interface AddMemberConflictResponse {
   message: string;
   conflicts?: string[];
 }
+
+// Genre Management Types
+export interface AdminGenre {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string;
+  novels_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminGenresResponse {
+  message: string;
+  genres: AdminGenre[];
+}
+
+export interface AdminGenreResponse {
+  message: string;
+  genre: AdminGenre;
+}
+
+export interface CreateGenreRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateGenreRequest {
+  name?: string;
+  description?: string;
+  color?: string;
+}

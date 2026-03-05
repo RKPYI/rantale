@@ -10,6 +10,7 @@ import {
   AdminContactsResponse,
   AdminContactResponse,
   EditorialGroup,
+  AdminGenre,
   User,
   AuthorApplication,
 } from "@/types/api";
@@ -124,4 +125,9 @@ export function useEditorialGroup(id: number | null) {
     () => (id ? adminService.getEditorialGroup(id) : Promise.resolve(null)),
     [id],
   );
+}
+
+// Genre Management
+export function useAdminGenres() {
+  return useApi<AdminGenre[]>(() => adminService.getGenres(), []);
 }

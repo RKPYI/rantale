@@ -18,6 +18,11 @@ import {
   AuthorApplication,
   User,
   MessageResponse,
+  AdminGenresResponse,
+  AdminGenreResponse,
+  AdminGenre,
+  CreateGenreRequest,
+  UpdateGenreRequest,
 } from "@/types/api";
 
 export const adminService = {
@@ -276,5 +281,41 @@ export const adminService = {
       `/admin/editorial-groups/${groupId}/members/${username}`,
     );
     return response.data.group;
+  },
+
+  // Genre Management
+  async getGenres(): Promise<AdminGenre[]> {
+    const response = await apiClient.get<AdminGenresResponse>("/admin/genres");
+    return response.data.genres;
+  },
+
+  async getGenre(id: number): Promise<AdminGenre> {
+    const response = await apiClient.get<AdminGenreResponse>(
+      `/admin/genres/${id}`,
+    );
+    return response.data.genre;
+  },
+
+  async createGenre(data: CreateGenreRequest): Promise<AdminGenre> {
+    const response = await apiClient.post<AdminGenreResponse>(
+      "/admin/genres",
+      data,
+    );
+    return response.data.genre;
+  },
+
+  async updateGenre(id: number, data: UpdateGenreRequest): Promise<AdminGenre> {
+    const response = await apiClient.put<AdminGenreResponse>(
+      `/admin/genres/${id}`,
+      data,
+    );
+    return response.data.genre;
+  },
+
+  async deleteGenre(id: number): Promise<MessageResponse> {
+    const response = await apiClient.delete<MessageResponse>(
+      `/admin/genres/${id}`,
+    );
+    return response.data;
   },
 };
