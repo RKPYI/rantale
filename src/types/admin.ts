@@ -236,6 +236,7 @@ export interface EditorialGroup {
   editor: EditorialGroupMember | null;
   authors: EditorialGroupMember[];
   member_count: number;
+  tags?: { id: number; name: string; slug: string; color: string }[];
   created_at: string;
   updated_at: string;
 }
@@ -312,4 +313,48 @@ export interface UpdateGenreRequest {
   name?: string;
   description?: string;
   color?: string;
+}
+
+// Tag Management Types
+export interface AdminTag {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string;
+  novels_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminTagsResponse {
+  message: string;
+  tags: AdminTag[];
+}
+
+export interface AdminTagResponse {
+  message: string;
+  tag: AdminTag;
+}
+
+export interface CreateTagRequest {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
+export interface UpdateTagRequest {
+  name?: string;
+  description?: string;
+  color?: string;
+}
+
+export interface SyncGroupTagsRequest {
+  tag_ids: number[];
+}
+
+export interface SyncGroupTagsResponse {
+  message: string;
+  group_tags: AdminTag[];
+  novels_synced: number;
 }

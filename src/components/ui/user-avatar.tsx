@@ -2,7 +2,13 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User as UserIcon, Crown, Shield, PenTool } from "lucide-react";
+import {
+  User as UserIcon,
+  Crown,
+  Shield,
+  PenTool,
+  Newspaper,
+} from "lucide-react";
 import { User } from "@/types/api";
 import {
   getUserRole,
@@ -39,7 +45,7 @@ export function UserAvatar({
       case "admin":
         return <Crown className="h-3 w-3" />;
       case "editor":
-        return <Shield className="h-3 w-3" />;
+        return <Newspaper className="h-3 w-3" />;
       case "author":
         return <PenTool className="h-3 w-3" />;
       default:

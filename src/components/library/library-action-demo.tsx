@@ -14,6 +14,7 @@ const demoNovel: Novel = {
   cover_image: null,
   status: "ongoing",
   genres: [],
+  tags: [],
   is_featured: false,
   is_trending: false,
   rating: "4.5",

@@ -11,6 +11,7 @@ import {
   AdminContactResponse,
   EditorialGroup,
   AdminGenre,
+  AdminTag,
   User,
   AuthorApplication,
 } from "@/types/api";
@@ -130,4 +131,9 @@ export function useEditorialGroup(id: number | null) {
 // Genre Management
 export function useAdminGenres() {
   return useApi<AdminGenre[]>(() => adminService.getGenres(), []);
+}
+
+// Tag Management
+export function useAdminTags() {
+  return useApi<AdminTag[]>(() => adminService.getTags(), []);
 }

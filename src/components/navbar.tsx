@@ -16,6 +16,7 @@ import {
   Clock,
   Shield,
   PenTool,
+  Newspaper,
   Download,
   Library,
   TrendingUp,
@@ -501,15 +502,14 @@ export function Navbar() {
                       getUserRole(user) === "admin") && (
                       <DropdownMenuItem asChild>
                         <Link href="/editor">
-                          <PenTool className="mr-2 h-4 w-4" />
+                          <Newspaper className="mr-2 h-4 w-4" />
                           Editor Dashboard
                         </Link>
                       </DropdownMenuItem>
                     )}
 
-                    {/* Admin Dashboard Link */}
-                    {(getUserRole(user) === "admin" ||
-                      getUserRole(user) === "editor") && (
+                    {/* Admin Dashboard Link - Only for admins */}
+                    {getUserRole(user) === "admin" && (
                       <DropdownMenuItem asChild>
                         <Link href="/admin">
                           <Shield className="mr-2 h-4 w-4" />

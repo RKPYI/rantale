@@ -352,7 +352,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
             {/* Genres */}
             <div className="flex flex-wrap gap-2">
               {novel.genres.map((genre) => (
-                <Link key={genre.id} href={`/genres?genre=${genre.slug}`}>
+                <Link key={genre.id} href={`/browse#${genre.slug}`}>
                   <Badge
                     variant="secondary"
                     className="hover:bg-primary hover:text-primary-foreground cursor-pointer transition-colors"
@@ -366,6 +366,29 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 </Link>
               ))}
             </div>
+
+            {/* Tags (system-assigned via editorial groups) */}
+            {novel.tags && novel.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {novel.tags.map((tag) => (
+                  <Badge
+                    key={tag.id}
+                    className="gap-1.5 rounded-sm font-normal"
+                    style={{
+                      backgroundColor: `${tag.color}25`,
+                      color: tag.color,
+                      borderColor: `${tag.color}60`,
+                    }}
+                  >
+                    <span
+                      className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    {tag.name}
+                  </Badge>
+                ))}
+              </div>
+            )}
 
             {/* Description */}
             {novel.description && (

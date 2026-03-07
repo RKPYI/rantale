@@ -41,6 +41,15 @@ export interface Novel {
   is_trending: boolean;
   published_at: string | null;
   genres: Genre[];
+  tags: NovelTag[];
+}
+
+// Tag entity (system-managed, assigned via editorial groups)
+export interface NovelTag {
+  id: number;
+  name: string;
+  slug: string;
+  color: string;
 }
 
 // Chapter Types

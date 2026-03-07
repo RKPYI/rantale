@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "./common";
-import { Genre } from "./novel";
+import { Genre, NovelTag } from "./novel";
 import { User } from "./user";
 
 // Author Application Types
@@ -119,6 +119,7 @@ export interface AuthorNovel {
   views_count: number;
   rating_avg: string | null;
   genres: Genre[];
+  tags: NovelTag[];
 }
 
 export interface AuthorNovelsResponse {

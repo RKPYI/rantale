@@ -36,6 +36,7 @@ export default function ImageUploadDemo() {
     is_trending: false,
     published_at: null,
     genres: [],
+    tags: [],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

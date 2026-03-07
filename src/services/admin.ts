@@ -23,6 +23,13 @@ import {
   AdminGenre,
   CreateGenreRequest,
   UpdateGenreRequest,
+  AdminTagsResponse,
+  AdminTagResponse,
+  AdminTag,
+  CreateTagRequest,
+  UpdateTagRequest,
+  SyncGroupTagsRequest,
+  SyncGroupTagsResponse,
 } from "@/types/api";
 
 export const adminService = {
@@ -315,6 +322,51 @@ export const adminService = {
   async deleteGenre(id: number): Promise<MessageResponse> {
     const response = await apiClient.delete<MessageResponse>(
       `/admin/genres/${id}`,
+    );
+    return response.data;
+  },
+
+  // Tag Management
+  async getTags(): Promise<AdminTag[]> {
+    const response = await apiClient.get<AdminTagsResponse>("/admin/tags");
+    return response.data.tags;
+  },
+
+  async getTag(id: number): Promise<AdminTag> {
+    const response = await apiClient.get<AdminTagResponse>(`/admin/tags/${id}`);
+    return response.data.tag;
+  },
+
+  async createTag(data: CreateTagRequest): Promise<AdminTag> {
+    const response = await apiClient.post<AdminTagResponse>(
+      "/admin/tags",
+      data,
+    );
+    return response.data.tag;
+  },
+
+  async updateTag(id: number, data: UpdateTagRequest): Promise<AdminTag> {
+    const response = await apiClient.put<AdminTagResponse>(
+      `/admin/tags/${id}`,
+      data,
+    );
+    return response.data.tag;
+  },
+
+  async deleteTag(id: number): Promise<MessageResponse> {
+    const response = await apiClient.delete<MessageResponse>(
+      `/admin/tags/${id}`,
+    );
+    return response.data;
+  },
+
+  async syncGroupTags(
+    groupId: number,
+    data: SyncGroupTagsRequest,
+  ): Promise<SyncGroupTagsResponse> {
+    const response = await apiClient.put<SyncGroupTagsResponse>(
+      `/admin/editorial-groups/${groupId}/tags`,
+      data,
     );
     return response.data;
   },

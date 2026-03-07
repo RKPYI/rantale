@@ -26,7 +26,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleInfo> = {
     color: "text-purple-600",
     bgColor:
       "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-    icon: "�",
+    icon: "📰",
   },
   admin: {
     name: "Admin",
