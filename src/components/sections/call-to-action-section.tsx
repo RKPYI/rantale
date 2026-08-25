@@ -17,8 +17,8 @@ interface CallToActionSectionProps {
 }
 
 export function CallToActionSection({
-  title = "Ready to Start Your Reading Journey?",
-  description = "Join thousands of readers discovering amazing stories every day. Create your free account and dive into a world of endless possibilities.",
+  title = "Save your place. Never lose a chapter.",
+  description = "Create a free account to track progress, get recommendations, and pick up where you left off.",
   primaryButtonText = "Sign Up Free",
   primaryButtonHref = "/register",
   secondaryButtonText = "Learn More",
@@ -28,15 +28,23 @@ export function CallToActionSection({
   return (
     <section
       className={cn(
-        "from-primary/10 via-primary/5 to-secondary/10 bg-gradient-to-r py-12 lg:py-16",
+        "section-enter relative overflow-hidden py-12 lg:py-16",
         className,
       )}
     >
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl space-y-6 text-center">
-          <h2 className="text-2xl font-bold md:text-3xl">{title}</h2>
-          <p className="text-muted-foreground text-lg">{description}</p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+      <div
+        aria-hidden="true"
+        className="from-primary/15 via-primary/5 to-background absolute inset-0 bg-gradient-to-br"
+      />
+      <div className="container relative mx-auto px-4 md:px-6 lg:px-8">
+        <div className="mx-auto max-w-xl space-y-5 text-center">
+          <h2 className="text-2xl font-bold tracking-tight text-balance md:text-3xl">
+            {title}
+          </h2>
+          <p className="text-muted-foreground text-base md:text-lg">
+            {description}
+          </p>
+          <div className="flex flex-col justify-center gap-3 pt-1 sm:flex-row">
             <AuthModal
               defaultTab="signup"
               trigger={

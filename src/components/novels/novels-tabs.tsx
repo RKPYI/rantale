@@ -25,7 +25,6 @@ export function NovelsTabs({
 }: NovelsTabsProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
-  // Fetch data using hooks
   const { data: popularNovels, loading: popularLoading } = usePopularNovels();
   const { data: latestNovels, loading: latestLoading } = useLatestNovels();
   const { data: recommendedNovels, loading: recommendedLoading } =
@@ -33,26 +32,42 @@ export function NovelsTabs({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className={className}>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-2xl font-bold md:text-3xl">Latest & Popular</h2>
+      <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
+            Find your next read
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Browse what&apos;s popular, new, and recommended for you
+          </p>
+        </div>
 
-        <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-          <TabsTrigger value="popular" className="text-xs sm:text-sm">
-            <Users className="mr-2 h-4 w-4" />
+        <TabsList className="grid h-11 w-full grid-cols-3 p-1 sm:h-10 sm:w-auto">
+          <TabsTrigger
+            value="popular"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-1.5 text-xs sm:text-sm"
+          >
+            <Users className="hidden h-4 w-4 sm:block" />
             Popular
           </TabsTrigger>
-          <TabsTrigger value="latest" className="text-xs sm:text-sm">
-            <Clock className="mr-2 h-4 w-4" />
+          <TabsTrigger
+            value="latest"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-1.5 text-xs sm:text-sm"
+          >
+            <Clock className="hidden h-4 w-4 sm:block" />
             Latest
           </TabsTrigger>
-          <TabsTrigger value="recommended" className="text-xs sm:text-sm">
-            <Star className="mr-2 h-4 w-4" />
+          <TabsTrigger
+            value="recommended"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-1.5 text-xs sm:text-sm"
+          >
+            <Star className="hidden h-4 w-4 sm:block" />
             Recommended
           </TabsTrigger>
         </TabsList>
       </div>
 
-      <TabsContent value="popular">
+      <TabsContent value="popular" className="mt-0">
         <NovelGrid
           novels={popularNovels || undefined}
           loading={popularLoading}
@@ -63,7 +78,7 @@ export function NovelsTabs({
         />
       </TabsContent>
 
-      <TabsContent value="latest">
+      <TabsContent value="latest" className="mt-0">
         <NovelGrid
           novels={latestNovels || undefined}
           loading={latestLoading}
@@ -74,7 +89,7 @@ export function NovelsTabs({
         />
       </TabsContent>
 
-      <TabsContent value="recommended">
+      <TabsContent value="recommended" className="mt-0">
         <NovelGrid
           novels={recommendedNovels || undefined}
           loading={recommendedLoading}

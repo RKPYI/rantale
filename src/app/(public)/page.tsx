@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Script from "next/script";
-import { Crown, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   HeroSection,
@@ -10,18 +10,23 @@ import {
   SectionHeader,
 } from "@/components/sections";
 import { NovelGrid, NovelsTabs } from "@/components/novels";
-import { GenreList } from "@/components/genres";
 import { ContinueReading } from "@/components/sections/continue-reading";
-import { usePopularNovels, useGenres } from "@/hooks/use-novels";
+import { usePopularNovels } from "@/hooks/use-novels";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function Home() {
-  // Fetch data using hooks
   const { data: popularNovels, loading: popularLoading } = usePopularNovels();
-  const { data: genres, loading: genresLoading } = useGenres();
   const { isAuthenticated } = useAuth();
 
-  // Structured data for SEO
+  const heroCovers =
+    popularNovels
+      ?.filter((n) => n.cover_image)
+      .slice(0, 12)
+      .map((n) => ({
+        src: n.cover_image as string,
+        alt: n.title,
+      })) ?? [];
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -41,7 +46,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Structured Data */}
       <Script
         id="structured-data"
         type="application/ld+json"
@@ -49,29 +53,28 @@ export default function Home() {
       />
 
       <div className="bg-background min-h-screen">
-        {/* Hero Section */}
         <HeroSection
+          covers={heroCovers}
           primaryButtonScrollTo="main-content-tabs"
           secondaryButtonText="Browse Novels"
           secondaryButtonHref="/browse"
         />
 
-        {/* Continue Reading Section - Only show if user is authenticated and has reading progress */}
         {isAuthenticated && (
-          <section className="py-8 lg:py-12">
+          <section className="section-enter py-6 lg:py-8">
             <div className="container mx-auto px-4 md:px-6 lg:px-8">
               <ContinueReading variant="compact" showTitle={true} />
             </div>
           </section>
         )}
 
-        {/* Featured/Popular Novels */}
-        <section className="py-12 lg:py-16">
+        <section className="section-enter py-8 lg:py-12">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <SectionHeader
-              title="Featured Novels"
-              icon={Crown}
+              title="Popular right now"
+              icon={TrendingUp}
               viewAllHref="/top-rated"
+              className="mb-6"
             />
 
             <NovelGrid
@@ -84,14 +87,16 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Main Content Tabs */}
-        <section id="main-content-tabs" className="bg-muted/20 py-12 lg:py-16">
+        <section
+          id="main-content-tabs"
+          className="section-enter bg-muted/20 py-8 lg:py-12"
+        >
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <NovelsTabs maxItems={12} />
 
             <div className="mt-8 text-center">
               <Link href="/recently-updated">
-                <Button variant="outline" size="lg">
+                <Button size="lg" className="w-full sm:w-auto">
                   Explore More Novels
                 </Button>
               </Link>
@@ -99,14 +104,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Genres Section */}
-        {/* <section className="py-12 lg:py-16">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <GenreList genres={genres || []} loading={genresLoading} />
-          </div>
-        </section> */}
-
-        {/* Call to Action - Only show for non-authenticated users */}
         {!isAuthenticated && <CallToActionSection />}
       </div>
     </>

@@ -51,10 +51,10 @@ export function NovelGrid({
       return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
     }
     if (size === "compact") {
-      return "grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+      return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
     }
     if (size === "horizontal") {
-      return "grid-cols-1"; // Single column for horizontal cards
+      return "grid-cols-1";
     }
     return "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
   };
@@ -63,8 +63,14 @@ export function NovelGrid({
     return (
       <div
         className={cn(
-          "grid gap-4",
-          size === "horizontal" ? "gap-2" : "gap-4",
+          "grid",
+          size === "horizontal"
+            ? "gap-2"
+            : size === "compact"
+              ? "gap-3 sm:gap-4"
+              : size === "featured"
+                ? "gap-3 md:gap-4"
+                : "gap-4",
           getGridCols(),
           className,
         )}
@@ -88,8 +94,14 @@ export function NovelGrid({
   return (
     <div
       className={cn(
-        "grid gap-4",
-        size === "horizontal" ? "gap-2" : "gap-4",
+        "grid",
+        size === "horizontal"
+          ? "gap-2"
+          : size === "compact"
+            ? "gap-3 sm:gap-4"
+            : size === "featured"
+              ? "gap-3 md:gap-4"
+              : "gap-4",
         getGridCols(),
         className,
       )}

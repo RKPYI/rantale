@@ -206,4 +206,56 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome/Safari/Opera */
   }
+
+  /* Home hero / section entrance motion */
+  @keyframes hero-cover-drift {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-2.5%);
+    }
+  }
+
+  @keyframes hero-content-enter {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes section-enter {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-cover-drift {
+    animation: hero-cover-drift 28s ease-in-out infinite alternate;
+  }
+
+  .hero-content-enter {
+    animation: hero-content-enter 0.7s ease-out both;
+  }
+
+  .section-enter {
+    animation: section-enter 0.55s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cover-drift,
+    .hero-content-enter,
+    .section-enter {
+      animation: none;
+    }
+  }
 }
