@@ -70,21 +70,12 @@ export const metadata: Metadata = {
     title: "Rantale - Your Novel Reading Platform",
     description:
       "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
-    images: [
-      {
-        url: "/rantale-dark.svg",
-        width: 1200,
-        height: 630,
-        alt: "Rantale - Novel Reading Platform",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Rantale - Your Novel Reading Platform",
     description:
       "Discover and read amazing novels on Rantale. Browse thousands of stories across multiple genres.",
-    images: ["/rantale-dark.svg"],
     creator: "@rantale",
   },
   verification: {
