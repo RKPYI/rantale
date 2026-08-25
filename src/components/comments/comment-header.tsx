@@ -3,7 +3,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { UserAvatar, UserInfo } from "@/components/ui/user-avatar";
-import { Clock, Edit, Trash2 } from "lucide-react";
+import { Clock, Edit, EyeOff, Trash2 } from "lucide-react";
 import {
   formatCommentTime,
   isCommentEdited,
@@ -23,12 +23,20 @@ export function CommentHeader({
       <div className="flex min-w-0 items-center gap-2">
         <UserAvatar user={comment.user} size="sm" showBadge={true} />
         <div className="min-w-0">
-          <UserInfo
-            user={comment.user}
-            showRole={true}
-            showVerificationStatus={false}
-            compact
-          />
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <UserInfo
+              user={comment.user}
+              showRole={true}
+              showVerificationStatus={false}
+              compact
+            />
+            {comment.is_spoiler && (
+              <span className="bg-amber-500/10 text-amber-800 dark:bg-amber-400/10 dark:text-amber-300 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase">
+                <EyeOff className="size-2.5" aria-hidden="true" />
+                Spoiler
+              </span>
+            )}
+          </div>
           <div className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-[11px] leading-none">
             <Clock className="h-3 w-3 shrink-0" />
             {formatCommentTime(comment.created_at)}
