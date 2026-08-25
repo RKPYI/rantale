@@ -569,7 +569,7 @@ export function NovelCard({
               {novel.status.charAt(0).toUpperCase() + novel.status.slice(1)}
             </Badge>
 
-            <NovelBadge novel={novel} className="hidden md:flex" />
+            <NovelBadge novel={novel} iconOnly className="hidden md:flex" />
           </div>
 
           <div className="space-y-0.5 px-0.5 pt-2 pb-1">

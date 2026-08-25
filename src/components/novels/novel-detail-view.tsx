@@ -15,6 +15,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
   LayoutList,
   MessageSquare,
 } from "lucide-react";
@@ -61,6 +62,7 @@ interface NovelDetailViewProps {
 }
 
 const DESCRIPTION_COLLAPSE_LENGTH = 320;
+const CHAPTERS_PER_PAGE = 50;
 
 export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const { isAuthenticated, loading: authLoading, user } = useAuth();
@@ -69,6 +71,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [chaptersPage, setChaptersPage] = useState(1);
   const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
@@ -88,6 +91,24 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const latestChapters = useMemo(
     () => [...sortedChapters].slice(-5).reverse(),
     [sortedChapters],
+  );
+
+  const chaptersTotalPages = Math.max(
+    1,
+    Math.ceil(sortedChapters.length / CHAPTERS_PER_PAGE),
+  );
+  const safeChaptersPage = Math.min(chaptersPage, chaptersTotalPages);
+  const paginatedChapters = useMemo(() => {
+    const start = (safeChaptersPage - 1) * CHAPTERS_PER_PAGE;
+    return sortedChapters.slice(start, start + CHAPTERS_PER_PAGE);
+  }, [sortedChapters, safeChaptersPage]);
+  const chaptersFrom =
+    sortedChapters.length === 0
+      ? 0
+      : (safeChaptersPage - 1) * CHAPTERS_PER_PAGE + 1;
+  const chaptersTo = Math.min(
+    safeChaptersPage * CHAPTERS_PER_PAGE,
+    sortedChapters.length,
   );
 
   const currentChapterNumber =
@@ -625,23 +646,64 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                   )}
                 </p>
               </div>
+              {hasChapters && chaptersTotalPages > 1 && (
+                <p className="text-muted-foreground shrink-0 text-sm tabular-nums">
+                  {chaptersFrom}–{chaptersTo} of {sortedChapters.length}
+                </p>
+              )}
             </div>
 
             {hasChapters ? (
-              <ul className="divide-y rounded-2xl border">
-                {sortedChapters.map((chapter) => (
-                  <li key={chapter.id}>
-                    <ChapterRow
-                      novelSlug={novel.slug}
-                      chapter={chapter}
-                      isCurrent={
-                        currentChapterNumber === chapter.chapter_number
+              <div className="space-y-4">
+                <ul className="divide-y rounded-2xl border">
+                  {paginatedChapters.map((chapter) => (
+                    <li key={chapter.id}>
+                      <ChapterRow
+                        novelSlug={novel.slug}
+                        chapter={chapter}
+                        isCurrent={
+                          currentChapterNumber === chapter.chapter_number
+                        }
+                        showWordCountFallback
+                      />
+                    </li>
+                  ))}
+                </ul>
+
+                {chaptersTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setChaptersPage((page) => Math.max(1, page - 1))
                       }
-                      showWordCountFallback
-                    />
-                  </li>
-                ))}
-              </ul>
+                      disabled={safeChaptersPage <= 1}
+                    >
+                      <ChevronLeft className="size-4" />
+                      Previous
+                    </Button>
+
+                    <span className="text-muted-foreground px-2 text-sm tabular-nums">
+                      Page {safeChaptersPage} of {chaptersTotalPages}
+                    </span>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setChaptersPage((page) =>
+                          Math.min(chaptersTotalPages, page + 1),
+                        )
+                      }
+                      disabled={safeChaptersPage >= chaptersTotalPages}
+                    >
+                      Next
+                      <ChevronRight className="size-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             ) : (
               <EmptyChapters />
             )}

@@ -82,7 +82,7 @@ export function GenreNovelRow({ genre, className }: GenreNovelRowProps) {
   const scroll = (direction: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = 180; // roughly card width + gap
+    const cardWidth = 164; // compact card width + gap
     const distance = cardWidth * 3;
     el.scrollBy({
       left: direction === "left" ? -distance : distance,
@@ -160,13 +160,19 @@ export function GenreNovelRow({ genre, className }: GenreNovelRowProps) {
           >
             {loading
               ? Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="snap-start">
-                    <NovelCardSkeleton size="browse" />
+                  <div
+                    key={i}
+                    className="w-[140px] flex-shrink-0 snap-start sm:w-[150px] md:w-[160px]"
+                  >
+                    <NovelCardSkeleton size="compact" />
                   </div>
                 ))
               : novels.map((novel) => (
-                  <div key={novel.id} className="snap-start">
-                    <NovelCard novel={novel} size="browse" />
+                  <div
+                    key={novel.id}
+                    className="w-[140px] flex-shrink-0 snap-start sm:w-[150px] md:w-[160px]"
+                  >
+                    <NovelCard novel={novel} size="compact" />
                   </div>
                 ))}
           </div>

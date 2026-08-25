@@ -28,10 +28,16 @@ export default function BrowsePage() {
                 <Skeleton className="h-6 w-40" />
                 <div className="flex gap-3 sm:gap-4">
                   {Array.from({ length: 6 }).map((_, j) => (
-                    <Skeleton
+                    <div
                       key={j}
-                      className="aspect-[3/4] w-[150px] flex-shrink-0 rounded-lg sm:w-[160px] md:w-[170px]"
-                    />
+                      className="w-[140px] flex-shrink-0 sm:w-[150px] md:w-[160px]"
+                    >
+                      <Skeleton className="aspect-[2/3] w-full rounded-lg" />
+                      <div className="space-y-1.5 px-0.5 pt-2 pb-1">
+                        <Skeleton className="h-3.5 w-full" />
+                        <Skeleton className="h-3 w-2/3" />
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
