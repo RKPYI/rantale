@@ -5,54 +5,126 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  User,
   Settings,
   BookOpen,
   Heart,
-  Clock,
   Calendar,
   Mail,
   Edit,
-  Shield,
-  Crown,
   PenTool,
-  Star,
-  BarChart3,
-  Trophy,
-  Target,
   TrendingUp,
   Library,
+  LayoutDashboard,
+  Star,
+  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useProfileStats } from "@/hooks/use-profile-stats";
 import { useLibrary } from "@/hooks/use-library";
-import { UserAvatar, UserInfo } from "@/components/ui/user-avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { formatDate } from "@/lib/novel-utils";
-import { getUserRole } from "@/lib/user-utils";
+import { getUserRole, getRoleInfo } from "@/lib/user-utils";
 import { ProfileSettings } from "@/components/profile/profile-settings";
+import { ProfileOverview } from "@/components/profile/profile-overview";
 import { ReadingStats } from "@/components/profile/reading-stats";
 import { UserRatings } from "@/components/profile/user-ratings";
+import { AuthModal } from "@/components/auth-modal";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
+
+const PROFILE_TABS = [
+  {
+    value: "overview",
+    label: "Overview",
+    shortLabel: "Home",
+    icon: LayoutDashboard,
+  },
+  {
+    value: "library",
+    label: "Library",
+    shortLabel: "Library",
+    icon: Library,
+    countKey: "library" as const,
+  },
+  {
+    value: "ratings",
+    label: "Ratings",
+    shortLabel: "Ratings",
+    icon: Star,
+    countKey: "ratings" as const,
+  },
+  {
+    value: "reading",
+    label: "Reading",
+    shortLabel: "Stats",
+    icon: TrendingUp,
+  },
+  {
+    value: "settings",
+    label: "Settings",
+    shortLabel: "Settings",
+    icon: Settings,
+  },
+  {
+    value: "author",
+    label: "Author",
+    shortLabel: "Author",
+    icon: PenTool,
+    authorOnly: true,
+  },
+] as const;
+
+function statusLabel(status: string) {
+  switch (status) {
+    case "want_to_read":
+      return "Want to Read";
+    case "reading":
+      return "Reading";
+    case "completed":
+      return "Completed";
+    case "on_hold":
+      return "On Hold";
+    case "dropped":
+      return "Dropped";
+    default:
+      return status;
+  }
+}
+
+function statusBadgeClass(status: string) {
+  switch (status) {
+    case "want_to_read":
+      return "bg-sky-500/10 text-sky-700 border-sky-500/20 dark:text-sky-300";
+    case "reading":
+      return "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-300";
+    case "completed":
+      return "bg-violet-500/10 text-violet-700 border-violet-500/20 dark:text-violet-300";
+    case "on_hold":
+      return "bg-amber-500/10 text-amber-700 border-amber-500/20 dark:text-amber-300";
+    case "dropped":
+      return "bg-destructive/10 text-destructive border-destructive/20";
+    default:
+      return "";
+  }
+}
 
 export function ProfileView() {
   const [activeTab, setActiveTab] = useState("overview");
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { data: profileStats, loading: statsLoading } = useProfileStats();
-  // Only load library data when on library tab (for pagination support)
   const shouldLoadLibrary = activeTab === "library";
   const { data: library, loading: libraryLoading } = useLibrary(
     shouldLoadLibrary ? undefined : "",
   );
 
   const userRole = user ? getUserRole(user) : "user";
+  const roleInfo = user ? getRoleInfo(user) : null;
 
-  // Handle URL hash to open specific tab (e.g., #library, #settings)
   useEffect(() => {
-    const hash = window.location.hash.slice(1); // Remove the '#'
+    const hash = window.location.hash.slice(1);
     const validTabs = [
       "overview",
       "library",
@@ -64,7 +136,6 @@ export function ProfileView() {
 
     if (hash && validTabs.includes(hash)) {
       setActiveTab(hash);
-      // Scroll to tabs section smoothly after a brief delay
       setTimeout(() => {
         const tabsElement = document.querySelector('[role="tablist"]');
         if (tabsElement) {
@@ -74,10 +145,8 @@ export function ProfileView() {
     }
   }, []);
 
-  // Handle tab change and update URL hash
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    // Update URL hash without scrolling
     window.history.replaceState(null, "", `#${value}`);
   };
 
@@ -89,496 +158,443 @@ export function ProfileView() {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <Alert>
-          <AlertDescription>
-            Please sign in to view your profile.
-          </AlertDescription>
-        </Alert>
+      <div className="container mx-auto max-w-3xl px-4 py-12 pb-24 sm:px-6 sm:py-16 lg:px-8 md:pb-16">
+        <div className="relative overflow-hidden rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/[0.07] via-background to-muted/50 px-6 py-14 text-center sm:px-10">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-20 left-1/2 size-56 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
+          />
+          <div className="relative mx-auto flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Library className="size-7" aria-hidden />
+          </div>
+          <h1 className="relative mt-6 text-2xl font-semibold tracking-tight sm:text-3xl">
+            Your reading home
+          </h1>
+          <p className="text-muted-foreground relative mx-auto mt-3 max-w-md text-sm leading-relaxed sm:text-base">
+            Sign in to track progress, keep favorites, and pick up where you left
+            off.
+          </p>
+          <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <AuthModal
+              defaultTab="signin"
+              trigger={<Button size="lg">Sign in</Button>}
+            />
+            <AuthModal
+              defaultTab="signup"
+              trigger={
+                <Button size="lg" variant="outline">
+                  Create account
+                </Button>
+              }
+            />
+          </div>
+        </div>
       </div>
     );
   }
 
   const joinedDate = user.created_at ? new Date(user.created_at) : new Date();
   const isVerified = user.email_verified_at !== null;
+  const libraryTotal = profileStats?.library.total_novels || 0;
+  const favorites = profileStats?.library.favorites || 0;
+  const completed = profileStats?.reading_progress.completed_novels || 0;
 
   return (
-    <div className="container mx-auto space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8 lg:px-8">
-      {/* Profile Header */}
-      <Card>
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
-            {/* Avatar Section */}
-            <div className="flex w-full flex-col items-center space-y-3 sm:w-auto sm:space-y-4">
-              <UserAvatar user={user} size="lg" showBadge={true} />
-              <div className="text-center">
-                <UserInfo
-                  user={user}
-                  showRole={true}
-                  showVerificationStatus={false}
-                  className="justify-center"
-                />
+    <div className="pb-24 md:pb-8">
+      {/* Identity header */}
+      <section className="relative overflow-hidden border-b">
+        <div
+          aria-hidden
+          className="from-primary/[0.12] via-primary/[0.04] to-background absolute inset-0 bg-gradient-to-b"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 right-0 size-72 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-16 left-0 size-56 rounded-full bg-primary/5 blur-3xl"
+        />
+
+        <div className="container relative mx-auto px-4 pt-8 pb-6 sm:px-6 sm:pt-10 sm:pb-8 lg:px-8">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-8">
+            <UserAvatar user={user} size="xl" showBadge={true} />
+
+            <div className="min-w-0 flex-1 text-center sm:text-left">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                <h1 className="text-2xl font-semibold tracking-tight break-words sm:text-3xl">
+                  {user.name}
+                </h1>
+                {roleInfo && userRole !== "user" && (
+                  <Badge
+                    className={cn(
+                      "border-transparent",
+                      roleInfo.bgColor,
+                    )}
+                  >
+                    {roleInfo.name}
+                  </Badge>
+                )}
                 {!isVerified && (
-                  <Badge variant="outline" className="mt-2 text-xs">
-                    <Mail className="mr-1 h-3 w-3" />
-                    Email Unverified
+                  <Badge variant="outline" className="text-xs font-normal">
+                    <Mail className="mr-1 size-3" aria-hidden />
+                    Unverified
                   </Badge>
                 )}
               </div>
-            </div>
 
-            {/* User Information */}
-            <div className="w-full flex-1 space-y-4">
-              <div className="text-center sm:text-left">
-                <h1 className="text-2xl font-bold break-words sm:text-3xl">
-                  {user.name}
-                </h1>
-                <p className="text-muted-foreground text-sm break-all sm:text-base">
-                  {user.email}
+              {user.bio ? (
+                <p className="text-muted-foreground mx-auto mt-2 max-w-xl text-sm leading-relaxed break-words sm:mx-0">
+                  {user.bio}
                 </p>
-                {user.bio && (
-                  <p className="text-muted-foreground mt-2 text-sm break-words">
-                    {user.bio}
-                  </p>
-                )}
+              ) : (
+                <p className="text-muted-foreground mt-2 text-sm">
+                  {userRole === "user" ? "Reader" : roleInfo?.name} · Member
+                  since {formatDate(joinedDate.toISOString())}
+                </p>
+              )}
+
+              <p className="text-muted-foreground mt-1 flex items-center justify-center gap-1.5 text-xs sm:justify-start">
+                <Calendar className="size-3.5 shrink-0" aria-hidden />
+                <span>
+                  Joined {formatDate(joinedDate.toISOString())}
+                  {user.bio ? ` · ${user.email}` : ""}
+                </span>
+              </p>
+
+              {/* Value-first metrics */}
+              <div className="mt-5 grid grid-cols-3 gap-2 sm:max-w-md sm:gap-3">
+                <Metric
+                  value={libraryTotal}
+                  label="Library"
+                  onClick={() => handleTabChange("library")}
+                />
+                <Metric
+                  value={favorites}
+                  label="Favorites"
+                  onClick={() => handleTabChange("library")}
+                />
+                <Metric
+                  value={completed}
+                  label="Finished"
+                  onClick={() => handleTabChange("reading")}
+                />
               </div>
 
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
-                  <Calendar className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
-                  <p className="text-muted-foreground text-xs">Joined</p>
-                  <p className="text-xs leading-tight font-medium sm:text-sm">
-                    {formatDate(joinedDate.toISOString())}
-                  </p>
-                </div>
-                <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
-                  <Library className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
-                  <p className="text-muted-foreground text-xs">Library</p>
-                  <p className="text-xs font-medium sm:text-sm">
-                    {profileStats?.library.total_novels || 0}
-                  </p>
-                </div>
-                <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
-                  <Heart className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
-                  <p className="text-muted-foreground text-xs">Favorites</p>
-                  <p className="text-xs font-medium sm:text-sm">
-                    {profileStats?.library.favorites || 0}
-                  </p>
-                </div>
-                <div className="bg-muted rounded-lg p-2 text-center sm:p-3">
-                  <Trophy className="text-muted-foreground mx-auto mb-1 h-4 w-4 sm:h-5 sm:w-5" />
-                  <p className="text-muted-foreground text-xs">Completed</p>
-                  <p className="text-xs font-medium sm:text-sm">
-                    {profileStats?.reading_progress.completed_novels || 0}
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex w-full flex-col gap-2 sm:flex-row">
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleTabChange("settings")}
                   className="w-full sm:w-auto"
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  <span className="sm:hidden">Edit</span>
-                  <span className="hidden sm:inline">Edit Profile</span>
+                  <Edit className="size-4" aria-hidden />
+                  Edit profile
                 </Button>
+                {(userRole === "author" || userRole === "admin") && (
+                  <Button size="sm" asChild className="w-full sm:w-auto">
+                    <Link href="/author">
+                      <PenTool className="size-4" aria-hidden />
+                      Author dashboard
+                    </Link>
+                  </Button>
+                )}
                 {userRole === "user" && (
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     asChild
                     className="w-full sm:w-auto"
                   >
                     <Link href="/author">
-                      <PenTool className="mr-2 h-4 w-4" />
-                      <span className="sm:hidden">Author</span>
-                      <span className="hidden sm:inline">Become Author</span>
+                      <PenTool className="size-4" aria-hidden />
+                      Become an author
                     </Link>
                   </Button>
                 )}
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Profile Tabs */}
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <div className="overflow-x-auto">
-          <TabsList className="inline-flex w-full min-w-full sm:w-auto sm:min-w-0">
-            <TabsTrigger value="overview" className="flex-shrink-0">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="library" className="flex-shrink-0">
-              Library
-            </TabsTrigger>
-            <TabsTrigger value="ratings" className="flex-shrink-0">
-              Ratings
-            </TabsTrigger>
-            <TabsTrigger
-              value="reading"
-              className="hidden flex-shrink-0 sm:block"
-            >
-              Reading Stats
-            </TabsTrigger>
-            <TabsTrigger value="reading" className="flex-shrink-0 sm:hidden">
-              Stats
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex-shrink-0">
-              Settings
-            </TabsTrigger>
-          </TabsList>
         </div>
+      </section>
 
-        {/* Overview Tab */}
-        <TabsContent
-          value="overview"
-          className="mt-4 space-y-4 sm:mt-6 sm:space-y-6"
-        >
-          <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-            {/* Account Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Account Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Account Type</span>
-                  <Badge variant="secondary">
-                    {userRole.charAt(0).toUpperCase() + userRole.slice(1)}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Email Status</span>
-                  <Badge variant={isVerified ? "default" : "outline"}>
-                    {isVerified ? "Verified" : "Unverified"}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Account Status</span>
-                  <Badge variant="default">Active</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Member Since</span>
-                  <span className="text-muted-foreground text-sm">
-                    {formatDate(joinedDate.toISOString())}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="container mx-auto px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <div className="sticky top-0 z-10 -mx-4 bg-background/90 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+            <TabsList
+              aria-label="Profile sections"
+              className="h-auto w-full justify-start gap-1.5 overflow-x-auto rounded-none bg-transparent p-0 pb-1 scrollbar-hide"
+            >
+              {PROFILE_TABS.filter((tab) => {
+                if ("authorOnly" in tab && tab.authorOnly) {
+                  return userRole === "author" || userRole === "admin";
+                }
+                return true;
+              }).map((tab) => {
+                const Icon = tab.icon;
+                const active = activeTab === tab.value;
+                const count =
+                  "countKey" in tab && tab.countKey === "library"
+                    ? libraryTotal
+                    : "countKey" in tab && tab.countKey === "ratings"
+                      ? (profileStats?.activity.total_ratings ?? 0)
+                      : undefined;
 
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {profileStats?.recent_activity &&
-                profileStats.recent_activity.length > 0 ? (
-                  <div className="space-y-3">
-                    {profileStats.recent_activity
-                      .slice(0, 3)
-                      .map((activity, idx) => (
-                        <div
-                          key={idx}
-                          className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3"
-                        >
-                          <div className="flex flex-1 items-center gap-3">
-                            <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full"></div>
-                            <span className="text-muted-foreground text-xs sm:text-sm">
-                              {activity.type === "reading"
-                                ? "Read"
-                                : activity.type === "comment"
-                                  ? "Commented on"
-                                  : "Rated"}
-                            </span>
-                            <span className="truncate text-xs font-medium sm:text-sm">
-                              {activity.novel.title}
-                            </span>
-                          </div>
-                          <span className="text-muted-foreground ml-5 text-xs sm:ml-auto">
-                            {formatDate(activity.timestamp)}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="py-6 text-center">
-                    <Clock className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-                    <h4 className="mb-1 text-sm font-medium">
-                      No recent activity
-                    </h4>
-                    <p className="text-muted-foreground text-xs">
-                      Start reading novels to see your activity here
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                return (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className={cn(
+                      "h-auto shrink-0 flex-none gap-1.5 rounded-full border px-3 py-2 text-xs font-medium shadow-none transition-colors sm:text-sm",
+                      "border-border/70 bg-background text-muted-foreground",
+                      "hover:bg-muted hover:text-foreground",
+                      "data-[state=active]:border-primary/30 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+                      "dark:data-[state=active]:border-primary/30 dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground",
+                      "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+                    )}
+                  >
+                    <Icon className="size-3.5" aria-hidden />
+                    <span className="sm:hidden">{tab.shortLabel}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
+                    {count !== undefined && (
+                      <span
+                        className={cn(
+                          "rounded-full px-1.5 py-0.5 text-[10px] tabular-nums sm:text-xs",
+                          active
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
           </div>
 
-          {/* Reading Progress Overview */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Library className="h-5 w-5" />
-                Library Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-6">
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xl font-bold text-blue-600 sm:text-2xl">
-                    {profileStats?.library.by_status.reading || 0}
-                  </p>
-                  <p className="text-muted-foreground text-xs leading-tight sm:text-sm">
-                    Currently Reading
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xl font-bold text-green-600 sm:text-2xl">
-                    {profileStats?.library.by_status.completed || 0}
-                  </p>
-                  <p className="text-muted-foreground text-xs sm:text-sm">
-                    Completed
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xl font-bold text-yellow-600 sm:text-2xl">
-                    {profileStats?.library.by_status.want_to_read || 0}
-                  </p>
-                  <p className="text-muted-foreground text-xs leading-tight sm:text-sm">
-                    Want to Read
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xl font-bold text-orange-600 sm:text-2xl">
-                    {profileStats?.library.by_status.on_hold || 0}
-                  </p>
-                  <p className="text-muted-foreground text-xs sm:text-sm">
-                    On Hold
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xl font-bold text-gray-600 sm:text-2xl">
-                    {profileStats?.library.by_status.dropped || 0}
-                  </p>
-                  <p className="text-muted-foreground text-xs sm:text-sm">
-                    Dropped
-                  </p>
-                </div>
-                <div className="rounded-lg border p-3 text-center">
-                  <p className="text-xl font-bold text-red-600 sm:text-2xl">
-                    {profileStats?.library.favorites || 0}
-                  </p>
-                  <p className="text-muted-foreground text-xs sm:text-sm">
-                    Favorites
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {/* Overview */}
+          <TabsContent value="overview" className="mt-4 sm:mt-6">
+            <ProfileOverview
+              stats={profileStats}
+              userRole={userRole}
+              onNavigateTab={handleTabChange}
+            />
+          </TabsContent>
 
-        {/* Library Tab */}
-        <TabsContent value="library">
-          {libraryLoading ? (
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4">
-                      <Skeleton className="h-16 w-12 rounded" />
+          {/* Library */}
+          <TabsContent value="library" className="mt-4 sm:mt-6">
+            {libraryLoading ? (
+              <Card className="border-border/80 shadow-none">
+                <CardContent className="space-y-4 p-5">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <Skeleton className="h-16 w-12 rounded-md" />
                       <div className="flex-1 space-y-2">
                         <Skeleton className="h-4 w-48" />
                         <Skeleton className="h-3 w-32" />
                       </div>
                     </div>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>My Library</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {library && library.library.data.length > 0 ? (
-                  <div className="space-y-3 sm:space-y-4">
-                    {library.library.data.slice(0, 10).map((entry) => (
-                      <Link
-                        key={entry.id}
-                        href={`/novels/${entry.novel.slug}`}
-                        className="hover:bg-accent flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:gap-4 sm:p-4"
-                      >
-                        <div className="flex flex-1 items-center gap-3 sm:gap-4">
-                          <img
-                            src={
-                              entry.novel.cover_image || "/placeholder-book.jpg"
-                            }
-                            alt={entry.novel.title}
-                            className="h-14 w-10 flex-shrink-0 rounded object-cover sm:h-16 sm:w-12"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <h4 className="truncate text-sm font-medium sm:text-base">
-                              {entry.novel.title}
-                            </h4>
-                            <p className="text-muted-foreground truncate text-xs sm:text-sm">
-                              by {entry.novel.author}
-                            </p>
-                            <div className="mt-1 flex items-center gap-2">
-                              <Badge
-                                variant="outline"
-                                className={`text-xs ${
-                                  entry.status === "want_to_read"
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                                    : entry.status === "reading"
-                                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                      : entry.status === "completed"
-                                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
-                                        : entry.status === "on_hold"
-                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                                          : entry.status === "dropped"
-                                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-                                            : ""
-                                }`}
-                              >
-                                {entry.status === "want_to_read"
-                                  ? "Want to Read"
-                                  : entry.status === "reading"
-                                    ? "Reading"
-                                    : entry.status === "completed"
-                                      ? "Completed"
-                                      : entry.status === "on_hold"
-                                        ? "On Hold"
-                                        : entry.status === "dropped"
-                                          ? "Dropped"
-                                          : entry.status}
-                              </Badge>
-                              {entry.is_favorite && (
-                                <Heart className="h-3 w-3 fill-current text-red-500 sm:h-4 sm:w-4" />
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-8 text-center">
-                    <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-                    <h3 className="text-lg font-medium">
-                      Your library is empty
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Start adding novels to track your reading progress
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="overflow-hidden border-border/80 shadow-none">
+                <CardHeader className="flex-row items-center justify-between gap-3 space-y-0 pb-3">
+                  <div>
+                    <CardTitle className="text-base font-semibold tracking-tight sm:text-lg">
+                      My library
+                    </CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {library?.library.data.length
+                        ? `Showing ${Math.min(library.library.data.length, 10)} recent`
+                        : "Track novels as you read"}
                     </p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Ratings Tab */}
-        <TabsContent value="ratings">
-          <UserRatings />
-        </TabsContent>
-
-        {/* Reading Stats Tab */}
-        <TabsContent value="reading">
-          <ReadingStats />
-        </TabsContent>
-
-        {/* Settings Tab */}
-        <TabsContent value="settings">
-          <ProfileSettings />
-        </TabsContent>
-
-        {/* Author Dashboard Tab */}
-        {(userRole === "author" || userRole === "admin") && (
-          <TabsContent value="author">
-            <Card>
-              <CardHeader>
-                <CardTitle>Author Dashboard</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Access your full author dashboard for novel management and
-                  analytics.
-                </p>
-                <Button asChild>
-                  <Link href="/author">
-                    <PenTool className="mr-2 h-4 w-4" />
-                    Go to Author Dashboard
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href="/library">
+                      View all
+                      <ArrowRight className="size-3.5" aria-hidden />
+                    </Link>
+                  </Button>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {library && library.library.data.length > 0 ? (
+                    <ul className="divide-y rounded-2xl border">
+                      {library.library.data.slice(0, 10).map((entry) => (
+                        <li key={entry.id}>
+                          <Link
+                            href={`/novels/${entry.novel.slug}`}
+                            className="hover:bg-muted/50 flex items-center gap-3 p-3 transition-colors sm:gap-4 sm:p-4"
+                          >
+                            <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded-md bg-muted sm:h-16 sm:w-12">
+                              <Image
+                                src={
+                                  entry.novel.cover_image ||
+                                  "/placeholder-book.jpg"
+                                }
+                                alt=""
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="truncate text-sm font-medium sm:text-base">
+                                {entry.novel.title}
+                              </h4>
+                              <p className="text-muted-foreground truncate text-xs sm:text-sm">
+                                by {entry.novel.author}
+                              </p>
+                              <div className="mt-1.5 flex items-center gap-2">
+                                <Badge
+                                  variant="outline"
+                                  className={cn(
+                                    "text-[10px] font-medium sm:text-xs",
+                                    statusBadgeClass(entry.status),
+                                  )}
+                                >
+                                  {statusLabel(entry.status)}
+                                </Badge>
+                                {entry.is_favorite && (
+                                  <Heart
+                                    className="size-3.5 fill-current text-primary sm:size-4"
+                                    aria-label="Favorite"
+                                  />
+                                )}
+                              </div>
+                            </div>
+                            <ArrowRight
+                              className="text-muted-foreground size-4 shrink-0 opacity-40"
+                              aria-hidden
+                            />
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <EmptyShelf />
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
-        )}
-      </Tabs>
+
+          <TabsContent value="ratings" className="mt-4 sm:mt-6">
+            <UserRatings />
+          </TabsContent>
+
+          <TabsContent value="reading" className="mt-4 sm:mt-6">
+            <ReadingStats />
+          </TabsContent>
+
+          <TabsContent value="settings" className="mt-4 sm:mt-6">
+            <ProfileSettings />
+          </TabsContent>
+
+          {(userRole === "author" || userRole === "admin") && (
+            <TabsContent value="author" className="mt-4 sm:mt-6">
+              <Card className="overflow-hidden border-border/80 shadow-none">
+                <CardContent className="flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold tracking-tight">
+                      Author dashboard
+                    </h3>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Manage novels, chapters, and analytics.
+                    </p>
+                  </div>
+                  <Button asChild>
+                    <Link href="/author">
+                      <PenTool className="size-4" aria-hidden />
+                      Open dashboard
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
+      </div>
+    </div>
+  );
+}
+
+function Metric({
+  value,
+  label,
+  onClick,
+}: {
+  value: number;
+  label: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="hover:bg-background/80 focus-visible:ring-ring rounded-2xl border border-border/60 bg-background/60 px-2 py-3 text-center backdrop-blur transition-colors focus-visible:ring-2 focus-visible:outline-none sm:px-3"
+    >
+      <p className="text-xl font-semibold tabular-nums tracking-tight sm:text-2xl">
+        {value}
+      </p>
+      <p className="text-muted-foreground mt-0.5 text-[11px] sm:text-xs">
+        {label}
+      </p>
+    </button>
+  );
+}
+
+function EmptyShelf() {
+  return (
+    <div className="rounded-2xl border border-dashed px-6 py-10 text-center">
+      <BookOpen
+        className="text-muted-foreground mx-auto mb-3 size-10 opacity-60"
+        aria-hidden
+      />
+      <h3 className="text-sm font-medium sm:text-base">Your shelf is empty</h3>
+      <p className="text-muted-foreground mx-auto mt-1 max-w-xs text-xs sm:text-sm">
+        Add novels as you browse to track progress and favorites.
+      </p>
+      <Button asChild size="sm" className="mt-4">
+        <Link href="/browse">
+          Browse novels
+          <ArrowRight className="size-3.5" aria-hidden />
+        </Link>
+      </Button>
     </div>
   );
 }
 
 function ProfileViewSkeleton() {
   return (
-    <div className="container mx-auto space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8 lg:px-8">
-      {/* Header Skeleton */}
-      <Card>
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
-            <div className="flex flex-col items-center space-y-3 sm:space-y-4">
-              <Skeleton className="h-20 w-20 rounded-full sm:h-24 sm:w-24" />
-              <Skeleton className="h-5 w-28 sm:h-6 sm:w-32" />
-            </div>
-            <div className="w-full flex-1 space-y-4">
-              <div className="text-center sm:text-left">
-                <Skeleton className="mx-auto mb-2 h-7 w-40 sm:mx-0 sm:h-8 sm:w-48" />
-                <Skeleton className="mx-auto h-4 w-48 sm:mx-0 sm:w-64" />
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton
-                    key={i}
-                    className="h-14 w-full rounded-lg sm:h-16"
-                  />
+    <div className="pb-24 md:pb-8">
+      <section className="relative overflow-hidden border-b">
+        <div className="from-muted/40 to-background absolute inset-0 bg-gradient-to-b" />
+        <div className="container relative mx-auto px-4 pt-8 pb-6 sm:px-6 sm:pt-10 sm:pb-8 lg:px-8">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-8">
+            <Skeleton className="h-24 w-24 rounded-full sm:h-28 sm:w-28" />
+            <div className="w-full flex-1 space-y-3 text-center sm:text-left">
+              <Skeleton className="mx-auto h-8 w-48 sm:mx-0" />
+              <Skeleton className="mx-auto h-4 w-64 sm:mx-0" />
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:max-w-md">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 rounded-2xl" />
                 ))}
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Skeleton className="h-9 w-full sm:w-32" />
-                <Skeleton className="h-9 w-full sm:w-36" />
-              </div>
+              <Skeleton className="mx-auto mt-2 h-9 w-32 sm:mx-0" />
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Tabs Skeleton */}
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Card>
-          <CardContent className="p-4 sm:p-6">
-            <div className="space-y-3 sm:space-y-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full sm:h-20" />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        </div>
+      </section>
+      <div className="container mx-auto space-y-4 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+        <Skeleton className="h-11 w-full rounded-lg" />
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <div className="grid gap-4 lg:grid-cols-5">
+          <Skeleton className="h-56 rounded-2xl lg:col-span-3" />
+          <Skeleton className="h-56 rounded-2xl lg:col-span-2" />
+        </div>
       </div>
     </div>
   );

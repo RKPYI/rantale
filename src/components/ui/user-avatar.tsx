@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
   user: User;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
   showBadge?: boolean;
   className?: string;
 }
@@ -32,10 +32,17 @@ export function UserAvatar({
     sm: "h-6 w-6",
     md: "h-8 w-8",
     lg: "h-12 w-12",
+    xl: "h-24 w-24 sm:h-28 sm:w-28",
   };
 
   const iconSize =
-    size === "sm" ? "h-2.5 w-2.5" : size === "md" ? "h-3 w-3" : "h-3.5 w-3.5";
+    size === "sm"
+      ? "h-2.5 w-2.5"
+      : size === "md"
+        ? "h-3 w-3"
+        : size === "lg"
+          ? "h-3.5 w-3.5"
+          : "h-4 w-4";
 
   const getRoleIcon = () => {
     switch (role) {
@@ -52,7 +59,12 @@ export function UserAvatar({
 
   return (
     <div className={cn("relative", className)}>
-      <Avatar className={cn(sizeClasses[size])}>
+      <Avatar
+        className={cn(
+          sizeClasses[size],
+          size === "xl" && "ring-background shadow-sm ring-4",
+        )}
+      >
         <AvatarImage
           src={user.avatar || undefined}
           alt={user.name}
@@ -64,6 +76,7 @@ export function UserAvatar({
             size === "sm" && "text-xs",
             size === "md" && "text-sm",
             size === "lg" && "text-base",
+            size === "xl" && "text-2xl sm:text-3xl",
           )}
         >
           {user.avatar ? (
@@ -72,6 +85,7 @@ export function UserAvatar({
                 size === "sm" && "h-3 w-3",
                 size === "md" && "h-4 w-4",
                 size === "lg" && "h-6 w-6",
+                size === "xl" && "h-10 w-10 sm:h-12 sm:w-12",
               )}
             />
           ) : (
@@ -88,6 +102,7 @@ export function UserAvatar({
             size === "sm" && "-right-0.5 -bottom-0.5 h-3.5 w-3.5",
             size === "md" && "-right-1 -bottom-1 h-5 w-5",
             size === "lg" && "-right-1 -bottom-1 h-6 w-6",
+            size === "xl" && "right-0 bottom-0 h-8 w-8",
           )}
         >
           {getRoleIcon()}

@@ -10,11 +10,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  Settings,
   User,
   Mail,
   Lock,
-  Upload,
   Save,
   AlertCircle,
   CheckCircle,
@@ -36,7 +34,6 @@ export function ProfileSettings() {
     bio: user?.bio || "",
   });
 
-  // Update form data when user data changes
   useEffect(() => {
     if (user) {
       setFormData({
@@ -45,6 +42,7 @@ export function ProfileSettings() {
       });
     }
   }, [user]);
+
   const [passwordData, setPasswordData] = useState({
     current_password: "",
     new_password: "",
@@ -145,49 +143,61 @@ export function ProfileSettings() {
     }));
   };
 
+  const accountTypeLabel =
+    user.role === 0
+      ? "Reader"
+      : user.role === 1
+        ? "Author"
+        : user.role === 2
+          ? "Editor"
+          : "Admin";
+
   return (
-    <div className="space-y-6">
-      {/* Email Verification Alert */}
+    <div className="space-y-5 sm:space-y-6">
       {!user.email_verified_at && (
-        <Alert>
-          <Mail className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            <span>
-              Your email address is not verified. Please verify to access all
-              features.
+        <Alert className="border-amber-500/25 bg-amber-500/5">
+          <Mail className="size-4 text-amber-600 dark:text-amber-400" />
+          <AlertDescription className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-sm">
+              Verify your email to unlock every feature.
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={handleSendVerification}
               disabled={sendingVerification}
+              className="shrink-0"
             >
-              {sendingVerification ? "Sending..." : "Send Verification"}
+              {sendingVerification ? "Sending…" : "Send verification"}
             </Button>
           </AlertDescription>
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Profile Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Profile Information
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight sm:text-lg">
+              <span className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-lg">
+                <User className="size-4" aria-hidden />
+              </span>
+              Profile
             </CardTitle>
+            <p className="text-muted-foreground text-sm">
+              How you appear across Rantale
+            </p>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleProfileUpdate} className="space-y-4">
+            <form onSubmit={handleProfileUpdate} className="space-y-5">
               <div className="space-y-2">
-                <Label>Profile Picture</Label>
+                <Label>Photo</Label>
                 <AvatarUpload user={user} onUpdate={() => refreshProfile()} />
               </div>
 
               <Separator />
 
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Display name</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -206,7 +216,8 @@ export function ProfileSettings() {
                   className="bg-muted"
                 />
                 <p className="text-muted-foreground text-xs">
-                  Email cannot be changed. Contact support if needed.
+                  Email can't be changed here. Contact support if you need a
+                  new address.
                 </p>
               </div>
 
@@ -216,179 +227,171 @@ export function ProfileSettings() {
                   id="bio"
                   value={formData.bio}
                   onChange={(e) => handleInputChange("bio", e.target.value)}
-                  placeholder="Tell us about yourself..."
+                  placeholder="A short line about what you read or write…"
                   rows={3}
                   maxLength={500}
                 />
-                <p className="text-muted-foreground text-xs">
-                  {formData.bio.length}/500 characters
+                <p className="text-muted-foreground text-right text-xs tabular-nums">
+                  {formData.bio.length}/500
                 </p>
               </div>
-
-              <Separator className="my-4" />
 
               <Button
                 type="submit"
                 disabled={updatingProfile}
                 className="w-full"
               >
-                <Save className="mr-2 h-4 w-4" />
-                {updatingProfile ? "Updating..." : "Update Profile"}
+                <Save className="size-4" aria-hidden />
+                {updatingProfile ? "Saving…" : "Save changes"}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        {/* Account Security */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Account Security
+        <Card className="border-border/80 shadow-none">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight sm:text-lg">
+              <span className="bg-muted flex size-8 items-center justify-center rounded-lg">
+                <Shield className="size-4" aria-hidden />
+              </span>
+              Security
             </CardTitle>
+            <p className="text-muted-foreground text-sm">
+              Keep your account locked down
+            </p>
           </CardHeader>
           <CardContent>
             {user.provider !== "google" ? (
-              <>
-                <form onSubmit={handlePasswordUpdate} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="current_password">Current Password</Label>
-                    <Input
-                      id="current_password"
-                      type="password"
-                      value={passwordData.current_password}
-                      onChange={(e) =>
-                        handlePasswordChange("current_password", e.target.value)
-                      }
-                      placeholder="Enter current password"
-                      required
-                    />
-                  </div>
+              <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current_password">Current password</Label>
+                  <Input
+                    id="current_password"
+                    type="password"
+                    value={passwordData.current_password}
+                    onChange={(e) =>
+                      handlePasswordChange("current_password", e.target.value)
+                    }
+                    placeholder="Enter current password"
+                    required
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="new_password">New Password</Label>
-                    <Input
-                      id="new_password"
-                      type="password"
-                      value={passwordData.new_password}
-                      onChange={(e) =>
-                        handlePasswordChange("new_password", e.target.value)
-                      }
-                      placeholder="Enter new password"
-                      minLength={8}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new_password">New password</Label>
+                  <Input
+                    id="new_password"
+                    type="password"
+                    value={passwordData.new_password}
+                    onChange={(e) =>
+                      handlePasswordChange("new_password", e.target.value)
+                    }
+                    placeholder="At least 8 characters"
+                    minLength={8}
+                    required
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm_password">
-                      Confirm New Password
-                    </Label>
-                    <Input
-                      id="confirm_password"
-                      type="password"
-                      value={passwordData.confirm_password}
-                      onChange={(e) =>
-                        handlePasswordChange("confirm_password", e.target.value)
-                      }
-                      placeholder="Confirm new password"
-                      minLength={8}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm_password">Confirm new password</Label>
+                  <Input
+                    id="confirm_password"
+                    type="password"
+                    value={passwordData.confirm_password}
+                    onChange={(e) =>
+                      handlePasswordChange("confirm_password", e.target.value)
+                    }
+                    placeholder="Repeat new password"
+                    minLength={8}
+                    required
+                  />
+                </div>
 
-                  <Button
-                    type="submit"
-                    disabled={updatingPassword}
-                    className="w-full"
-                  >
-                    <Lock className="mr-2 h-4 w-4" />
-                    {updatingPassword ? "Updating..." : "Update Password"}
-                  </Button>
-                </form>
-
-                <Separator className="my-6" />
-              </>
+                <Button
+                  type="submit"
+                  disabled={updatingPassword}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  <Lock className="size-4" aria-hidden />
+                  {updatingPassword ? "Updating…" : "Update password"}
+                </Button>
+              </form>
             ) : (
-              <>
-                <Alert className="mb-6">
-                  <Shield className="h-4 w-4" />
-                  <AlertDescription>
-                    You're signed in with Google. Your password is managed
-                    through your Google account for enhanced security.
-                  </AlertDescription>
-                </Alert>
-                <Separator className="my-6" />
-              </>
+              <Alert>
+                <Shield className="size-4" />
+                <AlertDescription>
+                  You're signed in with Google. Password changes happen in your
+                  Google account.
+                </AlertDescription>
+              </Alert>
             )}
 
-            {/* Account Info */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Account Information</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account Type</span>
-                  <Badge variant="secondary">
-                    {user.role === 0
-                      ? "Reader"
-                      : user.role === 1
-                        ? "Author"
-                        : user.role === 2
-                          ? "Editor"
-                          : "Admin"}
-                  </Badge>
+            <Separator className="my-6" />
+
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium">Account</h4>
+              <dl className="space-y-2.5 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-muted-foreground">Type</dt>
+                  <dd>
+                    <Badge variant="secondary">{accountTypeLabel}</Badge>
+                  </dd>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Email Status</span>
-                  <Badge
-                    variant={user.email_verified_at ? "default" : "outline"}
-                  >
-                    {user.email_verified_at ? (
-                      <>
-                        <CheckCircle className="mr-1 h-3 w-3" />
-                        Verified
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="mr-1 h-3 w-3" />
-                        Unverified
-                      </>
-                    )}
-                  </Badge>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-muted-foreground">Email</dt>
+                  <dd>
+                    <Badge
+                      variant={user.email_verified_at ? "default" : "outline"}
+                    >
+                      {user.email_verified_at ? (
+                        <>
+                          <CheckCircle className="mr-1 size-3" aria-hidden />
+                          Verified
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="mr-1 size-3" aria-hidden />
+                          Unverified
+                        </>
+                      )}
+                    </Badge>
+                  </dd>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Login Method</span>
-                  <Badge variant="outline">
-                    {user.provider === "google" ? "Google" : "Email"}
-                  </Badge>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-muted-foreground">Sign-in</dt>
+                  <dd>
+                    <Badge variant="outline">
+                      {user.provider === "google" ? "Google" : "Email"}
+                    </Badge>
+                  </dd>
                 </div>
-              </div>
+              </dl>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Danger Zone */}
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            Danger Zone
+      <Card className="border-destructive/30 bg-destructive/[0.02] shadow-none">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-destructive flex items-center gap-2 text-base font-semibold tracking-tight">
+            <AlertCircle className="size-4" aria-hidden />
+            Danger zone
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h4 className="mb-2 font-medium">Delete Account</h4>
-              <p className="text-muted-foreground mb-4 text-sm">
-                Once you delete your account, there is no going back. Please be
-                certain.
+              <h4 className="text-sm font-medium">Delete account</h4>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Permanently remove your account and reading data. This can't be
+                undone.
               </p>
-              <Button variant="destructive" disabled>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Account (Contact Support)
-              </Button>
             </div>
+            <Button variant="destructive" disabled className="shrink-0">
+              <Trash2 className="size-4" aria-hidden />
+              Contact support
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -4,9 +4,6 @@ import { libraryService } from "@/services/library";
 import {
   LibraryEntry,
   LibraryResponse,
-  LibraryStatusResponse,
-  AddToLibraryRequest,
-  UpdateLibraryEntryRequest,
 } from "@/types/api";
 import { useApi, useAsync } from "./use-api";
 
@@ -22,11 +19,21 @@ export function useUserLibrary(
   );
 }
 
-// Alias for consistency with component expectations
-export function useLibrary(status?: string) {
+// Alias for consistency with component expectations.
+// Pass filter "favorites" to request favorites=true; "all"/undefined for everything.
+export function useLibrary(filter?: string, page = 1) {
+  const isFavorites = filter === "favorites";
+  const status =
+    !filter || filter === "all" || isFavorites ? undefined : filter;
+
   return useApi<LibraryResponse>(
-    () => libraryService.getUserLibrary(1, status),
-    [status],
+    () =>
+      libraryService.getUserLibrary(
+        page,
+        status,
+        isFavorites ? true : undefined,
+      ),
+    [filter, page],
   );
 }
 
