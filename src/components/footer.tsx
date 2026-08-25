@@ -220,7 +220,7 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
           <div className="text-muted-foreground flex items-center space-x-4 text-sm">
             <span>
-              © 2025 Rantale. All novel rights belong to their respective
+              © 2025-2026 Rantale. All novel rights belong to their respective
               authors.
             </span>
           </div>
