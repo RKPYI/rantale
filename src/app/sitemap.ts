@@ -16,6 +16,15 @@ interface NovelApiResponse {
   };
 }
 
+interface Chapter {
+  chapter_number: number;
+}
+
+interface ChapterApiResponse {
+  message: string;
+  chapters: Chapter[];
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Base URL for your site
   const baseUrl =
@@ -110,7 +119,53 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
+    // Fetch published chapters for each novel and map them to sitemap entries.
+    const chapterRoutes = (
+      await Promise.all(
+        allNovels.map(async (novel) => {
+          try {
+            const response = await fetch(
+              `${apiBaseUrl}/novels/${novel.slug}/chapters`,
+              {
+                next: { revalidate: 3600 },
+              },
+            );
+
+            if (!response.ok) {
+              console.error(
+                `Failed to fetch chapters for sitemap (${novel.slug}):`,
+                response.statusText,
+              );
+              return [];
+            }
+
+            const data: ChapterApiResponse = await response.json();
+
+            return Array.isArray(data.chapters)
+              ? data.chapters.map((chapter) => ({
+                  url: `${baseUrl}/novels/${novel.slug}/chapters/${chapter.chapter_number}`,
+                  lastModified: new Date(novel.updated_at),
+                  changeFrequency:
+                    novel.status === "ongoing"
+                      ? ("weekly" as const)
+                      : ("monthly" as const),
+                  priority: 0.6,
+                }))
+              : [];
+          } catch (error) {
+            console.error(
+              `Error fetching chapters for sitemap (${novel.slug}):`,
+              error,
+            );
+            return [];
+          }
+        }),
+      )
+    ).flat();
+
     console.log(`✓ Added ${novelRoutes.length} novels to sitemap`);
+    console.log(`✓ Added ${chapterRoutes.length} chapters to sitemap`);
+    return [...staticRoutes, ...novelRoutes, ...chapterRoutes];
   } catch (error) {
     console.error("Error fetching novels for sitemap:", error);
     // Return static routes only if API fails
