@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DeleteModal } from "@/components/ui/delete-modal";
 import { MessageSquare } from "lucide-react";
@@ -74,7 +79,10 @@ export function CommentSection({
   const { loading: submittingComment, execute: executeCommentAction } =
     useAsync();
 
-  const comments = commentsData?.comments.data || [];
+  const comments = useMemo(
+    () => commentsData?.comments.data ?? [],
+    [commentsData?.comments.data],
+  );
   const totalComments = commentsData?.total_comments_count || 0;
   const sortedComments = sortComments(comments, sortBy);
 
@@ -154,7 +162,6 @@ export function CommentSection({
 
       fetchAllUserVotes();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comments, isAuthenticated]);
 
   // Memoized callback functions to prevent unnecessary re-renders
@@ -266,7 +273,11 @@ export function CommentSection({
         // Update local vote state immediately for better UX
         const currentVote = userVotes.get(commentId);
         const newVote = currentVote === isUpvote ? null : isUpvote;
-        setUserVotes((prev) => new Map(prev.set(commentId, newVote)));
+        setUserVotes((prev) => {
+          const next = new Map(prev);
+          next.set(commentId, newVote);
+          return next;
+        });
 
         // Silent background refetch to update vote counts without flickering
         silentRefetchComments();
@@ -316,110 +327,106 @@ export function CommentSection({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Comments for {title}
-          </CardTitle>
-          <div className="text-muted-foreground flex items-center justify-between text-sm">
-            <span>{totalComments} comments</span>
-            <div className="flex items-center gap-2">
-              <label className="text-xs">Sort by:</label>
-              <select
-                value={sortBy}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  setSortBy(e.target.value as SortOption)
-                }
-                className="rounded border px-2 py-1 text-xs"
-              >
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-                <option value="popular">Most Popular</option>
-                <option value="controversial">Controversial</option>
-              </select>
-            </div>
+      <div className="border-border/70 space-y-3 border-b pb-4">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-5 w-5" />
+          <h2 className="text-base font-semibold md:text-lg">Comments</h2>
+        </div>
+        <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-muted-foreground">
+            {totalComments} comments on {title}
+          </span>
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="comments-sort"
+              className="text-muted-foreground text-xs"
+            >
+              Sort
+            </label>
+            <select
+              id="comments-sort"
+              value={sortBy}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setSortBy(e.target.value as SortOption)
+              }
+              className="bg-background border-border/70 h-8 rounded-md border px-2 text-xs"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="popular">Most Popular</option>
+              <option value="controversial">Controversial</option>
+            </select>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
+      </div>
 
       {/* New comment form */}
       {isAuthenticated ? (
-        <Card>
-          <CardContent className="p-4">
-            <CommentForm
-              value={newComment}
-              onChange={setNewComment}
-              onSubmit={handleCreateComment}
-              isSpoiler={isSpoiler}
-              onSpoilerChange={setIsSpoiler}
-              placeholder="Share your thoughts about this novel/chapter..."
-              submitText="Post Comment"
-              isSubmitting={submittingComment}
-            />
-          </CardContent>
-        </Card>
+        <div className="border-border/70 rounded-md border p-4">
+          <CommentForm
+            value={newComment}
+            onChange={setNewComment}
+            onSubmit={handleCreateComment}
+            isSpoiler={isSpoiler}
+            onSpoilerChange={setIsSpoiler}
+            placeholder="Share your thoughts about this novel/chapter..."
+            submitText="Post Comment"
+            isSubmitting={submittingComment}
+          />
+        </div>
       ) : authLoading ? (
-        <Card>
-          <CardContent className="space-y-3 p-4">
-            {/* Textarea skeleton */}
-            <Skeleton className="h-24 w-full rounded-md" />
+        <div className="border-border/70 space-y-3 rounded-md border p-4">
+          {/* Textarea skeleton */}
+          <Skeleton className="h-24 w-full rounded-md" />
 
-            {/* Checkbox + button row skeleton */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-4 w-4 rounded-sm" /> {/* checkbox */}
-                <Skeleton className="h-4 w-40" /> {/* label */}
-              </div>
-              <Skeleton className="h-9 w-28 rounded-md" /> {/* button */}
+          {/* Checkbox + button row skeleton */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4 rounded-sm" /> {/* checkbox */}
+              <Skeleton className="h-4 w-40" /> {/* label */}
             </div>
-          </CardContent>
-        </Card>
+            <Skeleton className="h-9 w-28 rounded-md" /> {/* button */}
+          </div>
+        </div>
       ) : (
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-muted-foreground mb-3">
-              Please sign in to leave a comment
-            </p>
-            <AuthModal
-              trigger={<Button variant="outline">Sign In</Button>}
-              onSuccess={refetchComments}
-            />
-          </CardContent>
-        </Card>
+        <div className="border-border/70 rounded-md border p-4 text-center">
+          <p className="text-muted-foreground mb-3">
+            Please sign in to leave a comment
+          </p>
+          <AuthModal
+            trigger={<Button variant="outline">Sign In</Button>}
+            onSuccess={refetchComments}
+          />
+        </div>
       )}
 
       {/* Comments List */}
       {commentsLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4">
-                <div className="animate-pulse space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-muted h-8 w-8 rounded-full"></div>
-                    <div className="bg-muted h-4 w-24 rounded"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-muted h-4 w-full rounded"></div>
-                    <div className="bg-muted h-4 w-3/4 rounded"></div>
-                  </div>
+            <div key={i} className="border-border/70 rounded-md border p-4">
+              <div className="animate-pulse space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="bg-muted h-8 w-8 rounded-full"></div>
+                  <div className="bg-muted h-4 w-24 rounded"></div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="space-y-2">
+                  <div className="bg-muted h-4 w-full rounded"></div>
+                  <div className="bg-muted h-4 w-3/4 rounded"></div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       ) : commentsError ? (
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="mb-3 text-red-500">
-              Error loading comments: {commentsError}
-            </p>
-            <Button variant="outline" onClick={refetchComments}>
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="rounded-md border border-red-300/70 p-4 text-center dark:border-red-800/70">
+          <p className="mb-3 text-red-500">
+            Error loading comments: {commentsError}
+          </p>
+          <Button variant="outline" onClick={refetchComments}>
+            Try Again
+          </Button>
+        </div>
       ) : sortedComments.length > 0 ? (
         <div className="space-y-4">
           {sortedComments.map((comment) => (
@@ -448,15 +455,13 @@ export function CommentSection({
           ))}
         </div>
       ) : (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <MessageSquare className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-            <h3 className="mb-2 font-medium">No comments yet</h3>
-            <p className="text-muted-foreground">
-              Be the first to share your thoughts!
-            </p>
-          </CardContent>
-        </Card>
+        <div className="border-border/70 rounded-md border border-dashed p-8 text-center">
+          <MessageSquare className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+          <h3 className="mb-2 font-medium">No comments yet</h3>
+          <p className="text-muted-foreground">
+            Be the first to share your thoughts!
+          </p>
+        </div>
       )}
 
       {/* Delete Confirmation Modal */}

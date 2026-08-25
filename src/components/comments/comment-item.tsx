@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, memo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CornerDownRight } from "lucide-react";
 import { CommentItemProps } from "./types";
@@ -91,7 +90,7 @@ const CommentItemComponent = ({
     <div
       className={`space-y-3 ${
         visualDepth > 0
-          ? `border-muted ml-4 border-l-2 pl-3 md:ml-6 md:pl-4 ${isDeepComment ? "border-dashed" : ""}`
+          ? `border-muted/60 ml-3 border-l pl-3 md:ml-5 md:pl-4 ${isDeepComment ? "border-dashed" : ""}`
           : ""
       }`}
     >
@@ -104,67 +103,65 @@ const CommentItemComponent = ({
         </div>
       )}
 
-      <Card className="transition-shadow hover:shadow-sm">
-        <CardContent className="p-4">
-          <CommentHeader
-            comment={comment}
-            canEdit={!!canEdit}
-            isEditing={isEditing}
-            onStartEdit={() => onStartEdit(comment)}
-            onDelete={() => onDelete(comment.id)}
-          />
+      <article className="border-border/70 rounded-md border bg-transparent p-3 sm:p-4">
+        <CommentHeader
+          comment={comment}
+          canEdit={!!canEdit}
+          isEditing={isEditing}
+          onStartEdit={() => onStartEdit(comment)}
+          onDelete={() => onDelete(comment.id)}
+        />
 
-          <CommentContent
-            comment={comment}
-            isEditing={isEditing}
-            isSpoilerOpen={openSpoilers.has(comment.id)}
-            editContent={editContent}
-            onEditContentChange={setEditContent}
-            onSubmitEdit={handleSubmitEdit}
-            onCancelEdit={handleCancelEdit}
-            onToggleSpoiler={() => onToggleSpoiler(comment.id)}
-            isSubmitting={isSubmitting}
-          />
+        <CommentContent
+          comment={comment}
+          isEditing={isEditing}
+          isSpoilerOpen={openSpoilers.has(comment.id)}
+          editContent={editContent}
+          onEditContentChange={setEditContent}
+          onSubmitEdit={handleSubmitEdit}
+          onCancelEdit={handleCancelEdit}
+          onToggleSpoiler={() => onToggleSpoiler(comment.id)}
+          isSubmitting={isSubmitting}
+        />
 
-          <CommentActions
-            comment={comment}
-            userId={userId}
-            userVote={userVotes.get(comment.id) ?? null}
-            depth={depth}
-            maxDepth={maxDepth}
-            isEditing={isEditing}
-            isReplying={isReplying}
-            onVote={(isUpvote) => onVote(comment.id, isUpvote)}
-            onToggleReply={() => {
-              if (isReplying) {
-                handleCancelReply();
-              } else {
-                onStartReply(comment.id);
-              }
-            }}
-            isSubmitting={isSubmitting}
-          />
+        <CommentActions
+          comment={comment}
+          userId={userId}
+          userVote={userVotes.get(comment.id) ?? null}
+          depth={depth}
+          maxDepth={maxDepth}
+          isEditing={isEditing}
+          isReplying={isReplying}
+          onVote={(isUpvote) => onVote(comment.id, isUpvote)}
+          onToggleReply={() => {
+            if (isReplying) {
+              handleCancelReply();
+            } else {
+              onStartReply(comment.id);
+            }
+          }}
+          isSubmitting={isSubmitting}
+        />
 
-          {/* Reply form */}
-          {isReplying && (
-            <div className="mt-3 border-t pt-3">
-              <CommentForm
-                value={replyContent}
-                onChange={setReplyContent}
-                onSubmit={handleSubmitReply}
-                onCancel={handleCancelReply}
-                isSpoiler={replyIsSpoiler}
-                onSpoilerChange={setReplyIsSpoiler}
-                placeholder="Write a reply..."
-                submitText="Reply"
-                isSubmitting={isSubmitting}
-                autoFocus={true}
-                showCancel={true}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {/* Reply form */}
+        {isReplying && (
+          <div className="border-border/60 mt-3 border-t pt-3">
+            <CommentForm
+              value={replyContent}
+              onChange={setReplyContent}
+              onSubmit={handleSubmitReply}
+              onCancel={handleCancelReply}
+              isSpoiler={replyIsSpoiler}
+              onSpoilerChange={setReplyIsSpoiler}
+              placeholder="Write a reply..."
+              submitText="Reply"
+              isSubmitting={isSubmitting}
+              autoFocus={true}
+              showCancel={true}
+            />
+          </div>
+        )}
+      </article>
 
       {/* Replies */}
       {comment.replies && comment.replies.length > 0 && (
@@ -174,7 +171,7 @@ const CommentItemComponent = ({
             variant="ghost"
             size="sm"
             onClick={() => onToggleRepliesCollapsed(comment.id)}
-            className="text-muted-foreground hover:text-foreground -ml-2 gap-2 text-xs"
+            className="text-muted-foreground hover:text-foreground -ml-1 h-7 gap-2 px-1 text-xs"
           >
             <CornerDownRight className="h-3 w-3" />
             {repliesCollapsed

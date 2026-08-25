@@ -25,13 +25,13 @@ export function CommentContent({
 }: CommentContentProps) {
   if (comment.is_spoiler) {
     return (
-      <div className="mb-3">
+      <div className="mb-3 space-y-2">
         <Collapsible open={isSpoilerOpen} onOpenChange={onToggleSpoiler}>
           <CollapsibleTrigger asChild>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="mb-2 w-full justify-start"
+              className="text-muted-foreground h-8 justify-start px-2"
             >
               <AlertTriangle className="mr-2 h-4 w-4 text-amber-500" />
               {isSpoilerOpen ? "Hide Spoiler" : "Show Spoiler"}
@@ -45,6 +45,7 @@ export function CommentContent({
                   onChange={(e) => onEditContentChange(e.target.value)}
                   placeholder="Edit your comment..."
                   rows={3}
+                  className="min-h-[84px] resize-y"
                 />
                 <div className="flex gap-2">
                   <Button
@@ -60,13 +61,13 @@ export function CommentContent({
                 </div>
               </div>
             ) : (
-              <p className="rounded border border-amber-200 bg-amber-50 p-3 text-sm whitespace-pre-wrap dark:border-amber-800 dark:bg-amber-950">
+              <p className="bg-muted/50 rounded-md border border-amber-300/60 p-3 text-sm whitespace-pre-wrap dark:border-amber-800/60">
                 {comment.content}
               </p>
             )}
           </CollapsibleContent>
         </Collapsible>
-        <Badge variant="outline" className="mt-2 text-xs">
+        <Badge variant="outline" className="text-xs">
           <AlertTriangle className="mr-1 h-3 w-3" />
           Spoiler
         </Badge>
@@ -83,6 +84,7 @@ export function CommentContent({
             onChange={(e) => onEditContentChange(e.target.value)}
             placeholder="Edit your comment..."
             rows={3}
+            className="min-h-[84px] resize-y"
           />
           <div className="flex gap-2">
             <Button

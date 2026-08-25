@@ -33,8 +33,9 @@ export function CommentForm({
         placeholder={placeholder}
         rows={showCancel ? 3 : 4}
         autoFocus={autoFocus}
+        className="min-h-[96px] resize-y"
       />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Checkbox
             id={`spoiler-${showCancel ? "reply" : "comment"}`}
@@ -48,7 +49,12 @@ export function CommentForm({
             This comment contains spoilers
           </label>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center justify-end gap-2">
+          {showCancel && onCancel && (
+            <Button size="sm" variant="ghost" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
           <Button
             onClick={handleSubmit}
             disabled={!value.trim() || isSubmitting}
@@ -56,11 +62,6 @@ export function CommentForm({
           >
             {isSubmitting ? "Posting..." : submitText}
           </Button>
-          {showCancel && onCancel && (
-            <Button size="sm" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-          )}
         </div>
       </div>
     </div>
