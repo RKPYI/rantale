@@ -9,37 +9,30 @@ import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import {
   ArrowLeft,
-  ArrowRight,
   BookOpen,
-  SlidersHorizontal,
   Eye,
   Clock,
   ChevronLeft,
   ChevronRight,
   Home,
-  List,
   MessageSquare,
-  Bookmark,
   ArrowUp,
   WifiOff,
   Type,
   Edit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { CommentSection } from "@/components/comments/comment-section";
 import { ShareButton } from "@/components/ui/share-button";
 import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
-import { ChapterDownloadButton } from "@/components/chapters/chapter-download-button";
 import { ChapterDialog } from "@/components/author/chapter-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
@@ -48,7 +41,6 @@ import { readingProgressService } from "@/services/reading-progress";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Chapter, ChapterSummary } from "@/types/api";
-import { toast } from "sonner";
 
 // Local storage keys
 const READING_SETTINGS_KEY = "chapter-reading-settings";
@@ -56,7 +48,7 @@ const READING_SETTINGS_KEY = "chapter-reading-settings";
 // Default settings
 const DEFAULT_SETTINGS = {
   fontSize: 20,
-  maxWidth: 800,
+  maxWidth: 780,
 };
 
 // Utility functions for localStorage
@@ -227,16 +219,20 @@ export function ChapterReadingView({
 
       {/* Header Navigation */}
       <div className="bg-background/95 sticky top-1 z-50 border-b shadow-sm backdrop-blur-sm">
-        <div className="container mx-auto px-2 py-3 md:px-4">
+        <div className="container mx-auto px-2 py-2 md:px-4 md:py-3">
           <div className="flex items-center">
             {/* Left: Back Navigation */}
-            <div className="flex min-w-0 flex-1 items-center gap-1 md:gap-2">
+            <div className="flex min-w-0 flex-1 items-center gap-1">
               <Link href={`/novels/${novel.slug}`}>
                 <Button variant="ghost" size="sm" className="hidden sm:flex">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Novel
                 </Button>
-                <Button variant="ghost" size="icon" className="sm:hidden">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 sm:hidden"
+                >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               </Link>
@@ -252,11 +248,11 @@ export function ChapterReadingView({
             </div>
 
             {/* Center: Chapter Info */}
-            <div className="hidden flex-shrink-0 px-2 text-center md:block md:px-4">
-              <div className="truncate text-xs font-medium sm:text-sm">
+            <div className="hidden flex-shrink-0 px-2 text-center lg:block lg:px-4">
+              <div className="max-w-xs truncate text-sm font-medium">
                 {novel.title}
               </div>
-              <div className="text-muted-foreground truncate text-xs">
+              <div className="text-muted-foreground max-w-xs truncate text-xs">
                 Ch. {chapter.chapter_number}: {chapter.title}
               </div>
             </div>
@@ -270,6 +266,7 @@ export function ChapterReadingView({
                   size="icon"
                   onClick={() => setShowEditDialog(true)}
                   title="Edit Chapter (Admin)"
+                  className="h-9 w-9"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -302,7 +299,7 @@ export function ChapterReadingView({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
                     <Type className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -397,20 +394,30 @@ export function ChapterReadingView({
                 description={`Read Chapter ${chapter.chapter_number}: ${chapter.title} of ${novel.title} by ${novel.author}`}
                 variant="ghost"
                 size="icon"
+                className="h-9 w-9"
               />
+            </div>
+          </div>
+
+          <div className="mt-1 px-1 lg:hidden">
+            <div className="text-sm leading-tight font-medium">
+              {novel.title}
+            </div>
+            <div className="text-muted-foreground truncate text-xs leading-tight">
+              Ch. {chapter.chapter_number}: {chapter.title}
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 md:py-8">
+      <main className="container mx-auto px-3 py-4 pb-24 sm:px-4 md:py-8 md:pb-8">
         <div className="flex flex-col items-center">
           {/* Offline Reading Indicator */}
           {mounted && isOffline && (
             <div className="mb-6 w-full" style={{ maxWidth: `${maxWidth}px` }}>
-              <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
-                <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-lg border border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/20">
+                <div className="flex items-center gap-3">
                   <WifiOff className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                   <div className="flex-1">
                     <p className="font-medium text-amber-900 dark:text-amber-100">
@@ -420,27 +427,25 @@ export function ChapterReadingView({
                       You are viewing a downloaded copy of this chapter
                     </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Chapter Header */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
-            <Card>
-              <CardHeader className="text-center">
-                <div className="space-y-2">
-                  <Badge variant="outline">{novel.author}</Badge>
-                  <CardTitle className="text-2xl md:text-3xl">
-                    {novel.title}
-                  </CardTitle>
-                  <h1 className="text-muted-foreground text-xl font-semibold md:text-2xl">
-                    Chapter {chapter.chapter_number}: {chapter.title}
-                  </h1>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2 text-center">
-                <div className="text-muted-foreground flex items-center justify-center gap-4 text-sm">
+            <header className="border-border/70 border-b pb-6 text-center">
+              <div className="space-y-2">
+                <Badge variant="outline">{novel.author}</Badge>
+                <h2 className="text-xl leading-tight font-semibold md:text-3xl">
+                  {novel.title}
+                </h2>
+                <h1 className="text-muted-foreground text-lg leading-snug font-semibold md:text-2xl">
+                  Chapter {chapter.chapter_number}: {chapter.title}
+                </h1>
+              </div>
+              <div className="mt-4 space-y-2 text-center">
+                <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     <span>
@@ -463,209 +468,251 @@ export function ChapterReadingView({
                     <Badge variant="secondary">Premium Chapter</Badge>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </header>
           </div>
 
           {/* Chapter Content */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
-            <Card>
-              <CardContent className="p-6 md:p-8">
-                <div
-                  className="prose prose-gray dark:prose-invert max-w-none"
-                  style={{
-                    fontSize: `${fontSize}px`,
+            <article className="border-border/70 border-b pb-8 sm:px-4 md:px-8">
+              <div
+                className="prose prose-gray dark:prose-invert max-w-none text-pretty break-words"
+                style={{
+                  fontSize: `${fontSize}px`,
+                  lineHeight: 1.95,
+                  letterSpacing: "0.01em",
+                }}
+              >
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize]}
+                  components={{
+                    // Customize heading styles
+                    h1: ({ node, ...props }) => (
+                      <h1
+                        className="mt-6 mb-4 text-2xl leading-tight font-bold md:text-3xl"
+                        {...props}
+                      />
+                    ),
+                    h2: ({ node, ...props }) => (
+                      <h2
+                        className="mt-5 mb-3 text-xl leading-tight font-semibold md:text-2xl"
+                        {...props}
+                      />
+                    ),
+                    h3: ({ node, ...props }) => (
+                      <h3
+                        className="mt-4 mb-2 text-lg leading-tight font-semibold md:text-xl"
+                        {...props}
+                      />
+                    ),
+                    // Customize paragraph spacing
+                    p: ({ node, ...props }) => (
+                      <p
+                        className="mb-5 leading-[1.95] tracking-[0.01em]"
+                        {...props}
+                      />
+                    ),
+                    // Customize blockquote style
+                    blockquote: ({ node, ...props }) => (
+                      <blockquote
+                        className="border-primary/30 text-muted-foreground my-4 border-l-4 pl-4 italic"
+                        {...props}
+                      />
+                    ),
+                    // Customize code blocks
+                    code: ({ node, className, children, ...props }) => {
+                      const isInline = !className?.includes("language-");
+                      return isInline ? (
+                        <code
+                          className="bg-muted rounded px-1.5 py-0.5 font-mono text-sm"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      ) : (
+                        <code
+                          className="bg-muted block overflow-x-auto rounded-md p-4 font-mono text-sm"
+                          {...props}
+                        >
+                          {children}
+                        </code>
+                      );
+                    },
+                    // Customize lists
+                    ul: ({ node, ...props }) => (
+                      <ul
+                        className="my-4 ml-6 list-disc space-y-2"
+                        {...props}
+                      />
+                    ),
+                    ol: ({ node, ...props }) => (
+                      <ol
+                        className="my-4 ml-6 list-decimal space-y-2"
+                        {...props}
+                      />
+                    ),
+                    // Customize links
+                    a: ({ node, ...props }) => (
+                      <a
+                        className="text-primary font-medium hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        {...props}
+                      />
+                    ),
+                    // Customize horizontal rules
+                    hr: ({ node, ...props }) => (
+                      <hr className="border-border my-8" {...props} />
+                    ),
+                    // Customize images
+                    img: ({ node, src, alt, ...props }) => {
+                      // Prevent empty src attribute error
+                      if (!src) return null;
+                      return (
+                        <img
+                          src={src}
+                          alt={alt || ""}
+                          className="my-4 h-auto max-w-full rounded-lg"
+                          {...props}
+                        />
+                      );
+                    },
+                    // Customize tables
+                    table: ({ node, ...props }) => (
+                      <div className="my-6 overflow-x-auto">
+                        <table
+                          className="border-border w-full border-collapse border"
+                          {...props}
+                        />
+                      </div>
+                    ),
+                    thead: ({ node, ...props }) => (
+                      <thead className="bg-muted" {...props} />
+                    ),
+                    tbody: ({ node, ...props }) => <tbody {...props} />,
+                    tr: ({ node, ...props }) => (
+                      <tr className="border-border border-b" {...props} />
+                    ),
+                    th: ({ node, ...props }) => (
+                      <th
+                        className="border-border border px-4 py-3 text-left font-semibold"
+                        {...props}
+                      />
+                    ),
+                    td: ({ node, ...props }) => (
+                      <td
+                        className="border-border border px-4 py-3"
+                        {...props}
+                      />
+                    ),
                   }}
                 >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw, rehypeSanitize]}
-                    components={{
-                      // Customize heading styles
-                      h1: ({ node, ...props }) => (
-                        <h1
-                          className="mt-6 mb-4 text-3xl font-bold"
-                          {...props}
-                        />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <h2
-                          className="mt-5 mb-3 text-2xl font-semibold"
-                          {...props}
-                        />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <h3
-                          className="mt-4 mb-2 text-xl font-semibold"
-                          {...props}
-                        />
-                      ),
-                      // Customize paragraph spacing
-                      p: ({ node, ...props }) => (
-                        <p className="mb-4 leading-relaxed" {...props} />
-                      ),
-                      // Customize blockquote style
-                      blockquote: ({ node, ...props }) => (
-                        <blockquote
-                          className="border-primary/30 text-muted-foreground my-4 border-l-4 pl-4 italic"
-                          {...props}
-                        />
-                      ),
-                      // Customize code blocks
-                      code: ({ node, className, children, ...props }) => {
-                        const isInline = !className?.includes("language-");
-                        return isInline ? (
-                          <code
-                            className="bg-muted rounded px-1.5 py-0.5 font-mono text-sm"
-                            {...props}
-                          >
-                            {children}
-                          </code>
-                        ) : (
-                          <code
-                            className="bg-muted block overflow-x-auto rounded-md p-4 font-mono text-sm"
-                            {...props}
-                          >
-                            {children}
-                          </code>
-                        );
-                      },
-                      // Customize lists
-                      ul: ({ node, ...props }) => (
-                        <ul
-                          className="my-4 ml-6 list-disc space-y-2"
-                          {...props}
-                        />
-                      ),
-                      ol: ({ node, ...props }) => (
-                        <ol
-                          className="my-4 ml-6 list-decimal space-y-2"
-                          {...props}
-                        />
-                      ),
-                      // Customize links
-                      a: ({ node, ...props }) => (
-                        <a
-                          className="text-primary font-medium hover:underline"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          {...props}
-                        />
-                      ),
-                      // Customize horizontal rules
-                      hr: ({ node, ...props }) => (
-                        <hr className="border-border my-8" {...props} />
-                      ),
-                      // Customize images
-                      img: ({ node, src, alt, ...props }) => {
-                        // Prevent empty src attribute error
-                        if (!src) return null;
-                        return (
-                          <img
-                            src={src}
-                            alt={alt || ""}
-                            className="my-4 h-auto max-w-full rounded-lg"
-                            {...props}
-                          />
-                        );
-                      },
-                      // Customize tables
-                      table: ({ node, ...props }) => (
-                        <div className="my-6 overflow-x-auto">
-                          <table
-                            className="border-border w-full border-collapse border"
-                            {...props}
-                          />
-                        </div>
-                      ),
-                      thead: ({ node, ...props }) => (
-                        <thead className="bg-muted" {...props} />
-                      ),
-                      tbody: ({ node, ...props }) => <tbody {...props} />,
-                      tr: ({ node, ...props }) => (
-                        <tr className="border-border border-b" {...props} />
-                      ),
-                      th: ({ node, ...props }) => (
-                        <th
-                          className="border-border border px-4 py-3 text-left font-semibold"
-                          {...props}
-                        />
-                      ),
-                      td: ({ node, ...props }) => (
-                        <td
-                          className="border-border border px-4 py-3"
-                          {...props}
-                        />
-                      ),
-                    }}
-                  >
-                    {chapter.content}
-                  </ReactMarkdown>
-                </div>
-              </CardContent>
-            </Card>
+                  {chapter.content}
+                </ReactMarkdown>
+              </div>
+            </article>
           </div>
 
           {/* Navigation Footer */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  {previousChapter ? (
-                    <Link
-                      href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
-                    >
-                      <Button variant="outline" className="flex items-center">
-                        <ChevronLeft className="h-4 w-4" />
-                        <div className="hidden text-left md:block">
-                          <div className="text-sm">
-                            Chapter {previousChapter.chapter_number}
-                          </div>
-                        </div>
-                      </Button>
-                    </Link>
-                  ) : (
+            <nav className="space-y-4 border-b px-1 pb-6 md:space-y-0 md:px-2">
+              <div className="text-center">
+                <div className="text-muted-foreground text-sm font-medium">
+                  Chapter {chapter.chapter_number} of {allChapters.length}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 md:hidden">
+                {previousChapter ? (
+                  <Link
+                    href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
+                  >
                     <Button
                       variant="outline"
-                      className="invisible flex items-center"
+                      className="w-full justify-center gap-1"
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      <div className="hidden text-left md:block">
-                        <div className="text-sm">Placeholder</div>
+                      Prev
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="w-full justify-center gap-1"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Prev
+                  </Button>
+                )}
+
+                {nextChapter ? (
+                  <Link
+                    href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
+                  >
+                    <Button className="w-full justify-center gap-1">
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button disabled className="w-full justify-center gap-1">
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              <div className="hidden items-center justify-between md:flex">
+                {previousChapter ? (
+                  <Link
+                    href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
+                  >
+                    <Button variant="outline" className="flex items-center">
+                      <ChevronLeft className="h-4 w-4" />
+                      <div className="text-left">
+                        <div className="text-sm">
+                          Chapter {previousChapter.chapter_number}
+                        </div>
                       </div>
                     </Button>
-                  )}
-
-                  <div className="text-center">
-                    <div className="text-muted-foreground text-sm">
-                      Chapter {chapter.chapter_number} of {allChapters.length}
+                  </Link>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="invisible flex items-center"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <div className="text-left">
+                      <div className="text-sm">Placeholder</div>
                     </div>
-                  </div>
+                  </Button>
+                )}
 
-                  {nextChapter ? (
-                    <Link
-                      href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
-                    >
-                      <Button className="flex items-center gap-2">
-                        <div className="hidden text-right md:block">
-                          <div className="text-sm">
-                            Chapter {nextChapter.chapter_number}
-                          </div>
+                {nextChapter ? (
+                  <Link
+                    href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
+                  >
+                    <Button className="flex items-center gap-2">
+                      <div className="text-right">
+                        <div className="text-sm">
+                          Chapter {nextChapter.chapter_number}
                         </div>
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <Button className="invisible flex items-center gap-2">
-                      <div className="hidden text-right md:block">
-                        <div className="text-sm">Placeholder</div>
                       </div>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </Link>
+                ) : (
+                  <Button className="invisible flex items-center gap-2">
+                    <div className="text-right">
+                      <div className="text-sm">Placeholder</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </nav>
           </div>
 
           {/* Comments Section */}
@@ -701,46 +748,14 @@ export function ChapterReadingView({
           onClick={scrollToTop}
           className={cn(
             "fixed right-6 z-40 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl",
-            // On mobile: adjust position based on navigation buttons
-            "bottom-6 md:bottom-6",
-            // On mobile with navigation: move up to avoid overlap
             nextChapter || previousChapter
-              ? "bottom-[144px] md:bottom-6"
+              ? "bottom-24 md:bottom-6"
               : "bottom-6",
           )}
         >
           <ArrowUp className="h-4 w-4" />
         </Button>
       )}
-
-      {/* Floating Action Buttons (Mobile Navigation) */}
-      <div className="fixed right-6 bottom-6 flex flex-col gap-2 md:hidden">
-        {previousChapter && (
-          <Link
-            href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
-          >
-            <Button
-              size="icon"
-              variant="secondary"
-              className="rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-        )}
-        {nextChapter && (
-          <Link
-            href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
-          >
-            <Button
-              size="icon"
-              className="rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        )}
-      </div>
 
       {/* Admin Edit Dialog */}
       {isAdmin && (
@@ -749,15 +764,11 @@ export function ChapterReadingView({
           onClose={() => setShowEditDialog(false)}
           chapter={chapter}
           isEditing={true}
-          novel={
-            {
-              ...novel,
-              slug: novel.slug,
-              id: novel.id,
-              title: novel.title,
-              author: novel.author,
-            } as any
-          }
+          novel={{
+            id: novel.id,
+            slug: novel.slug,
+            title: novel.title,
+          }}
           onSuccess={handleEditSuccess}
         />
       )}

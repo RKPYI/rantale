@@ -27,7 +27,7 @@ interface ChapterDialogProps {
   onClose: () => void;
   chapter?: ChapterSummary | Chapter;
   isEditing: boolean;
-  novel: AuthorNovel | null;
+  novel: Pick<AuthorNovel, "id" | "slug" | "title"> | null;
   onSuccess: () => void | Promise<void>;
 }
 

@@ -143,11 +143,19 @@ export function ChapterNavigator({
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9"
+          aria-label="Open chapter list"
+        >
           <List className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="mr-2 w-80 p-0">
+      <DropdownMenuContent
+        align="end"
+        className="mr-2 w-[min(92vw,20rem)] p-0 sm:w-80"
+      >
         <div className="border-b p-3">
           <div className="mb-2 flex items-center gap-2">
             <Search className="text-muted-foreground h-4 w-4" />
