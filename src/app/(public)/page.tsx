@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Script from "next/script";
 import { TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   HeroSection,
   CallToActionSection,
@@ -93,14 +91,6 @@ export default function Home() {
         >
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <NovelsTabs maxItems={12} />
-
-            <div className="mt-8 text-center">
-              <Link href="/recently-updated">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Explore More Novels
-                </Button>
-              </Link>
-            </div>
           </div>
         </section>
 
