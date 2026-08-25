@@ -8,4 +8,4 @@ Disallow: /auth/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://rantale.randk.me/sitemap.xml
+Sitemap: https://rantale.ranggadk.com/sitemap.xml
