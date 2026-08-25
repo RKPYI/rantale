@@ -607,7 +607,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
               </div>
 
               <div className="lg:col-span-1">
-                <RelatedNovels novelSlug={novel.slug} layout="horizontal" />
+                <RelatedNovels novelSlug={novel.slug} />
               </div>
             </div>
           </TabsContent>
