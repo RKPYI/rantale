@@ -51,3 +51,5 @@ next-env.d.ts
 # etc
 .vscode
 .github
+.agents
+skills-lock.json
