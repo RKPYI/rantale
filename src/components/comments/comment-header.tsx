@@ -19,17 +19,18 @@ export function CommentHeader({
   onDelete,
 }: CommentHeaderProps) {
   return (
-    <div className="mb-2 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
+    <div className="mb-2 flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <UserAvatar user={comment.user} size="sm" showBadge={true} />
-        <div>
+        <div className="min-w-0">
           <UserInfo
             user={comment.user}
             showRole={true}
             showVerificationStatus={false}
+            compact
           />
-          <div className="text-muted-foreground flex items-center gap-2 text-xs leading-none">
-            <Clock className="h-3 w-3" />
+          <div className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-[11px] leading-none">
+            <Clock className="h-3 w-3 shrink-0" />
             {formatCommentTime(comment.created_at)}
             {isCommentEdited(comment) && (
               <span className="text-amber-600 dark:text-amber-400">

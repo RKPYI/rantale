@@ -34,14 +34,17 @@ export function UserAvatar({
     lg: "h-12 w-12",
   };
 
+  const iconSize =
+    size === "sm" ? "h-2.5 w-2.5" : size === "md" ? "h-3 w-3" : "h-3.5 w-3.5";
+
   const getRoleIcon = () => {
     switch (role) {
       case "admin":
-        return <Crown className="h-3 w-3" />;
+        return <Crown className={iconSize} />;
       case "editor":
-        return <Shield className="h-3 w-3" />;
+        return <Shield className={iconSize} />;
       case "author":
-        return <PenTool className="h-3 w-3" />;
+        return <PenTool className={iconSize} />;
       default:
         return null;
     }
@@ -80,11 +83,11 @@ export function UserAvatar({
       {showBadge && shouldShowRoleBadge(user) && (
         <div
           className={cn(
-            "border-background absolute -right-1 -bottom-1 flex items-center justify-center rounded-full border-2",
+            "border-background absolute flex items-center justify-center rounded-full border-2",
             roleInfo.bgColor,
-            size === "sm" && "h-4 w-4",
-            size === "md" && "h-5 w-5",
-            size === "lg" && "h-6 w-6",
+            size === "sm" && "-right-0.5 -bottom-0.5 h-3.5 w-3.5",
+            size === "md" && "-right-1 -bottom-1 h-5 w-5",
+            size === "lg" && "-right-1 -bottom-1 h-6 w-6",
           )}
         >
           {getRoleIcon()}
@@ -98,6 +101,7 @@ interface UserInfoProps {
   user: User;
   showRole?: boolean;
   showVerificationStatus?: boolean;
+  compact?: boolean;
   className?: string;
 }
 
@@ -105,26 +109,48 @@ export function UserInfo({
   user,
   showRole = true,
   showVerificationStatus = true,
+  compact = false,
   className,
 }: UserInfoProps) {
-  const role = getUserRole(user);
   const roleInfo = getRoleInfo(user);
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <span className="text-sm font-medium">{user.name || "Unknown User"}</span>
+    <div
+      className={cn(
+        "flex items-center",
+        compact ? "gap-1.5" : "gap-2",
+        className,
+      )}
+    >
+      <span
+        className={cn(
+          "font-medium",
+          compact ? "text-sm leading-tight" : "text-sm",
+        )}
+      >
+        {user.name || "Unknown User"}
+      </span>
 
       {showRole && shouldShowRoleBadge(user) && (
         <Badge
-          className={cn("flex items-center gap-1 text-xs", roleInfo.bgColor)}
+          className={cn(
+            "border-transparent",
+            roleInfo.bgColor,
+            compact
+              ? "h-4 gap-0 rounded px-1 text-[10px] leading-none font-medium"
+              : "gap-1 text-xs",
+          )}
         >
-          {roleInfo.icon && <span>{roleInfo.icon}</span>}
+          {!compact && roleInfo.icon && <span>{roleInfo.icon}</span>}
           {roleInfo.name}
         </Badge>
       )}
 
       {showVerificationStatus && !user.email_verified_at && (
-        <Badge variant="outline" className="text-xs">
+        <Badge
+          variant="outline"
+          className={cn(compact ? "h-4 px-1 text-[10px] leading-none" : "text-xs")}
+        >
           Unverified
         </Badge>
       )}
