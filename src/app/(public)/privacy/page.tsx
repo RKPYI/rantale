@@ -147,7 +147,6 @@ export default function PrivacyPage() {
                 <li>
                   Preferences and settings (theme, reading preferences, etc.)
                 </li>
-                <li>Offline reading data (for PWA functionality)</li>
               </ul>
             </div>
           </CardContent>

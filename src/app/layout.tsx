@@ -6,8 +6,6 @@ import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { OfflineIndicator } from "@/components/offline-indicator";
-import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { NotificationProvider } from "@/contexts/notification-context";
 
 const geistSans = Geist({
@@ -107,8 +105,6 @@ export default function RootLayout({
             <Toaster />
             <Analytics />
             <SpeedInsights />
-            {/* <OfflineIndicator /> */}
-            {/* <PWAInstallPrompt /> */}
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Home, Search, Library, User, PenTool, Download } from "lucide-react";
+import { Home, Search, Library, User, PenTool } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { getUserRole } from "@/lib/user-utils";
@@ -24,11 +24,10 @@ export function BottomNav() {
   const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
 
-  // Hide bottom nav on chapter reading pages and offline reading pages
+  // Hide bottom nav on chapter reading pages
   const isReadingPage =
     pathname.match(/\/novels\/[^/]+\/chapters\/\d+/) ||
-    pathname.match(/\/novels\/[^/]+\/volumes\/\d+\/chapters\/\d+/) 
-    pathname.match(/\/offline\/read\/\d+/);
+    pathname.match(/\/novels\/[^/]+\/volumes\/\d+\/chapters\/\d+/);
 
   if (isReadingPage) {
     return null;
@@ -51,12 +50,6 @@ export function BottomNav() {
       icon: Library,
       requiresAuth: true,
     },
-    // {
-    //   href: "/profile/downloads",
-    //   label: "Downloads",
-    //   icon: Download,
-    //   requiresAuth: true,
-    // },
   ];
 
   // Filter nav items based on authentication and roles

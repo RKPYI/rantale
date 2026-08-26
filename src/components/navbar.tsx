@@ -16,7 +16,6 @@ import {
   Clock,
   Shield,
   PenTool,
-  Download,
   Library,
   TrendingUp,
   Crown,
@@ -472,12 +471,6 @@ export function Navbar() {
                         My Library
                       </Link>
                     </DropdownMenuItem>
-                    {/* <DropdownMenuItem asChild className="hidden md:flex">
-                      <Link href="/profile/downloads">
-                        <Download className="mr-2 h-4 w-4" />
-                        Downloads
-                      </Link>
-                    </DropdownMenuItem> */}
                     <DropdownMenuItem asChild>
                       <Link href="/notifications">
                         <Bell className="mr-2 h-4 w-4" />

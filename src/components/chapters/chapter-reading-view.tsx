@@ -17,7 +17,6 @@ import {
   Home,
   MessageSquare,
   ArrowUp,
-  WifiOff,
   Type,
   Edit,
 } from "lucide-react";
@@ -36,7 +35,6 @@ import { ChapterNavigator } from "@/components/chapters/chapter-navigator";
 import { ChapterDialog } from "@/components/author/chapter-dialog";
 import { useAuth } from "@/contexts/auth-context";
 import { useAsync } from "@/hooks/use-api";
-import { useOfflineStatus } from "@/hooks/use-offline-chapter";
 import { readingProgressService } from "@/services/reading-progress";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
@@ -99,12 +97,10 @@ export function ChapterReadingView({
 }: ChapterReadingViewProps) {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
-  const { isOffline } = useOfflineStatus();
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [showComments, setShowComments] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const { fontSize, maxWidth } = settings;
@@ -117,11 +113,6 @@ export function ChapterReadingView({
   const handleEditSuccess = () => {
     router.refresh();
   };
-
-  // Mark component as mounted to prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -280,25 +271,6 @@ export function ChapterReadingView({
                 </Button>
               )}
 
-              {/* Download Button */}
-              {/* <ChapterDownloadButton
-                chapter={chapter}
-                novelTitle={novel.title}
-                variant="ghost"
-                size="icon"
-                showLabel={false}
-                onSuccess={() => {
-                  toast.success("Chapter downloaded", {
-                    description: "You can now read this chapter offline",
-                  });
-                }}
-                onError={(error) => {
-                  toast.error("Download failed", {
-                    description: error.message,
-                  });
-                }}
-              /> */}
-
               <ChapterNavigator
                 allChapters={allChapters}
                 currentChapterId={chapter.id}
@@ -422,25 +394,6 @@ export function ChapterReadingView({
       {/* Main Content */}
       <main className="container mx-auto px-3 py-4 pb-24 sm:px-4 md:py-8 md:pb-8">
         <div className="flex flex-col items-center">
-          {/* Offline Reading Indicator */}
-          {mounted && isOffline && (
-            <div className="mb-6 w-full" style={{ maxWidth: `${maxWidth}px` }}>
-              <div className="rounded-lg border border-amber-500 bg-amber-50 p-4 dark:bg-amber-950/20">
-                <div className="flex items-center gap-3">
-                  <WifiOff className="h-5 w-5 text-amber-600 dark:text-amber-500" />
-                  <div className="flex-1">
-                    <p className="font-medium text-amber-900 dark:text-amber-100">
-                      Reading Offline
-                    </p>
-                    <p className="text-sm text-amber-700 dark:text-amber-300">
-                      You are viewing a downloaded copy of this chapter
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Chapter Header */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
             <header className="border-border/70 border-b pb-6 text-center">

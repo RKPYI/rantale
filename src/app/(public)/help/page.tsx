@@ -30,11 +30,6 @@ export default function HelpPage() {
         "Use the search bar in the navigation to find novels by title, author, or keywords. You can also browse by genre or check our top-rated section for popular recommendations.",
     },
     {
-      question: "Can I read novels offline?",
-      answer:
-        "Currently, novels need to be read online through our platform. We're working on offline reading features for the future.",
-    },
-    {
       question: "How do I report inappropriate content?",
       answer:
         "You can report content by using the report button on any novel or chapter page. Our moderation team reviews all reports promptly.",
