@@ -798,9 +798,9 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
         </Tabs>
       </div>
 
-      {/* Mobile sticky CTA */}
-      <div className="border-border/80 bg-background/95 fixed inset-x-0 bottom-0 z-20 border-t p-3 backdrop-blur supports-[backdrop-filter]:bg-background/85 lg:hidden">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
+      {/* Mobile floating CTA — sits above bottom nav (h-16) */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-20 z-40 px-3 md:bottom-4 lg:hidden">
+        <div className="border-border/80 bg-background/95 pointer-events-auto mx-auto flex max-w-7xl items-center gap-3 rounded-2xl border p-3 shadow-[0_12px_40px_-16px_oklch(0_0_0/0.4)] backdrop-blur supports-[backdrop-filter]:bg-background/90">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{novel.title}</p>
             <p className="text-muted-foreground truncate text-xs">
