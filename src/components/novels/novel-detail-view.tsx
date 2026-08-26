@@ -84,6 +84,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [chaptersPage, setChaptersPage] = useState(1);
+  const [openVolumeIds, setOpenVolumeIds] = useState<string[]>([]);
   const router = useRouter();
 
   const { data: readingProgress, loading: progressLoading } = useNovelProgress(
@@ -127,6 +128,25 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
   const currentChapterNumber =
     readingProgress?.current_chapter?.chapter_number ?? null;
+  const currentVolumeNumber =
+    readingProgress?.current_chapter?.volume_number ?? null;
+
+  useEffect(() => {
+    if (progressLoading || !novel.uses_volumes) {
+      return;
+    }
+
+    const currentVolume = volumeGroups.find(
+      (volume) => volume.volume_number === currentVolumeNumber,
+    );
+
+    setOpenVolumeIds(currentVolume ? [`volume-${currentVolume.id}`] : []);
+  }, [
+    currentVolumeNumber,
+    novel.uses_volumes,
+    progressLoading,
+    volumeGroups,
+  ]);
 
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -549,9 +569,11 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                     },
                     {
                       value: "chapters",
-                      label: "Chapters",
+                      label: novel.uses_volumes ? "Volumes" : "Chapters",
                       icon: BookOpen,
-                      count: novel.total_chapters ?? sortedChapters.length,
+                      count: novel.uses_volumes
+                        ? volumeGroups.length
+                        : (novel.total_chapters ?? sortedChapters.length),
                     },
                     {
                       value: "reviews",
@@ -659,12 +681,20 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
             <div className="mb-4 flex items-end justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold tracking-tight">
-                  All chapters
+                  {novel.uses_volumes ? "All volumes" : "All chapters"}
                 </h2>
                 <p className="text-muted-foreground text-sm">
-                  {novel.total_chapters ?? sortedChapters.length} chapters
+                  {novel.uses_volumes
+                    ? `${volumeGroups.length} volumes`
+                    : `${novel.total_chapters ?? sortedChapters.length} chapters`}
                   {hasStartedReading && currentChapterNumber != null && (
-                    <> · currently on Ch. {currentChapterNumber}</>
+                    <>
+                      {" "}
+                      · currently on{" "}
+                      {novel.uses_volumes && currentVolumeNumber != null
+                        ? `Vol. ${currentVolumeNumber} · Ch. ${currentChapterNumber}`
+                        : `Ch. ${currentChapterNumber}`}
+                    </>
                   )}
                 </p>
               </div>
@@ -680,7 +710,8 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                 {novel.uses_volumes && volumeGroups.length > 0 ? (
                   <Accordion
                     type="multiple"
-                    defaultValue={volumeGroups.map((v) => `volume-${v.id}`)}
+                    value={openVolumeIds}
+                    onValueChange={setOpenVolumeIds}
                     className="rounded-2xl border px-2"
                   >
                     {volumeGroups.map((volume) => (
