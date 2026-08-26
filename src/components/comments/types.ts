@@ -5,6 +5,7 @@ export interface CommentSectionProps {
   novelId: number;
   chapterId?: number;
   chapterNumber?: number;
+  chapterVolumeNumber?: number;
   title: string;
 }
 

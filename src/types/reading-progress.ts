@@ -26,6 +26,8 @@ export interface ReadingProgressResponse {
     id: number;
     chapter_number: number;
     title: string;
+    volume_id?: number | null;
+    volume_number?: number | null;
     word_count?: number;
     views?: number;
     is_free?: boolean;
@@ -36,6 +38,7 @@ export interface ReadingProgressResponse {
   progress_percentage: number;
   last_read_at: string | null;
   total_chapters: number;
+  uses_volumes?: boolean;
 }
 
 export interface UserReadingProgressResponse {
@@ -47,15 +50,19 @@ export interface UserReadingProgressResponse {
       author: string;
       cover_image: string | null;
       slug: string;
+      uses_volumes?: boolean;
     };
     current_chapter: {
       id: number;
       chapter_number: number;
       title: string;
+      volume_id?: number | null;
+      volume_number?: number | null;
     };
     progress_percentage: number;
     last_read_at: string;
     total_chapters: number;
+    uses_volumes?: boolean;
   }>;
 }
 
@@ -72,7 +79,9 @@ export interface ReadingProgressUpdateResponse {
 // Request Types
 export interface UpdateReadingProgressRequest {
   novel_slug: string;
-  chapter_number: number;
+  chapter_id?: number;
+  chapter_number?: number;
+  volume_number?: number;
 }
 
 export interface CreateReadingProgressRequest {

@@ -36,6 +36,7 @@ export function CommentSection({
   novelId,
   chapterId,
   chapterNumber,
+  chapterVolumeNumber,
   title,
 }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("");
@@ -65,6 +66,8 @@ export function CommentSection({
   const chapterCommentsResult = useChapterComments(
     novelSlug,
     chapterNumber || 0,
+    undefined,
+    chapterVolumeNumber,
   );
 
   const {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -41,6 +41,13 @@ import { readingProgressService } from "@/services/reading-progress";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import { Chapter, ChapterSummary } from "@/types/api";
+import {
+  getChapterPath,
+  getChapterLabel,
+} from "@/lib/chapter-url";
+
+const MOBILE_NAV_HIDE_THRESHOLD = 8;
+const MOBILE_NAV_BREAKPOINT = 768;
 
 // Local storage keys
 const READING_SETTINGS_KEY = "chapter-reading-settings";
@@ -80,6 +87,7 @@ interface ChapterReadingViewProps {
     title: string;
     slug: string;
     author: string;
+    uses_volumes?: boolean;
   };
   allChapters: ChapterSummary[];
 }
@@ -144,7 +152,7 @@ export function ChapterReadingView({
         try {
           await executeUpdateProgress(readingProgressService.updateProgress, {
             novel_slug: novel.slug,
-            chapter_number: chapter.chapter_number,
+            chapter_id: chapter.id,
           });
         } catch (error) {
           console.error("Error updating reading progress:", error);
@@ -154,7 +162,7 @@ export function ChapterReadingView({
       // Only update once when the component mounts or chapter changes
       updateProgress();
     }
-  }, [isAuthenticated, novel.slug, chapter.chapter_number]); // Removed executeUpdateProgress from dependencies
+  }, [isAuthenticated, novel.slug, chapter.id]); // Removed executeUpdateProgress from dependencies
 
   // Scroll progress tracking and scroll to top button visibility
   useEffect(() => {
@@ -187,14 +195,14 @@ export function ChapterReadingView({
         case "ArrowLeft":
           if (previousChapter) {
             router.push(
-              `/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`,
+              getChapterPath(novel.slug, previousChapter, novel.uses_volumes),
             );
           }
           break;
         case "ArrowRight":
           if (nextChapter) {
             router.push(
-              `/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`,
+              getChapterPath(novel.slug, nextChapter, novel.uses_volumes),
             );
           }
           break;
@@ -253,7 +261,7 @@ export function ChapterReadingView({
                 {novel.title}
               </div>
               <div className="text-muted-foreground max-w-xs truncate text-xs">
-                Ch. {chapter.chapter_number}: {chapter.title}
+                {getChapterLabel(chapter, novel.uses_volumes)}: {chapter.title}
               </div>
             </div>
 
@@ -295,6 +303,7 @@ export function ChapterReadingView({
                 allChapters={allChapters}
                 currentChapterId={chapter.id}
                 novelSlug={novel.slug}
+                usesVolumes={novel.uses_volumes}
               />
 
               <DropdownMenu>
@@ -619,14 +628,19 @@ export function ChapterReadingView({
             <nav className="space-y-4 border-b px-1 pb-6 md:space-y-0 md:px-2">
               <div className="text-center">
                 <div className="text-muted-foreground text-sm font-medium">
-                  Chapter {chapter.chapter_number} of {allChapters.length}
+                  {getChapterLabel(chapter, novel.uses_volumes)} ·{" "}
+                  {currentIndex + 1} of {allChapters.length}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 md:hidden">
                 {previousChapter ? (
                   <Link
-                    href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
+                    href={getChapterPath(
+                      novel.slug,
+                      previousChapter,
+                      novel.uses_volumes,
+                    )}
                   >
                     <Button
                       variant="outline"
@@ -649,7 +663,11 @@ export function ChapterReadingView({
 
                 {nextChapter ? (
                   <Link
-                    href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
+                    href={getChapterPath(
+                      novel.slug,
+                      nextChapter,
+                      novel.uses_volumes,
+                    )}
                   >
                     <Button className="w-full justify-center gap-1">
                       Next
@@ -667,13 +685,20 @@ export function ChapterReadingView({
               <div className="hidden items-center justify-between md:flex">
                 {previousChapter ? (
                   <Link
-                    href={`/novels/${novel.slug}/chapters/${previousChapter.chapter_number}`}
+                    href={getChapterPath(
+                      novel.slug,
+                      previousChapter,
+                      novel.uses_volumes,
+                    )}
                   >
                     <Button variant="outline" className="flex items-center">
                       <ChevronLeft className="h-4 w-4" />
                       <div className="text-left">
                         <div className="text-sm">
-                          Chapter {previousChapter.chapter_number}
+                          {getChapterLabel(
+                            previousChapter,
+                            novel.uses_volumes,
+                          )}
                         </div>
                       </div>
                     </Button>
@@ -692,12 +717,16 @@ export function ChapterReadingView({
 
                 {nextChapter ? (
                   <Link
-                    href={`/novels/${novel.slug}/chapters/${nextChapter.chapter_number}`}
+                    href={getChapterPath(
+                      novel.slug,
+                      nextChapter,
+                      novel.uses_volumes,
+                    )}
                   >
                     <Button className="flex items-center gap-2">
                       <div className="text-right">
                         <div className="text-sm">
-                          Chapter {nextChapter.chapter_number}
+                          {getChapterLabel(nextChapter, novel.uses_volumes)}
                         </div>
                       </div>
                       <ChevronRight className="h-4 w-4" />
@@ -734,7 +763,8 @@ export function ChapterReadingView({
                 novelId={novel.id}
                 chapterId={chapter.id}
                 chapterNumber={chapter.chapter_number}
-                title={`Chapter ${chapter.chapter_number}: ${chapter.title}`}
+                chapterVolumeNumber={chapter.volume_number ?? undefined}
+                title={`${getChapterLabel(chapter, novel.uses_volumes)}: ${chapter.title}`}
               />
             )}
           </div>

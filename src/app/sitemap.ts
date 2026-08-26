@@ -18,11 +18,17 @@ interface NovelApiResponse {
 
 interface Chapter {
   chapter_number: number;
+  volume_number?: number | null;
 }
 
 interface ChapterApiResponse {
   message: string;
+  uses_volumes?: boolean;
   chapters: Chapter[];
+  volumes?: Array<{
+    volume_number: number;
+    chapters: Chapter[];
+  }>;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -141,9 +147,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
             const data: ChapterApiResponse = await response.json();
 
-            return Array.isArray(data.chapters)
-              ? data.chapters.map((chapter) => ({
-                  url: `${baseUrl}/novels/${novel.slug}/chapters/${chapter.chapter_number}`,
+            const chapters = data.uses_volumes
+              ? (data.volumes ?? []).flatMap((volume) =>
+                  volume.chapters.map((chapter) => ({
+                    ...chapter,
+                    volume_number: volume.volume_number,
+                  })),
+                )
+              : data.chapters;
+
+            return Array.isArray(chapters)
+              ? chapters.map((chapter) => ({
+                  url: chapter.volume_number
+                    ? `${baseUrl}/novels/${novel.slug}/volumes/${chapter.volume_number}/chapters/${chapter.chapter_number}`
+                    : `${baseUrl}/novels/${novel.slug}/chapters/${chapter.chapter_number}`,
                   lastModified: new Date(novel.updated_at),
                   changeFrequency:
                     novel.status === "ongoing"

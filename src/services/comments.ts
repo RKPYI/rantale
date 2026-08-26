@@ -30,12 +30,15 @@ export const commentService = {
     novelSlug: string,
     chapterNumber: number,
     page?: number,
+    volumeNumber?: number,
   ): Promise<CommentsResponse> {
     const params = page ? { page } : {};
-    const response = await apiClient.get<CommentsResponse>(
-      `/novels/${novelSlug}/chapters/${chapterNumber}/comments`,
-      params,
-    );
+    const url =
+      volumeNumber != null
+        ? `/novels/${novelSlug}/volumes/${volumeNumber}/chapters/${chapterNumber}/comments`
+        : `/novels/${novelSlug}/chapters/${chapterNumber}/comments`;
+
+    const response = await apiClient.get<CommentsResponse>(url, params);
     return response.data;
   },
 

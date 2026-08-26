@@ -3,31 +3,37 @@ import { notFound } from "next/navigation";
 import { ChapterReadingView } from "@/components/chapters";
 import { chapterService } from "@/services/chapters";
 import { novelService } from "@/services/novels";
-import { flattenNovelChapters } from "@/lib/chapter-url";
 import { buildMetaDescription } from "@/lib/og";
+import { flattenNovelChapters } from "@/lib/chapter-url";
 
-interface ChapterPageProps {
+interface VolumeChapterPageProps {
   params: Promise<{
     slug: string;
+    volume: string;
     chapter: string;
   }>;
 }
 
 export async function generateMetadata({
   params,
-}: ChapterPageProps): Promise<Metadata> {
+}: VolumeChapterPageProps): Promise<Metadata> {
   try {
-    const { slug, chapter } = await params;
+    const { slug, volume, chapter } = await params;
+    const volumeNumber = parseInt(volume, 10);
     const chapterNumber = parseInt(chapter, 10);
-    const chapterData = await chapterService.getChapter(slug, chapterNumber);
+    const chapterData = await chapterService.getVolumeChapter(
+      slug,
+      volumeNumber,
+      chapterNumber,
+    );
     const { novel, chapter: chapterInfo } = chapterData;
 
-    const title = `Chapter ${chapterNumber}: ${chapterInfo.title} - ${novel.title}`;
+    const title = `Vol. ${volumeNumber} Ch. ${chapterNumber}: ${chapterInfo.title} - ${novel.title}`;
     const description = buildMetaDescription(
       null,
-      `Read Chapter ${chapterNumber} of ${novel.title} by ${novel.author} on Rantale. ${chapterInfo.word_count} words.`,
+      `Read Volume ${volumeNumber}, Chapter ${chapterNumber} of ${novel.title} by ${novel.author} on Rantale. ${chapterInfo.word_count} words.`,
     );
-    const url = `/novels/${slug}/chapters/${chapterNumber}`;
+    const url = `/novels/${slug}/volumes/${volumeNumber}/chapters/${chapterNumber}`;
 
     return {
       title,
@@ -39,20 +45,20 @@ export async function generateMetadata({
       openGraph: {
         type: "article",
         url,
-        title: `${novel.title} — Chapter ${chapterNumber}`,
+        title: `${novel.title} — Vol. ${volumeNumber} Ch. ${chapterNumber}`,
         description: buildMetaDescription(
           chapterInfo.title,
-          `Chapter ${chapterNumber} of ${novel.title}`,
+          `Volume ${volumeNumber}, Chapter ${chapterNumber} of ${novel.title}`,
         ),
         siteName: "Rantale",
         authors: [novel.author],
       },
       twitter: {
         card: "summary_large_image",
-        title: `${novel.title} — Ch. ${chapterNumber}`,
+        title: `${novel.title} — Vol. ${volumeNumber} Ch. ${chapterNumber}`,
         description: buildMetaDescription(
           chapterInfo.title,
-          `Chapter ${chapterNumber} of ${novel.title}`,
+          `Volume ${volumeNumber}, Chapter ${chapterNumber} of ${novel.title}`,
         ),
       },
     };
@@ -64,21 +70,29 @@ export async function generateMetadata({
   }
 }
 
-export default async function ChapterPage({ params }: ChapterPageProps) {
+export default async function VolumeChapterPage({
+  params,
+}: VolumeChapterPageProps) {
   try {
-    const { slug, chapter } = await params;
+    const { slug, volume, chapter } = await params;
+    const volumeNumber = parseInt(volume, 10);
     const chapterNumber = parseInt(chapter, 10);
 
-    if (isNaN(chapterNumber) || chapterNumber < 1) {
+    if (
+      isNaN(volumeNumber) ||
+      volumeNumber < 1 ||
+      isNaN(chapterNumber) ||
+      chapterNumber < 1
+    ) {
       notFound();
     }
 
     const [chapterData, novelData] = await Promise.all([
-      chapterService.getChapter(slug, chapterNumber),
+      chapterService.getVolumeChapter(slug, volumeNumber, chapterNumber),
       novelService.getNovelBySlug(slug),
     ]);
 
-    if (novelData.uses_volumes) {
+    if (!novelData.uses_volumes) {
       notFound();
     }
 

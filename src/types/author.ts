@@ -116,6 +116,7 @@ export interface AuthorNovel {
   is_trending: boolean;
   published_at: string | null;
   chapters_count: number;
+  uses_volumes?: boolean;
   views_count: number;
   rating_avg: string | null;
   genres: Genre[];

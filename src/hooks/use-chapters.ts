@@ -17,6 +17,23 @@ export function useChapter(novelSlug: string, chapterNumber: number) {
   );
 }
 
+// Hook for getting a volume chapter by novel slug, volume number, and chapter number
+export function useVolumeChapter(
+  novelSlug: string,
+  volumeNumber: number,
+  chapterNumber: number,
+) {
+  return useApi(
+    () =>
+      chapterService.getVolumeChapter(
+        novelSlug,
+        volumeNumber,
+        chapterNumber,
+      ),
+    [novelSlug, volumeNumber, chapterNumber],
+  );
+}
+
 // Admin mutation hooks (require authentication and admin role)
 export function useCreateChapter() {
   return useApi(

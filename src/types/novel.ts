@@ -32,6 +32,7 @@ export interface Novel {
   description: string;
   status: "ongoing" | "completed" | "hiatus";
   cover_image: string | null;
+  uses_volumes?: boolean;
   total_chapters: number | null;
   views: number | null;
   likes: number | null;
@@ -43,6 +44,24 @@ export interface Novel {
   genres: Genre[];
 }
 
+export interface VolumeSummary {
+  id: number;
+  novel_id?: number;
+  volume_number: number;
+  title: string;
+  description?: string | null;
+  chapters: ChapterSummary[];
+}
+
+export interface Volume {
+  id: number;
+  novel_id: number;
+  volume_number: number;
+  title: string;
+  description: string | null;
+  chapters?: ChapterSummary[];
+}
+
 // Chapter Types
 export interface ChapterSummary {
   id: number;
@@ -50,6 +69,8 @@ export interface ChapterSummary {
   chapter_number: number;
   title: string;
   word_count: number;
+  volume_id?: number | null;
+  volume_number?: number | null;
 }
 
 export interface Chapter {
@@ -64,13 +85,18 @@ export interface Chapter {
   published_at: string;
   created_at: string;
   updated_at: string;
+  volume_id?: number | null;
+  volume_number?: number | null;
   previous_chapter?: number | null;
   next_chapter?: number | null;
+  previous_volume?: number | null;
+  next_volume?: number | null;
 }
 
 // Novel with Relations
 export interface NovelWithChapters extends Novel {
   chapters: ChapterSummary[];
+  volumes?: VolumeSummary[];
 }
 
 // Related Novel with Similarity Score
@@ -84,6 +110,7 @@ export interface RecentlyUpdatedNovel extends Novel {
   latest_chapter_number: number;
   latest_chapter_title: string;
   latest_chapter_id: number;
+  latest_chapter_volume_number?: number | null;
 }
 
 // API Responses
@@ -120,12 +147,14 @@ export interface RecentlyUpdatedApiResponse {
 
 export interface ChapterListResponse {
   message: string;
+  uses_volumes: boolean;
   novel: {
     title: string;
     slug: string;
     author: string;
   };
   chapters: ChapterSummary[];
+  volumes?: VolumeSummary[];
 }
 
 export interface ChapterDetailResponse {
@@ -135,8 +164,20 @@ export interface ChapterDetailResponse {
     title: string;
     slug: string;
     author: string;
+    uses_volumes?: boolean;
   };
   chapter: Chapter;
+}
+
+export interface VolumeListResponse {
+  message: string;
+  uses_volumes: boolean;
+  novel: {
+    title: string;
+    slug: string;
+    author: string;
+  };
+  volumes: VolumeSummary[];
 }
 
 // Request Types
@@ -161,6 +202,7 @@ export interface CreateNovelRequest {
   description?: string;
   cover_image?: string;
   status?: "ongoing" | "completed" | "hiatus";
+  uses_volumes?: boolean;
   genres?: number[];
 }
 
@@ -170,6 +212,7 @@ export interface UpdateNovelRequest {
   description?: string;
   cover_image?: string;
   status?: "ongoing" | "completed" | "hiatus";
+  uses_volumes?: boolean;
   genres?: number[];
 }
 
@@ -180,6 +223,8 @@ export interface CreateChapterRequest {
   is_free?: boolean;
   published_at?: string;
   save_as_draft?: boolean;
+  volume_id?: number;
+  volume_number?: number;
 }
 
 // Image Upload Types
@@ -199,4 +244,6 @@ export interface UpdateChapterRequest {
   is_free?: boolean;
   published_at?: string;
   save_as_draft?: boolean;
+  volume_id?: number;
+  volume_number?: number;
 }

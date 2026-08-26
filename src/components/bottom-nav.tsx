@@ -27,6 +27,7 @@ export function BottomNav() {
   // Hide bottom nav on chapter reading pages and offline reading pages
   const isReadingPage =
     pathname.match(/\/novels\/[^/]+\/chapters\/\d+/) ||
+    pathname.match(/\/novels\/[^/]+\/volumes\/\d+\/chapters\/\d+/) 
     pathname.match(/\/offline\/read\/\d+/);
 
   if (isReadingPage) {

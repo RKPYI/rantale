@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BookOpen, Clock } from "lucide-react";
 import { useUserReadingProgress } from "@/hooks/use-reading-progress";
+import {
+  getChapterHrefFromParts,
+  getChapterLabel,
+  getChapterPath,
+} from "@/lib/chapter-url";
 import { formatRelativeTime } from "@/lib/novel-utils";
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,7 +63,17 @@ export function ContinueReading({
 
   const { novel, current_chapter, progress_percentage, last_read_at } =
     lastRead;
-  const href = `/novels/${novel.slug}/chapters/${current_chapter.chapter_number}`;
+  const usesVolumes =
+    lastRead.uses_volumes ?? novel.uses_volumes ?? current_chapter.volume_number != null;
+  const href =
+    getChapterHrefFromParts(
+      novel.slug,
+      current_chapter.chapter_number,
+      usesVolumes,
+      current_chapter.volume_number,
+    ) ??
+    getChapterPath(novel.slug, current_chapter, usesVolumes);
+  const chapterLabel = getChapterLabel(current_chapter, usesVolumes);
   const isCompact = variant === "compact";
   const isCard = variant === "card";
 
@@ -145,7 +160,7 @@ export function ContinueReading({
             </h3>
             <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
               <span className="text-foreground/70 font-medium">
-                Ch. {current_chapter.chapter_number}
+                {chapterLabel}
               </span>
               <span className="text-muted-foreground/60 mx-1.5">·</span>
               {current_chapter.title}
@@ -178,7 +193,7 @@ export function ContinueReading({
               ) : (
                 <p className="text-muted-foreground text-xs">
                   {lastRead.total_chapters > 0
-                    ? `${current_chapter.chapter_number} of ${lastRead.total_chapters} chapters`
+                    ? `${chapterLabel} of ${lastRead.total_chapters} chapters`
                     : "Pick up where you left off"}
                 </p>
               )}

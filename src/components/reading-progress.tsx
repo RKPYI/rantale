@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,22 +19,23 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { readingProgressService } from "@/services/reading-progress";
 import { useAsync } from "@/hooks/use-api";
+import { getChapterLabel } from "@/lib/chapter-url";
 
 import {
   formatProgressPercentage,
   getProgressStatusMessage,
   getEstimatedReadingTime,
   getProgressColor,
-  sortReadingProgress,
 } from "@/lib/content-utils";
 
-import { ReadingProgressResponse } from "@/types/api";
+import { ChapterSummary, ReadingProgressResponse } from "@/types/api";
 
 interface ReadingProgressProps {
   novelSlug: string;
   novelTitle: string;
   totalChapters: number;
   showUserLibrary?: boolean;
+  allChapters?: ChapterSummary[];
 }
 
 export function ReadingProgress({
@@ -43,6 +43,7 @@ export function ReadingProgress({
   novelTitle,
   totalChapters,
   showUserLibrary = false,
+  allChapters,
 }: ReadingProgressProps) {
   const { user, isAuthenticated } = useAuth();
 
@@ -81,7 +82,34 @@ export function ReadingProgress({
   const handleContinueReading = async () => {
     if (!novelProgress?.current_chapter) return;
 
-    const nextChapter = novelProgress.current_chapter.chapter_number + 1;
+    const usesVolumes = novelProgress.uses_volumes;
+    const current = novelProgress.current_chapter;
+
+    if (allChapters?.length) {
+      const currentIndex = allChapters.findIndex((ch) => ch.id === current.id);
+      const next = allChapters[currentIndex + 1];
+      if (!next) return;
+
+      try {
+        await executeProgressAction(
+          readingProgressService.continueReading,
+          novelSlug,
+          next.chapter_number,
+          next.volume_number ?? undefined,
+        );
+        refetchProgress();
+        refetchLibrary();
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+      return;
+    }
+
+    if (usesVolumes) {
+      return;
+    }
+
+    const nextChapter = current.chapter_number + 1;
     if (nextChapter > totalChapters) return;
 
     try {
@@ -145,7 +173,10 @@ export function ReadingProgress({
         <div className="text-muted-foreground flex items-center justify-between text-xs">
           <span>
             {progress.current_chapter
-              ? `Chapter ${progress.current_chapter.chapter_number}`
+              ? getChapterLabel(
+                  progress.current_chapter,
+                  progress.uses_volumes,
+                )
               : "Not started"}
           </span>
           <span>{progress.total_chapters} chapters total</span>
@@ -334,7 +365,11 @@ export function ReadingProgress({
                     <div className="text-muted-foreground flex items-center justify-between text-xs">
                       <span>
                         {progress.current_chapter
-                          ? `Chapter ${progress.current_chapter.chapter_number}/${progress.total_chapters}`
+                          ? `${getChapterLabel(
+                              progress.current_chapter,
+                              progress.uses_volumes ??
+                                progress.novel.uses_volumes,
+                            )}/${progress.total_chapters}`
                           : "Not started"}
                       </span>
                       <span>

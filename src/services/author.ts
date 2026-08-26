@@ -114,14 +114,18 @@ export const authorService = {
   // Get all chapters for a novel (including unpublished) - Author Workflow
   async getNovelChapters(novelSlug: string): Promise<{
     novel: { id: number; title: string; slug: string; author: string };
+    uses_volumes?: boolean;
     chapters: AuthorChapterWithStatus[];
+    volumes?: import("@/types/novel").VolumeSummary[];
   }> {
     const response = await apiClient.get<AuthorChaptersResponse>(
       `/author/novels/${novelSlug}/chapters`,
     );
     return {
       novel: response.data.novel,
+      uses_volumes: response.data.uses_volumes,
       chapters: response.data.chapters,
+      volumes: response.data.volumes,
     };
   },
 

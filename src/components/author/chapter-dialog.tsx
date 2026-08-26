@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,16 @@ import {
 import { Save, FileEdit, Send } from "lucide-react";
 import { useNovelChapters } from "@/hooks/use-chapters";
 import { chapterService } from "@/services/chapters";
-import { AuthorNovel, ChapterSummary, Chapter } from "@/types/api";
+import { volumeService } from "@/services/volumes";
+import { AuthorNovel, ChapterSummary, Chapter, VolumeSummary } from "@/types/api";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { MarkdownEditor } from "@/components/chapters/markdown-editor";
 import { handleErrorWithState, ApiError } from "@/lib/utils";
 
@@ -27,7 +35,7 @@ interface ChapterDialogProps {
   onClose: () => void;
   chapter?: ChapterSummary | Chapter;
   isEditing: boolean;
-  novel: Pick<AuthorNovel, "id" | "slug" | "title"> | null;
+  novel: Pick<AuthorNovel, "id" | "slug" | "title" | "uses_volumes"> | null;
   onSuccess: () => void | Promise<void>;
 }
 
@@ -44,7 +52,9 @@ export function ChapterDialog({
     title: "",
     content: "",
     is_free: true,
+    volume_id: null as number | null,
   });
+  const [volumes, setVolumes] = useState<VolumeSummary[]>([]);
   const [saving, setSaving] = useState(false);
   const [savingAsDraft, setSavingAsDraft] = useState(false);
   const [error, setError] = useState<string>("");
@@ -52,6 +62,31 @@ export function ChapterDialog({
 
   // Get chapters data to determine next chapter number
   const { data: chaptersData } = useNovelChapters(novel?.slug || "");
+
+  useEffect(() => {
+    if (!isOpen || !novel?.uses_volumes) {
+      setVolumes([]);
+      return;
+    }
+
+    volumeService
+      .getAuthorNovelVolumes(novel.slug)
+      .then((data) => setVolumes(data.volumes))
+      .catch(() => setVolumes([]));
+  }, [isOpen, novel?.slug, novel?.uses_volumes]);
+
+  const chaptersInScope = useMemo(() => {
+    if (!chaptersData?.chapters) return [];
+
+    if (novel?.uses_volumes && formData.volume_id) {
+      const selectedVolume = volumes.find((v) => v.id === formData.volume_id);
+      if (selectedVolume) {
+        return selectedVolume.chapters;
+      }
+    }
+
+    return chaptersData.chapters;
+  }, [chaptersData?.chapters, formData.volume_id, novel?.uses_volumes, volumes]);
 
   useEffect(() => {
     setError(""); // Clear error when dialog opens/closes
@@ -65,6 +100,7 @@ export function ChapterDialog({
             title: chapter.title,
             content: chapter.content,
             is_free: chapter.is_free !== false,
+            volume_id: chapter.volume_id ?? null,
           });
         } else {
           // Fetch full chapter content from API
@@ -73,12 +109,14 @@ export function ChapterDialog({
             const response = await chapterService.getAuthorChapter(
               novel.slug,
               chapter.chapter_number,
+              chapter.volume_number ?? undefined,
             );
             setFormData({
               chapter_number: response.chapter.chapter_number,
               title: response.chapter.title,
               content: response.chapter.content,
               is_free: response.chapter.is_free !== false,
+              volume_id: response.chapter.volume_id ?? null,
             });
           } catch (error) {
             console.error("Failed to load chapter content:", error);
@@ -88,18 +126,21 @@ export function ChapterDialog({
               title: chapter.title,
               content: "",
               is_free: true,
+              volume_id: chapter.volume_id ?? null,
             });
           } finally {
             setLoadingContent(false);
           }
         }
       } else {
-        // When creating new chapter, set next available number
-        const nextChapterNumber = chaptersData?.chapters
-          ? Math.max(
-              ...chaptersData.chapters.map((ch) => ch.chapter_number),
-              0,
-            ) + 1
+        const defaultVolumeId = volumes[0]?.id ?? null;
+        const scopedChapters =
+          novel?.uses_volumes && defaultVolumeId
+            ? volumes.find((v) => v.id === defaultVolumeId)?.chapters ?? []
+            : chaptersData?.chapters ?? [];
+
+        const nextChapterNumber = scopedChapters.length
+          ? Math.max(...scopedChapters.map((ch) => ch.chapter_number), 0) + 1
           : 1;
 
         setFormData({
@@ -107,6 +148,7 @@ export function ChapterDialog({
           title: "",
           content: "",
           is_free: true,
+          volume_id: defaultVolumeId,
         });
       }
     };
@@ -114,7 +156,7 @@ export function ChapterDialog({
     if (isOpen) {
       loadChapterContent();
     }
-  }, [isEditing, chapter, isOpen, novel, chaptersData]);
+  }, [isEditing, chapter, isOpen, novel, chaptersData, volumes]);
 
   const handleSubmit = async (
     e: React.FormEvent,
@@ -131,21 +173,26 @@ export function ChapterDialog({
     }
 
     try {
+      if (novel.uses_volumes && !formData.volume_id) {
+        setError("Please select a volume for this chapter.");
+        return;
+      }
+
+      const payload = {
+        ...formData,
+        volume_id: formData.volume_id ?? undefined,
+        save_as_draft: saveAsDraft,
+      };
+
       if (isEditing && chapter) {
-        await chapterService.updateChapter(novel.slug, chapter.id, {
-          ...formData,
-          save_as_draft: saveAsDraft,
-        });
+        await chapterService.updateChapter(novel.slug, chapter.id, payload);
         if (saveAsDraft) {
           toast.success("Chapter saved as draft!");
         } else {
           toast.success("Chapter updated and submitted for review!");
         }
       } else {
-        await chapterService.createChapter(novel.slug, {
-          ...formData,
-          save_as_draft: saveAsDraft,
-        });
+        await chapterService.createChapter(novel.slug, payload);
         if (saveAsDraft) {
           toast.success(
             "Chapter saved as draft! You can continue editing later.",
@@ -225,20 +272,58 @@ export function ChapterDialog({
           )}
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {novel?.uses_volumes && (
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="volume_id" className="text-xs sm:text-sm">
+                  Volume *
+                </Label>
+                <Select
+                  value={formData.volume_id?.toString() ?? ""}
+                  onValueChange={(value) => {
+                    const volumeId = parseInt(value, 10);
+                    const selectedVolume = volumes.find((v) => v.id === volumeId);
+                    const nextChapterNumber = selectedVolume?.chapters.length
+                      ? Math.max(
+                          ...selectedVolume.chapters.map((ch) => ch.chapter_number),
+                          0,
+                        ) + 1
+                      : 1;
+
+                    setFormData((prev) => ({
+                      ...prev,
+                      volume_id: volumeId,
+                      chapter_number: isEditing ? prev.chapter_number : nextChapterNumber,
+                    }));
+                  }}
+                  disabled={loadingContent || isEditing}
+                >
+                  <SelectTrigger id="volume_id">
+                    <SelectValue placeholder="Select a volume" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {volumes.map((volume) => (
+                      <SelectItem key={volume.id} value={volume.id.toString()}>
+                        {volume.title} (Vol. {volume.volume_number})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="chapter_number" className="text-xs sm:text-sm">
                 Chapter Number *
-                {!isEditing &&
-                  chaptersData?.chapters &&
-                  chaptersData.chapters.length > 0 && (
-                    <span className="text-muted-foreground ml-2 text-xs font-normal">
-                      (Next:{" "}
-                      {Math.max(
-                        ...chaptersData.chapters.map((ch) => ch.chapter_number),
-                      ) + 1}
-                      )
-                    </span>
-                  )}
+                {!isEditing && chaptersInScope.length > 0 && (
+                  <span className="text-muted-foreground ml-2 text-xs font-normal">
+                    (Next:{" "}
+                    {Math.max(
+                      ...chaptersInScope.map((ch) => ch.chapter_number),
+                      0,
+                    ) + 1}
+                    )
+                  </span>
+                )}
               </Label>
               <Input
                 id="chapter_number"

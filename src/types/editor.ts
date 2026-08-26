@@ -40,6 +40,8 @@ export interface AuthorChapterWithStatus {
   reviewed_at: string | null;
   created_at: string;
   published_at: string | null;
+  volume_id?: number | null;
+  volume_number?: number | null;
   latest_review: ChapterReview | null;
   pending_title: string | null;
   pending_content: string | null;
@@ -48,6 +50,7 @@ export interface AuthorChapterWithStatus {
 // Author chapters response
 export interface AuthorChaptersResponse {
   message: string;
+  uses_volumes?: boolean;
   novel: {
     id: number;
     title: string;
@@ -55,6 +58,7 @@ export interface AuthorChaptersResponse {
     author: string;
   };
   chapters: AuthorChapterWithStatus[];
+  volumes?: import("./novel").VolumeSummary[];
 }
 
 // Chapter workflow stats (part of author stats)
@@ -93,6 +97,7 @@ export interface PendingChapter {
   id: number;
   title: string;
   chapter_number: number;
+  volume_number?: number | null;
   word_count: number;
   status: ChapterStatus;
   created_at: string;
@@ -101,6 +106,7 @@ export interface PendingChapter {
     title: string;
     slug: string;
     author: string;
+    uses_volumes?: boolean;
     user: {
       id: number;
       name: string;
@@ -118,6 +124,7 @@ export interface ClaimedChapter {
   id: number;
   title: string;
   chapter_number: number;
+  volume_number?: number | null;
   word_count: number;
   status: ChapterStatus;
   created_at: string;
@@ -126,6 +133,7 @@ export interface ClaimedChapter {
     title: string;
     slug: string;
     author: string;
+    uses_volumes?: boolean;
     user: {
       id: number;
       name: string;
@@ -253,11 +261,13 @@ export interface ReviewHistoryItem {
     id: number;
     title: string;
     chapter_number: number;
+    volume_number?: number | null;
     novel_id: number;
     novel: {
       id: number;
       title: string;
       slug: string;
+      uses_volumes?: boolean;
     };
   };
 }

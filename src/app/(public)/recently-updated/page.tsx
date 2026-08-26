@@ -13,6 +13,10 @@ import {
   formatRating,
   getStatusColor,
 } from "@/lib/novel-utils";
+import {
+  getChapterHrefFromParts,
+  getChapterLabelFromParts,
+} from "@/lib/chapter-url";
 import { RecentlyUpdatedNovel } from "@/types/api";
 
 type TimeGroup = "today" | "yesterday" | "this-week" | "earlier";
@@ -51,8 +55,19 @@ function getTimeGroup(dateString: string): TimeGroup {
 }
 
 function UpdateRow({ novel }: { novel: RecentlyUpdatedNovel }) {
-  const chapterHref = `/novels/${novel.slug}/chapters/${novel.latest_chapter_number}`;
   const novelHref = `/novels/${novel.slug}`;
+  const chapterHref =
+    getChapterHrefFromParts(
+      novel.slug,
+      novel.latest_chapter_number,
+      novel.uses_volumes,
+      novel.latest_chapter_volume_number,
+    ) ?? novelHref;
+  const chapterLabel = getChapterLabelFromParts(
+    novel.latest_chapter_number,
+    novel.uses_volumes,
+    novel.latest_chapter_volume_number,
+  );
   const timeAgo = formatRelativeTime(novel.latest_chapter_created_at);
 
   return (
@@ -103,7 +118,7 @@ function UpdateRow({ novel }: { novel: RecentlyUpdatedNovel }) {
             className="text-primary hover:text-primary/80 inline-flex max-w-full items-center gap-1 text-sm font-medium transition-colors"
           >
             <span className="truncate">
-              Ch. {novel.latest_chapter_number}
+              {chapterLabel}
               {novel.latest_chapter_title
                 ? ` — ${novel.latest_chapter_title}`
                 : ""}

@@ -52,3 +52,17 @@ export function areAllSelected<T>(set: Set<T>, totalCount: number): boolean {
 export function areSomeSelected<T>(set: Set<T>, totalCount: number): boolean {
   return set.size > 0 && set.size < totalCount;
 }
+
+/**
+ * Build a Set containing every id between two ordered list indices (inclusive).
+ */
+export function selectIdRange<TId>(
+  orderedIds: TId[],
+  startIndex: number,
+  endIndex: number,
+): Set<TId> {
+  const start = Math.min(startIndex, endIndex);
+  const end = Math.max(startIndex, endIndex);
+
+  return new Set(orderedIds.slice(start, end + 1));
+}

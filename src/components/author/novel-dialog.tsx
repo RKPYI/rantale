@@ -45,6 +45,7 @@ export function NovelDialog({
     description: "",
     status: "ongoing" as "ongoing" | "completed" | "hiatus",
     genres: [] as number[],
+    uses_volumes: false,
   });
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -59,6 +60,7 @@ export function NovelDialog({
         description: novel.description,
         status: novel.status,
         genres: novel.genres?.map((g) => g.id) || [],
+        uses_volumes: novel.uses_volumes ?? false,
       });
     } else {
       setFormData({
@@ -66,6 +68,7 @@ export function NovelDialog({
         description: "",
         status: "ongoing",
         genres: [],
+        uses_volumes: false,
       });
     }
   }, [isEditing, novel, isOpen]);
@@ -243,6 +246,25 @@ export function NovelDialog({
                 </Button>
               ))}
             </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="uses_volumes"
+              checked={formData.uses_volumes}
+              onCheckedChange={(checked) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  uses_volumes: !!checked,
+                }))
+              }
+            />
+            <Label
+              htmlFor="uses_volumes"
+              className="cursor-pointer text-xs font-normal sm:text-sm"
+            >
+              Organize chapters by volumes
+            </Label>
           </div>
 
           {genres && genres.length > 0 && (

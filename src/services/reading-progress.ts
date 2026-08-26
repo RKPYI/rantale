@@ -82,10 +82,12 @@ export const readingProgressService = {
   async continueReading(
     novelSlug: string,
     chapterNumber: number,
+    volumeNumber?: number,
   ): Promise<ReadingProgressResponse> {
     return this.updateProgress({
       novel_slug: novelSlug,
       chapter_number: chapterNumber,
+      volume_number: volumeNumber,
     });
   },
 };

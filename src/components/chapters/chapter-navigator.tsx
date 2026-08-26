@@ -14,11 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ChapterSummary } from "@/types/api";
+import { getChapterPath, getChapterLabel } from "@/lib/chapter-url";
 
 interface ChapterNavigatorProps {
   allChapters: ChapterSummary[];
   currentChapterId: number;
   novelSlug: string;
+  usesVolumes?: boolean;
 }
 
 const ITEMS_PER_PAGE = 100;
@@ -30,18 +32,20 @@ const ChapterItem = memo(
     chapter,
     isCurrentChapter,
     novelSlug,
+    usesVolumes = false,
     onNavigate,
     itemRef,
   }: {
     chapter: ChapterSummary;
     isCurrentChapter: boolean;
     novelSlug: string;
+    usesVolumes?: boolean;
     onNavigate: () => void;
     itemRef?: React.RefObject<HTMLDivElement | null>;
   }) => (
     <div ref={isCurrentChapter ? itemRef : undefined}>
       <Link
-        href={`/novels/${novelSlug}/chapters/${chapter.chapter_number}`}
+        href={getChapterPath(novelSlug, chapter, usesVolumes)}
         onClick={onNavigate}
         className={cn(
           "hover:bg-accent block w-full rounded-md p-2 text-left transition-colors",
@@ -51,7 +55,7 @@ const ChapterItem = memo(
       >
         <div className="flex items-center justify-between gap-2">
           <span className="truncate text-sm">
-            Ch. {chapter.chapter_number}: {chapter.title}
+            {getChapterLabel(chapter, usesVolumes)}: {chapter.title}
           </span>
           {isCurrentChapter && (
             <Badge variant="secondary" className="text-xs">
@@ -69,6 +73,7 @@ export function ChapterNavigator({
   allChapters,
   currentChapterId,
   novelSlug,
+  usesVolumes = false,
 }: ChapterNavigatorProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
@@ -91,7 +96,8 @@ export function ChapterNavigator({
     return allChapters.filter(
       (chapter) =>
         chapter.title.toLowerCase().includes(query) ||
-        chapter.chapter_number.toString().includes(query),
+        chapter.chapter_number.toString().includes(query) ||
+        (chapter.volume_number?.toString().includes(query) ?? false),
     );
   }, [allChapters, searchQuery]);
 
@@ -185,18 +191,33 @@ export function ChapterNavigator({
 
         <ScrollArea className="h-80" ref={scrollAreaRef}>
           <div className="space-y-1 p-1">
-            {paginatedChapters.map((ch) => (
-              <ChapterItem
-                key={ch.id}
-                chapter={ch}
-                isCurrentChapter={ch.id === currentChapterId}
-                novelSlug={novelSlug}
-                onNavigate={() => setIsOpen(false)}
-                itemRef={
-                  ch.id === currentChapterId ? currentChapterRef : undefined
-                }
-              />
-            ))}
+            {paginatedChapters.map((ch, index) => {
+              const previousVolume = paginatedChapters[index - 1]?.volume_number;
+              const showVolumeHeader =
+                usesVolumes &&
+                ch.volume_number != null &&
+                ch.volume_number !== previousVolume;
+
+              return (
+                <div key={ch.id}>
+                  {showVolumeHeader && (
+                    <div className="text-muted-foreground px-2 py-1.5 text-xs font-semibold tracking-wide uppercase">
+                      Volume {ch.volume_number}
+                    </div>
+                  )}
+                  <ChapterItem
+                    chapter={ch}
+                    isCurrentChapter={ch.id === currentChapterId}
+                    novelSlug={novelSlug}
+                    usesVolumes={usesVolumes}
+                    onNavigate={() => setIsOpen(false)}
+                    itemRef={
+                      ch.id === currentChapterId ? currentChapterRef : undefined
+                    }
+                  />
+                </div>
+              );
+            })}
 
             {paginatedChapters.length === 0 && (
               <div className="text-muted-foreground p-4 text-center text-sm">

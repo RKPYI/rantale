@@ -25,10 +25,17 @@ export function useChapterComments(
   novelSlug: string,
   chapterNumber: number,
   page?: number,
+  volumeNumber?: number,
 ) {
   return useApi(
-    () => commentService.getChapterComments(novelSlug, chapterNumber, page),
-    [novelSlug, chapterNumber, page],
+    () =>
+      commentService.getChapterComments(
+        novelSlug,
+        chapterNumber,
+        page,
+        volumeNumber,
+      ),
+    [novelSlug, chapterNumber, page, volumeNumber],
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,10 +16,12 @@ import { toast } from "sonner";
 import { OverviewTab } from "./overview-tab";
 import { NovelsTab } from "./novels-tab";
 import { ChaptersTab } from "./chapters-tab";
+import { VolumesTab } from "./volumes-tab";
 import { AnalyticsTab } from "./analytics-tab";
 import { NovelDialog } from "./novel-dialog";
-import { toggleInSet, toggleAllInSet, logAndToastError } from "@/lib/utils";
+import { logAndToastError } from "@/lib/utils";
 import { ChapterDialog } from "./chapter-dialog";
+import { useOrderedListSelection } from "@/hooks/use-ordered-list-selection";
 
 export function AuthorDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -36,10 +38,6 @@ export function AuthorDashboard() {
     novel: { id: number; slug: string; title: string } | null;
   }>({ isOpen: false, novel: null });
 
-  // Bulk selection state
-  const [selectedNovelIds, setSelectedNovelIds] = useState<Set<number>>(
-    new Set(),
-  );
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [bulkDeleteNovelsDialog, setBulkDeleteNovelsDialog] = useState(false);
 
@@ -57,6 +55,21 @@ export function AuthorDashboard() {
     error: novelsError,
     refetch: refetchNovels,
   } = useAuthorNovels();
+
+  const novelIds = useMemo(() => novels?.map((novel) => novel.id) ?? [], [novels]);
+  const {
+    selectedIds: selectedNovelIds,
+    setSelectedIds: setSelectedNovelIds,
+    handleSelect: handleNovelSelect,
+    toggleAll: toggleAllNovels,
+    handleListKeyDown: handleNovelListKeyDown,
+    allSelected: allNovelsSelected,
+    someSelected: someNovelsSelected,
+    clearSelection: clearNovelSelection,
+  } = useOrderedListSelection({
+    orderedIds: novelIds,
+    resetKey: novels?.length ?? 0,
+  });
   const {
     data: stats,
     loading: statsLoading,
@@ -125,15 +138,6 @@ export function AuthorDashboard() {
     }
   };
 
-  const toggleNovelSelection = (novelId: number) => {
-    setSelectedNovelIds((prev) => toggleInSet(prev, novelId));
-  };
-
-  const toggleAllNovels = () => {
-    if (!novels) return;
-    setSelectedNovelIds((prev) => toggleAllInSet(prev, novels, (n) => n.id));
-  };
-
   if (novelsError || statsError) {
     return (
       <Alert variant="destructive">
@@ -178,6 +182,9 @@ export function AuthorDashboard() {
             </TabsTrigger>
             <TabsTrigger value="chapters" className="text-xs sm:text-sm">
               Chapters
+            </TabsTrigger>
+            <TabsTrigger value="volumes" className="text-xs sm:text-sm">
+              Volumes
             </TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs sm:text-sm">
               Analytics
@@ -232,8 +239,12 @@ export function AuthorDashboard() {
               setDeleteNovelDialog({ isOpen: true, novel })
             }
             onBulkDelete={() => setBulkDeleteNovelsDialog(true)}
-            onToggleSelection={toggleNovelSelection}
+            onSelectNovel={handleNovelSelect}
             onToggleAll={toggleAllNovels}
+            onListKeyDown={handleNovelListKeyDown}
+            allSelected={allNovelsSelected}
+            someSelected={someNovelsSelected}
+            onClearSelection={clearNovelSelection}
             getStatusColor={getStatusColor}
           />
         </TabsContent>
@@ -257,6 +268,14 @@ export function AuthorDashboard() {
               setIsChapterDialogOpen(true);
             }}
             onRefetchChapters={handleRefetchChapters}
+          />
+        </TabsContent>
+
+        <TabsContent value="volumes">
+          <VolumesTab
+            selectedNovel={selectedNovel}
+            novels={novels}
+            refetchNovels={refetchNovels}
           />
         </TabsContent>
 

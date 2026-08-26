@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,19 +17,31 @@ import {
   Plus,
   Send,
   AlertCircle,
+  ArrowRightLeft,
+  X,
 } from "lucide-react";
 import { useAuthorNovelChapters } from "@/hooks/use-author";
+import { useOrderedListSelection } from "@/hooks/use-ordered-list-selection";
 import { chapterService } from "@/services/chapters";
 import { authorService } from "@/services/author";
+import { volumeService } from "@/services/volumes";
 import {
   AuthorNovel,
   AuthorChapterWithStatus,
   ChapterSummary,
+  VolumeSummary,
 } from "@/types/api";
-import { cn, logAndToastError, toggleInSet, toggleAllInSet } from "@/lib/utils";
+import { cn, logAndToastError } from "@/lib/utils";
 import { formatNumber } from "@/lib/novel-utils";
+import { getChapterPath, getChapterLabel } from "@/lib/chapter-url";
 import { toast } from "sonner";
 import { ChapterStatusBadge } from "@/components/editor/chapter-status-badge";
+import { MoveChapterDialog } from "@/components/author/move-chapter-dialog";
+import {
+  SelectableList,
+  SelectableListRow,
+  SelectionHint,
+} from "@/components/author/selectable-list-row";
 
 interface ChaptersTabProps {
   selectedNovel: AuthorNovel | null;
@@ -56,16 +68,17 @@ export function ChaptersTab({
     chapter: { id: number; number: number; title: string } | null;
   }>({ isOpen: false, chapter: null });
 
-  // Bulk selection state for chapters
-  const [selectedChapterIds, setSelectedChapterIds] = useState<Set<number>>(
-    new Set(),
-  );
   const [isBulkDeletingChapters, setIsBulkDeletingChapters] = useState(false);
   const [bulkDeleteChaptersDialog, setBulkDeleteChaptersDialog] =
     useState(false);
   const [submittingChapterId, setSubmittingChapterId] = useState<number | null>(
     null,
   );
+  const [moveChapterDialog, setMoveChapterDialog] = useState<{
+    isOpen: boolean;
+    chapters: AuthorChapterWithStatus[];
+  }>({ isOpen: false, chapters: [] });
+  const [allVolumes, setAllVolumes] = useState<VolumeSummary[]>([]);
 
   const {
     data: chaptersData,
@@ -74,6 +87,33 @@ export function ChaptersTab({
   } = useAuthorNovelChapters(currentNovel?.slug || "");
 
   const chapters = chaptersData?.chapters || [];
+  const chapterIds = useMemo(() => chapters.map((chapter) => chapter.id), [chapters]);
+  const volumeGroups = chaptersData?.volumes || [];
+  const usesVolumes = currentNovel?.uses_volumes ?? chaptersData?.uses_volumes;
+  const canMoveChapters = usesVolumes && allVolumes.length > 1;
+
+  const {
+    selectedIds: selectedChapterIds,
+    setSelectedIds: setSelectedChapterIds,
+    handleSelect: handleChapterSelect,
+    toggleAll: toggleAllChapters,
+    handleListKeyDown: handleChapterListKeyDown,
+    allSelected: allChaptersSelected,
+    someSelected: someChaptersSelected,
+    clearSelection: clearChapterSelection,
+  } = useOrderedListSelection({
+    orderedIds: chapterIds,
+    resetKey: currentNovel?.id ?? null,
+  });
+
+  const loadAllVolumes = async (novelSlug: string) => {
+    try {
+      const data = await volumeService.getAuthorNovelVolumes(novelSlug);
+      setAllVolumes(data.volumes);
+    } catch {
+      setAllVolumes([]);
+    }
+  };
 
   // Expose refetch function to parent
   useEffect(() => {
@@ -81,6 +121,15 @@ export function ChaptersTab({
       onRefetchChapters(refetchChapters);
     }
   }, [onRefetchChapters, refetchChapters]);
+
+  useEffect(() => {
+    if (!currentNovel?.slug || !usesVolumes) {
+      setAllVolumes([]);
+      return;
+    }
+
+    loadAllVolumes(currentNovel.slug);
+  }, [currentNovel?.slug, usesVolumes]);
 
   const handleDeleteChapter = async () => {
     if (!deleteChapterDialog.chapter || !currentNovel) return;
@@ -148,14 +197,178 @@ export function ChaptersTab({
     }
   };
 
-  const toggleChapterSelection = (chapterId: number) => {
-    setSelectedChapterIds((prev) => toggleInSet(prev, chapterId));
+  const toggleChapterSelection = (chapterId: number, event?: React.MouseEvent | React.KeyboardEvent) => {
+    handleChapterSelect(chapterId, event);
   };
 
-  const toggleAllChapters = () => {
-    if (!chapters || chapters.length === 0) return;
-    setSelectedChapterIds((prev) =>
-      toggleAllInSet(prev, chapters, (ch: AuthorChapterWithStatus) => ch.id),
+  const getSelectedChaptersInOrder = () =>
+    chapters.filter((chapter) => selectedChapterIds.has(chapter.id));
+
+  const handleOpenBulkMoveDialog = () => {
+    const selectedChapters = getSelectedChaptersInOrder();
+    if (selectedChapters.length === 0) return;
+
+    setMoveChapterDialog({ isOpen: true, chapters: selectedChapters });
+  };
+
+  const renderChapterRow = (chapter: AuthorChapterWithStatus) => {
+    const isSelected = selectedChapterIds.has(chapter.id);
+
+    return (
+      <SelectableListRow
+        key={chapter.id}
+        selected={isSelected}
+        onSelect={(event) => toggleChapterSelection(chapter.id, event)}
+        ariaLabel={`${getChapterLabel(chapter, usesVolumes)}: ${chapter.title}`}
+        className={cn(
+          "p-3 sm:p-4",
+          chapter.status === "revision_requested" &&
+            "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20",
+          chapter.status === "pending_update" &&
+            "border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20",
+          chapter.status === "pending_review" &&
+            "border-yellow-200 bg-yellow-50/50 dark:border-yellow-900/50 dark:bg-yellow-950/20",
+        )}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
+            <Checkbox
+              checked={isSelected}
+              onClick={(event) => {
+                event.stopPropagation();
+                toggleChapterSelection(chapter.id, event);
+              }}
+              aria-label={`Select ${chapter.title}`}
+              className="mt-1 flex-shrink-0 sm:mt-0"
+            />
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-sm font-medium break-words sm:text-base">
+                  {getChapterLabel(chapter, usesVolumes)}: {chapter.title}
+                </h4>
+                <ChapterStatusBadge status={chapter.status} />
+              </div>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                {formatNumber(chapter.word_count)} words
+              </p>
+            </div>
+          </div>
+          <div
+            className="flex items-center justify-end space-x-2 sm:flex-shrink-0"
+            data-no-row-select
+          >
+          {(chapter.status === "draft" ||
+            chapter.status === "revision_requested") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleSubmitForReview(chapter)}
+              disabled={submittingChapterId === chapter.id}
+            >
+              {submittingChapterId === chapter.id ? (
+                <span className="mr-2 animate-spin">⏳</span>
+              ) : (
+                <Send className="mr-2 h-4 w-4" />
+              )}
+              Submit
+            </Button>
+          )}
+          {(chapter.status === "approved" ||
+            chapter.status === "pending_update") &&
+            currentNovel && (
+              <Button variant="ghost" size="sm" asChild>
+                <Link
+                  href={getChapterPath(
+                    currentNovel.slug,
+                    chapter,
+                    usesVolumes,
+                  )}
+                >
+                  <Eye className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              currentNovel &&
+              onEditChapter(
+                currentNovel,
+                chapter as unknown as ChapterSummary,
+              )
+            }
+            disabled={
+              chapter.status === "pending_review" ||
+              chapter.status === "pending_update"
+            }
+            title={
+              chapter.status === "pending_review" ||
+              chapter.status === "pending_update"
+                ? "Cannot edit while pending review"
+                : undefined
+            }
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          {canMoveChapters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                setMoveChapterDialog({ isOpen: true, chapters: [chapter] })
+              }
+              title="Move to another volume"
+            >
+              <ArrowRightLeft className="h-4 w-4" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() =>
+              setDeleteChapterDialog({
+                isOpen: true,
+                chapter: {
+                  id: chapter.id,
+                  number: chapter.chapter_number,
+                  title: chapter.title,
+                },
+              })
+            }
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      {chapter.status === "revision_requested" &&
+        chapter.latest_review?.notes && (
+          <Alert variant="destructive" className="mt-3">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <strong>Editor Feedback:</strong> {chapter.latest_review.notes}
+            </AlertDescription>
+          </Alert>
+        )}
+      {chapter.status === "pending_update" && (
+        <Alert className="mt-3 border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20">
+          <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <AlertDescription className="text-sm text-blue-800 dark:text-blue-300">
+            Your changes are being reviewed. The original content remains
+            visible to readers.
+          </AlertDescription>
+        </Alert>
+      )}
+      {chapter.status === "pending_review" && (
+        <Alert className="mt-3 border-yellow-200 bg-yellow-50/50 dark:border-yellow-900/50 dark:bg-yellow-950/20">
+          <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          <AlertDescription className="text-sm text-yellow-800 dark:text-yellow-300">
+            This chapter is waiting for editor review.
+          </AlertDescription>
+        </Alert>
+      )}
+    </SelectableListRow>
     );
   };
 
@@ -226,6 +439,28 @@ export function ChaptersTab({
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 {selectedChapterIds.size > 0 && (
                   <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearChapterSelection}
+                    className="w-full sm:w-auto"
+                  >
+                    <X className="mr-2 h-4 w-4" />
+                    Clear ({selectedChapterIds.size})
+                  </Button>
+                )}
+                {selectedChapterIds.size > 0 && canMoveChapters && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleOpenBulkMoveDialog}
+                    className="w-full sm:w-auto"
+                  >
+                    <ArrowRightLeft className="mr-2 h-4 w-4" />
+                    Move ({selectedChapterIds.size})
+                  </Button>
+                )}
+                {selectedChapterIds.size > 0 && (
+                  <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => setBulkDeleteChaptersDialog(true)}
@@ -254,157 +489,49 @@ export function ChaptersTab({
                 ))}
               </div>
             ) : chapters && chapters.length > 0 ? (
-              <div className="space-y-3">
-                {/* Select All Checkbox */}
-                <div className="flex items-center gap-2 border-b pb-3">
-                  <Checkbox
-                    checked={selectedChapterIds.size === chapters.length}
-                    onCheckedChange={toggleAllChapters}
-                  />
-                  <label className="text-xs font-medium sm:text-sm">
-                    Select All ({chapters.length})
-                  </label>
+              <SelectableList
+                label={`Chapters for ${currentNovel.title}`}
+                selectedCount={selectedChapterIds.size}
+                onKeyDown={handleChapterListKeyDown}
+                className="space-y-3"
+              >
+                <div className="space-y-3 border-b pb-3">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={
+                        allChaptersSelected
+                          ? true
+                          : someChaptersSelected
+                            ? "indeterminate"
+                            : false
+                      }
+                      onClick={(event) => event.stopPropagation()}
+                      onCheckedChange={toggleAllChapters}
+                      aria-label="Select all chapters"
+                    />
+                    <label className="text-xs font-medium sm:text-sm">
+                      Select All ({chapters.length})
+                    </label>
+                  </div>
+                  <SelectionHint />
                 </div>
 
-                {chapters.map((chapter: AuthorChapterWithStatus) => (
-                  <div
-                    key={chapter.id}
-                    className={cn(
-                      "rounded-lg border p-3 sm:p-4",
-                      chapter.status === "revision_requested" &&
-                        "border-red-200 bg-red-50/50 dark:border-red-900/50 dark:bg-red-950/20",
-                      chapter.status === "pending_update" &&
-                        "border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20",
-                      chapter.status === "pending_review" &&
-                        "border-yellow-200 bg-yellow-50/50 dark:border-yellow-900/50 dark:bg-yellow-950/20",
-                    )}
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center">
-                        {/* Checkbox for individual selection */}
-                        <Checkbox
-                          checked={selectedChapterIds.has(chapter.id)}
-                          onCheckedChange={() =>
-                            toggleChapterSelection(chapter.id)
-                          }
-                          className="mt-1 flex-shrink-0 sm:mt-0"
-                        />
-                        <div className="min-w-0 flex-1 overflow-hidden">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h4 className="text-sm font-medium break-words sm:text-base">
-                              Chapter {chapter.chapter_number}: {chapter.title}
-                            </h4>
-                            <ChapterStatusBadge status={chapter.status} />
-                          </div>
-                          <p className="text-muted-foreground text-xs sm:text-sm">
-                            {formatNumber(chapter.word_count)} words
-                          </p>
-                        </div>
+                {usesVolumes && volumeGroups.length > 0
+                  ? volumeGroups.map((volume) => (
+                      <div key={volume.id} className="space-y-3">
+                        <h3 className="text-sm font-semibold">
+                          {volume.title} (Vol. {volume.volume_number})
+                        </h3>
+                        {chapters
+                          .filter(
+                            (chapter) =>
+                              chapter.volume_number === volume.volume_number,
+                          )
+                          .map((chapter) => renderChapterRow(chapter))}
                       </div>
-                      <div className="flex items-center justify-end space-x-2 sm:flex-shrink-0">
-                        {/* Submit for Review button - only for draft or revision_requested chapters */}
-                        {(chapter.status === "draft" ||
-                          chapter.status === "revision_requested") && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSubmitForReview(chapter)}
-                            disabled={submittingChapterId === chapter.id}
-                          >
-                            {submittingChapterId === chapter.id ? (
-                              <span className="mr-2 animate-spin">⏳</span>
-                            ) : (
-                              <Send className="mr-2 h-4 w-4" />
-                            )}
-                            Submit
-                          </Button>
-                        )}
-                        {/* View button - for approved or pending_update chapters (published) */}
-                        {(chapter.status === "approved" ||
-                          chapter.status === "pending_update") && (
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link
-                              href={`/novels/${currentNovel.slug}/chapters/${chapter.chapter_number}`}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        )}
-                        {/* Edit button - disabled for pending_review and pending_update */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            onEditChapter(
-                              currentNovel,
-                              chapter as unknown as ChapterSummary,
-                            )
-                          }
-                          disabled={
-                            chapter.status === "pending_review" ||
-                            chapter.status === "pending_update"
-                          }
-                          title={
-                            chapter.status === "pending_review" ||
-                            chapter.status === "pending_update"
-                              ? "Cannot edit while pending review"
-                              : undefined
-                          }
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setDeleteChapterDialog({
-                              isOpen: true,
-                              chapter: {
-                                id: chapter.id,
-                                number: chapter.chapter_number,
-                                title: chapter.title,
-                              },
-                            })
-                          }
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    {/* Revision Notes */}
-                    {chapter.status === "revision_requested" &&
-                      chapter.latest_review?.notes && (
-                        <Alert variant="destructive" className="mt-3">
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription className="text-sm">
-                            <strong>Editor Feedback:</strong>{" "}
-                            {chapter.latest_review.notes}
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    {/* Pending Update Message */}
-                    {chapter.status === "pending_update" && (
-                      <Alert className="mt-3 border-blue-200 bg-blue-50/50 dark:border-blue-900/50 dark:bg-blue-950/20">
-                        <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                        <AlertDescription className="text-sm text-blue-800 dark:text-blue-300">
-                          Your changes are being reviewed. The original content
-                          remains visible to readers.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    {/* Pending Review Message */}
-                    {chapter.status === "pending_review" && (
-                      <Alert className="mt-3 border-yellow-200 bg-yellow-50/50 dark:border-yellow-900/50 dark:bg-yellow-950/20">
-                        <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                        <AlertDescription className="text-sm text-yellow-800 dark:text-yellow-300">
-                          This chapter is waiting for editor review.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                ))}
-              </div>
+                    ))
+                  : chapters.map((chapter) => renderChapterRow(chapter))}
+              </SelectableList>
             ) : (
               <div className="py-8 text-center">
                 <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
@@ -454,6 +581,25 @@ export function ChaptersTab({
         confirmText={`Delete ${selectedChapterIds.size} Chapter(s)`}
         isLoading={isBulkDeletingChapters}
       />
+
+      {currentNovel && (
+        <MoveChapterDialog
+          isOpen={moveChapterDialog.isOpen}
+          onClose={() => setMoveChapterDialog({ isOpen: false, chapters: [] })}
+          novelSlug={currentNovel.slug}
+          chapters={moveChapterDialog.chapters}
+          onSuccess={async () => {
+            if (moveChapterDialog.chapters.length > 1) {
+              setSelectedChapterIds(new Set());
+            }
+            await refetchChapters();
+            await refetchNovels();
+            if (currentNovel?.slug && usesVolumes) {
+              await loadAllVolumes(currentNovel.slug);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

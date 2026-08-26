@@ -60,7 +60,9 @@ export function useAuthorStats() {
 export function useAuthorNovelChapters(novelSlug: string) {
   return useApi<{
     novel: { id: number; title: string; slug: string; author: string };
+    uses_volumes?: boolean;
     chapters: AuthorChapterWithStatus[];
+    volumes?: import("@/types/novel").VolumeSummary[];
   } | null>(
     () =>
       novelSlug

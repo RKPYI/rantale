@@ -42,6 +42,18 @@ import {
 import { formatProgressPercentage } from "@/lib/content-utils";
 import { cn } from "@/lib/utils";
 import { NovelWithChapters, ChapterSummary } from "@/types/api";
+import {
+  flattenNovelChapters,
+  getChapterPath,
+  getChapterLabel,
+  groupChaptersByVolume,
+} from "@/lib/chapter-url";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useRouter } from "next/navigation";
 import { NovelBadge } from "./ui/novel-badge";
 import {
@@ -81,11 +93,13 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const isLoading = authLoading || progressLoading;
 
   const sortedChapters = useMemo(
-    () =>
-      [...(novel.chapters ?? [])].sort(
-        (a, b) => a.chapter_number - b.chapter_number,
-      ),
-    [novel.chapters],
+    () => flattenNovelChapters(novel),
+    [novel],
+  );
+
+  const volumeGroups = useMemo(
+    () => groupChaptersByVolume(novel.volumes),
+    [novel.volumes],
   );
 
   const latestChapters = useMemo(
@@ -147,7 +161,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const handleStartReading = () => {
     if (sortedChapters.length > 0) {
       router.push(
-        `/novels/${novel.slug}/chapters/${sortedChapters[0].chapter_number}`,
+        getChapterPath(novel.slug, sortedChapters[0], novel.uses_volumes),
       );
     }
   };
@@ -155,7 +169,11 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
   const handleContinueReading = () => {
     if (readingProgress?.current_chapter) {
       router.push(
-        `/novels/${novel.slug}/chapters/${readingProgress.current_chapter.chapter_number}`,
+        getChapterPath(
+          novel.slug,
+          readingProgress.current_chapter,
+          novel.uses_volumes ?? readingProgress.uses_volumes,
+        ),
       );
     } else {
       handleStartReading();
@@ -615,8 +633,12 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                         <ChapterRow
                           novelSlug={novel.slug}
                           chapter={chapter}
+                          usesVolumes={novel.uses_volumes}
                           isCurrent={
-                            currentChapterNumber === chapter.chapter_number
+                            currentChapterNumber === chapter.chapter_number &&
+                            (!novel.uses_volumes ||
+                              readingProgress?.current_chapter
+                                ?.volume_number === chapter.volume_number)
                           }
                         />
                       </li>
@@ -655,22 +677,71 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 
             {hasChapters ? (
               <div className="space-y-4">
-                <ul className="divide-y rounded-2xl border">
-                  {paginatedChapters.map((chapter) => (
-                    <li key={chapter.id}>
-                      <ChapterRow
-                        novelSlug={novel.slug}
-                        chapter={chapter}
-                        isCurrent={
-                          currentChapterNumber === chapter.chapter_number
-                        }
-                        showWordCountFallback
-                      />
-                    </li>
-                  ))}
-                </ul>
+                {novel.uses_volumes && volumeGroups.length > 0 ? (
+                  <Accordion
+                    type="multiple"
+                    defaultValue={volumeGroups.map((v) => `volume-${v.id}`)}
+                    className="rounded-2xl border px-2"
+                  >
+                    {volumeGroups.map((volume) => (
+                      <AccordionItem
+                        key={volume.id}
+                        value={`volume-${volume.id}`}
+                        className="border-b last:border-b-0"
+                      >
+                        <AccordionTrigger className="px-3 hover:no-underline">
+                          <div className="text-left">
+                            <p className="font-medium">
+                              {volume.title || `Volume ${volume.volume_number}`}
+                            </p>
+                            <p className="text-muted-foreground text-xs">
+                              {volume.chapters.length} chapter
+                              {volume.chapters.length === 1 ? "" : "s"}
+                            </p>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-0">
+                          <ul className="divide-y">
+                            {volume.chapters.map((chapter) => (
+                              <li key={chapter.id}>
+                                <ChapterRow
+                                  novelSlug={novel.slug}
+                                  chapter={chapter}
+                                  usesVolumes={novel.uses_volumes}
+                                  isCurrent={
+                                    currentChapterNumber ===
+                                      chapter.chapter_number &&
+                                    readingProgress?.current_chapter
+                                      ?.volume_number === volume.volume_number
+                                  }
+                                  showWordCountFallback
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                ) : (
+                  <ul className="divide-y rounded-2xl border">
+                    {paginatedChapters.map((chapter) => (
+                      <li key={chapter.id}>
+                        <ChapterRow
+                          novelSlug={novel.slug}
+                          chapter={chapter}
+                          usesVolumes={novel.uses_volumes}
+                          isCurrent={
+                            currentChapterNumber === chapter.chapter_number
+                          }
+                          showWordCountFallback
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-                {chaptersTotalPages > 1 && (
+                {!novel.uses_volumes && chaptersTotalPages > 1 && (
                   <div className="flex items-center justify-center gap-2">
                     <Button
                       variant="outline"
@@ -806,17 +877,19 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
 function ChapterRow({
   novelSlug,
   chapter,
+  usesVolumes = false,
   isCurrent = false,
   showWordCountFallback = false,
 }: {
   novelSlug: string;
   chapter: ChapterSummary;
+  usesVolumes?: boolean;
   isCurrent?: boolean;
   showWordCountFallback?: boolean;
 }) {
   return (
     <Link
-      href={`/novels/${novelSlug}/chapters/${chapter.chapter_number}`}
+      href={getChapterPath(novelSlug, chapter, usesVolumes)}
       className={cn(
         "group flex items-center gap-3 px-3 py-3.5 transition-colors sm:gap-4 sm:px-4",
         "hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none",
@@ -831,7 +904,9 @@ function ChapterRow({
             : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary",
         )}
       >
-        {chapter.chapter_number}
+        {usesVolumes && chapter.volume_number != null
+          ? `${chapter.volume_number}-${chapter.chapter_number}`
+          : chapter.chapter_number}
       </span>
 
       <div className="min-w-0 flex-1">
@@ -852,6 +927,9 @@ function ChapterRow({
           )}
         </div>
         <p className="text-muted-foreground mt-0.5 text-xs">
+          {usesVolumes && chapter.volume_number != null && (
+            <span>{getChapterLabel(chapter, usesVolumes)} · </span>
+          )}
           {chapter.word_count
             ? `${formatNumber(chapter.word_count)} words`
             : showWordCountFallback
