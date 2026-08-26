@@ -19,6 +19,7 @@ import {
   ArrowUp,
   Type,
   Edit,
+  Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,11 +39,17 @@ import { useAsync } from "@/hooks/use-api";
 import { readingProgressService } from "@/services/reading-progress";
 import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
+import {
+  getChapterBookmark,
+  saveChapterBookmark,
+  type ChapterBookmark,
+} from "@/lib/chapter-bookmarks";
 import { Chapter, ChapterSummary } from "@/types/api";
 import {
   getChapterPath,
   getChapterLabel,
 } from "@/lib/chapter-url";
+import { toast } from "sonner";
 
 const MOBILE_NAV_HIDE_THRESHOLD = 8;
 const MOBILE_NAV_BREAKPOINT = 768;
@@ -102,6 +109,9 @@ export function ChapterReadingView({
   const [readingProgress, setReadingProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [chapterBookmark, setChapterBookmark] =
+    useState<ChapterBookmark | null>(null);
+  const [showBookmarkPrompt, setShowBookmarkPrompt] = useState(false);
 
   const { fontSize, maxWidth } = settings;
 
@@ -119,6 +129,13 @@ export function ChapterReadingView({
     const storedSettings = getStoredSettings();
     setSettings(storedSettings);
   }, []);
+
+  // Load the browser-local bookmark after the chapter content has mounted.
+  useEffect(() => {
+    const bookmark = getChapterBookmark(novel.slug, chapter.id);
+    setChapterBookmark(bookmark);
+    setShowBookmarkPrompt(bookmark !== null && bookmark.scrollY > 40);
+  }, [novel.slug, chapter.id]);
 
   // Update settings with localStorage persistence
   const updateSettings = (newSettings: Partial<typeof DEFAULT_SETTINGS>) => {
@@ -209,11 +226,83 @@ export function ChapterReadingView({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSaveBookmark = () => {
+    try {
+      const bookmark = saveChapterBookmark(
+        novel.slug,
+        chapter.id,
+        window.scrollY,
+      );
+      setChapterBookmark(bookmark);
+      setShowBookmarkPrompt(false);
+      toast.success("Bookmark saved", {
+        description: "Your place in this chapter is saved on this browser.",
+      });
+    } catch {
+      toast.error("Bookmark could not be saved", {
+        description: "Your browser did not allow local storage.",
+      });
+    }
+  };
+
+  const handleResumeBookmark = () => {
+    if (!chapterBookmark) return;
+
+    const maxScrollY =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const targetScrollY = Math.min(
+      Math.max(chapterBookmark.scrollY, 0),
+      Math.max(maxScrollY, 0),
+    );
+    window.scrollTo({
+      top: targetScrollY,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+    setShowBookmarkPrompt(false);
+  };
+
+  const handleStartAtTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+    setShowBookmarkPrompt(false);
+  };
+
+  const bookmarkProgress =
+    chapterBookmark && typeof document !== "undefined"
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            (chapterBookmark.scrollY /
+              Math.max(
+                document.documentElement.scrollHeight - window.innerHeight,
+                1,
+              )) *
+              100,
+          ),
+        )
+      : null;
+
   return (
     <div className="bg-background min-h-screen">
       {/* Fixed Progress Bar */}
       <div className="bg-background/80 fixed top-0 right-0 left-0 z-[60] backdrop-blur-sm">
-        <Progress value={readingProgress} className="h-1 rounded-none" />
+        <div className="relative">
+          <Progress value={readingProgress} className="h-1 rounded-none" />
+          {bookmarkProgress !== null && (
+            <span
+              aria-label={`Saved bookmark at ${Math.round(bookmarkProgress)}%`}
+              className="bg-sky-500 absolute top-1/2 h-3 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_2px_var(--background)]"
+              style={{ left: `${bookmarkProgress}%` }}
+            />
+          )}
+        </div>
       </div>
 
       {/* Header Navigation */}
@@ -277,6 +366,31 @@ export function ChapterReadingView({
                 novelSlug={novel.slug}
                 usesVolumes={novel.uses_volumes}
               />
+
+              <Button
+                variant={chapterBookmark ? "secondary" : "ghost"}
+                size="icon"
+                onClick={handleSaveBookmark}
+                title={
+                  chapterBookmark
+                    ? "Update bookmark"
+                    : "Save your place in this chapter"
+                }
+                aria-label={
+                  chapterBookmark
+                    ? "Update bookmark"
+                    : "Save your place in this chapter"
+                }
+                className="relative h-9 w-9"
+              >
+                <Bookmark
+                  className="h-4 w-4"
+                  fill={chapterBookmark ? "currentColor" : "none"}
+                />
+                {chapterBookmark && (
+                  <span className="bg-sky-500 absolute right-1.5 bottom-1.5 h-1.5 w-1.5 rounded-full" />
+                )}
+              </Button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -394,6 +508,31 @@ export function ChapterReadingView({
       {/* Main Content */}
       <main className="container mx-auto px-3 py-4 pb-24 sm:px-4 md:py-8 md:pb-8">
         <div className="flex flex-col items-center">
+          {showBookmarkPrompt && chapterBookmark && (
+            <div
+              role="status"
+              className="border-primary/30 bg-primary/5 mb-6 flex w-full flex-col items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm sm:flex-row sm:items-center"
+              style={{ maxWidth: `${maxWidth}px` }}
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                <Bookmark className="text-muted-foreground h-4 w-4 shrink-0" />
+                <span className="truncate">Your place is saved in this chapter.</span>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Button size="sm" onClick={handleResumeBookmark}>
+                  Resume
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleStartAtTop}
+                >
+                  Start at top
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Chapter Header */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
             <header className="border-border/70 border-b pb-6 text-center">
