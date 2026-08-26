@@ -19,6 +19,8 @@ import {
   ArrowUp,
   Type,
   Edit,
+  Lock,
+  Unlock,
   Bookmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,8 +43,11 @@ import { formatDate, formatNumber } from "@/lib/novel-utils";
 import { cn } from "@/lib/utils";
 import {
   getChapterBookmark,
+  getResumePreference,
   saveChapterBookmark,
+  saveResumePreference,
   type ChapterBookmark,
+  type ResumePreference,
 } from "@/lib/chapter-bookmarks";
 import { Chapter, ChapterSummary } from "@/types/api";
 import {
@@ -50,6 +55,14 @@ import {
   getChapterLabel,
 } from "@/lib/chapter-url";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const MOBILE_NAV_HIDE_THRESHOLD = 8;
 const MOBILE_NAV_BREAKPOINT = 768;
@@ -111,7 +124,13 @@ export function ChapterReadingView({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [chapterBookmark, setChapterBookmark] =
     useState<ChapterBookmark | null>(null);
-  const [showBookmarkPrompt, setShowBookmarkPrompt] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [resumePreference, setResumePreference] =
+    useState<ResumePreference>("ask");
+  const [rememberResumeChoice, setRememberResumeChoice] = useState(false);
+  const bookmarkLoadedRef = useRef(false);
+  const autoSaveEnabledRef = useRef(false);
+  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { fontSize, maxWidth } = settings;
 
@@ -133,8 +152,29 @@ export function ChapterReadingView({
   // Load the browser-local bookmark after the chapter content has mounted.
   useEffect(() => {
     const bookmark = getChapterBookmark(novel.slug, chapter.id);
+    const preference = getResumePreference();
     setChapterBookmark(bookmark);
-    setShowBookmarkPrompt(bookmark !== null && bookmark.scrollY > 40);
+    setResumePreference(preference);
+    bookmarkLoadedRef.current = true;
+    const hasSavedPosition = bookmark !== null && bookmark.scrollY > 40;
+    autoSaveEnabledRef.current =
+      !hasSavedPosition || (preference === "start-top" && !bookmark?.locked);
+
+    if (hasSavedPosition && preference === "ask") {
+      autoSaveEnabledRef.current = false;
+      setShowResumeDialog(true);
+    } else if (hasSavedPosition && preference === "resume") {
+      autoSaveEnabledRef.current = false;
+      requestAnimationFrame(() => {
+        const maxScrollY =
+          document.documentElement.scrollHeight - window.innerHeight;
+        window.scrollTo({
+          top: Math.min(bookmark.scrollY, Math.max(maxScrollY, 0)),
+          behavior: "auto",
+        });
+        autoSaveEnabledRef.current = !bookmark.locked;
+      });
+    }
   }, [novel.slug, chapter.id]);
 
   // Update settings with localStorage persistence
@@ -142,6 +182,12 @@ export function ChapterReadingView({
     const updatedSettings = { ...settings, ...newSettings };
     setSettings(updatedSettings);
     saveSettings(updatedSettings);
+  };
+
+  const resetReaderDefaults = () => {
+    updateSettings(DEFAULT_SETTINGS);
+    setResumePreference("ask");
+    saveResumePreference("ask");
   };
 
   // Find current chapter position and navigation
@@ -189,6 +235,42 @@ export function ChapterReadingView({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Persist the latest meaningful reading position without writing on every scroll.
+  useEffect(() => {
+    const handleAutoSave = () => {
+      if (
+        !bookmarkLoadedRef.current ||
+        !autoSaveEnabledRef.current ||
+        autoSaveTimeoutRef.current
+      ) {
+        return;
+      }
+
+      autoSaveTimeoutRef.current = setTimeout(() => {
+        autoSaveTimeoutRef.current = null;
+        try {
+          const bookmark = saveChapterBookmark(
+            novel.slug,
+            chapter.id,
+            window.scrollY,
+          );
+          setChapterBookmark(bookmark);
+        } catch (error) {
+          console.error("Failed to automatically save chapter progress:", error);
+        }
+      }, 750);
+    };
+
+    window.addEventListener("scroll", handleAutoSave, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleAutoSave);
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+        autoSaveTimeoutRef.current = null;
+      }
+    };
+  }, [novel.slug, chapter.id]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -226,25 +308,6 @@ export function ChapterReadingView({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSaveBookmark = () => {
-    try {
-      const bookmark = saveChapterBookmark(
-        novel.slug,
-        chapter.id,
-        window.scrollY,
-      );
-      setChapterBookmark(bookmark);
-      setShowBookmarkPrompt(false);
-      toast.success("Bookmark saved", {
-        description: "Your place in this chapter is saved on this browser.",
-      });
-    } catch {
-      toast.error("Bookmark could not be saved", {
-        description: "Your browser did not allow local storage.",
-      });
-    }
-  };
-
   const handleResumeBookmark = () => {
     if (!chapterBookmark) return;
 
@@ -260,7 +323,7 @@ export function ChapterReadingView({
         ? "auto"
         : "smooth",
     });
-    setShowBookmarkPrompt(false);
+    autoSaveEnabledRef.current = !chapterBookmark.locked;
   };
 
   const handleStartAtTop = () => {
@@ -270,7 +333,50 @@ export function ChapterReadingView({
         ? "auto"
         : "smooth",
     });
-    setShowBookmarkPrompt(false);
+    autoSaveEnabledRef.current = !chapterBookmark?.locked;
+  };
+
+  const handleResumeChoice = (choice: Exclude<ResumePreference, "ask">) => {
+    if (rememberResumeChoice) {
+      saveResumePreference(choice);
+      setResumePreference(choice);
+    }
+
+    setShowResumeDialog(false);
+    if (choice === "resume") {
+      handleResumeBookmark();
+    } else {
+      handleStartAtTop();
+    }
+  };
+
+  const handleResumePreferenceChange = (
+    preference: ResumePreference,
+  ) => {
+    setResumePreference(preference);
+    saveResumePreference(preference);
+  };
+
+  const handleToggleBookmarkLock = () => {
+    try {
+      const bookmark = saveChapterBookmark(
+        novel.slug,
+        chapter.id,
+        chapterBookmark?.scrollY ?? window.scrollY,
+        !chapterBookmark?.locked,
+      );
+      setChapterBookmark(bookmark);
+      autoSaveEnabledRef.current = !bookmark.locked;
+      toast.success(bookmark.locked ? "Place locked" : "Auto-saving resumed", {
+        description: bookmark.locked
+          ? "Your saved position will stay here until you unlock it."
+          : "Your saved position will update as you read.",
+      });
+    } catch {
+      toast.error("Saved place could not be updated", {
+        description: "Your browser did not allow local storage.",
+      });
+    }
   };
 
   const bookmarkProgress =
@@ -295,7 +401,7 @@ export function ChapterReadingView({
       <div className="bg-background/80 fixed top-0 right-0 left-0 z-[60] backdrop-blur-sm">
         <div className="relative">
           <Progress value={readingProgress} className="h-1 rounded-none" />
-          {bookmarkProgress !== null && (
+          {bookmarkProgress !== null && chapterBookmark?.locked && (
             <span
               aria-label={`Saved bookmark at ${Math.round(bookmarkProgress)}%`}
               className="bg-sky-500 absolute top-1/2 h-3 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_2px_var(--background)]"
@@ -368,28 +474,29 @@ export function ChapterReadingView({
               />
 
               <Button
-                variant={chapterBookmark ? "secondary" : "ghost"}
-                size="icon"
-                onClick={handleSaveBookmark}
+                variant="ghost"
+                size="sm"
+                onClick={handleToggleBookmarkLock}
                 title={
-                  chapterBookmark
-                    ? "Update bookmark"
-                    : "Save your place in this chapter"
+                  chapterBookmark?.locked
+                    ? "Unlock saved place"
+                    : "Lock saved place"
                 }
                 aria-label={
-                  chapterBookmark
-                    ? "Update bookmark"
-                    : "Save your place in this chapter"
+                  chapterBookmark?.locked
+                    ? "Unlock saved place"
+                    : "Lock saved place"
                 }
-                className="relative h-9 w-9"
+                className="h-9 gap-1.5 px-2"
               >
-                <Bookmark
-                  className="h-4 w-4"
-                  fill={chapterBookmark ? "currentColor" : "none"}
-                />
-                {chapterBookmark && (
-                  <span className="bg-sky-500 absolute right-1.5 bottom-1.5 h-1.5 w-1.5 rounded-full" />
+                {chapterBookmark?.locked ? (
+                  <Lock className="h-4 w-4 text-sky-500" />
+                ) : (
+                  <Unlock className="h-4 w-4" />
                 )}
+                <span className="hidden text-xs sm:inline">
+                  {chapterBookmark?.locked ? "Place locked" : "Auto-saving"}
+                </span>
               </Button>
 
               <DropdownMenu>
@@ -469,12 +576,34 @@ export function ChapterReadingView({
                         </Button>
                       </div>
                     </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="resume-preference"
+                        className="text-xs font-medium md:text-sm"
+                      >
+                        Resume behavior
+                      </label>
+                      <select
+                        id="resume-preference"
+                        value={resumePreference}
+                        onChange={(event) =>
+                          handleResumePreferenceChange(
+                            event.target.value as ResumePreference,
+                          )
+                        }
+                        className="border-input bg-background h-9 w-full rounded-md border px-2 text-sm"
+                      >
+                        <option value="ask">Ask every time</option>
+                        <option value="resume">Always resume saved place</option>
+                        <option value="start-top">Always start at top</option>
+                      </select>
+                    </div>
                     <Separator />
                     <div className="pt-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateSettings(DEFAULT_SETTINGS)}
+                        onClick={resetReaderDefaults}
                         className="w-full text-xs md:text-sm"
                       >
                         Reset to Default
@@ -508,31 +637,6 @@ export function ChapterReadingView({
       {/* Main Content */}
       <main className="container mx-auto px-3 py-4 pb-24 sm:px-4 md:py-8 md:pb-8">
         <div className="flex flex-col items-center">
-          {showBookmarkPrompt && chapterBookmark && (
-            <div
-              role="status"
-              className="border-primary/30 bg-primary/5 mb-6 flex w-full flex-col items-start justify-between gap-3 rounded-lg border px-4 py-3 text-sm sm:flex-row sm:items-center"
-              style={{ maxWidth: `${maxWidth}px` }}
-            >
-              <div className="flex min-w-0 items-center gap-2">
-                <Bookmark className="text-muted-foreground h-4 w-4 shrink-0" />
-                <span className="truncate">Your place is saved in this chapter.</span>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <Button size="sm" onClick={handleResumeBookmark}>
-                  Resume
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleStartAtTop}
-                >
-                  Start at top
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* Chapter Header */}
           <div className="mb-8 w-full" style={{ maxWidth: `${maxWidth}px` }}>
             <header className="border-border/70 border-b pb-6 text-center">
@@ -863,21 +967,80 @@ export function ChapterReadingView({
         </div>
       </main>
 
-      {/* Scroll to Top Button */}
-      {showScrollTop && (
-        <Button
-          size="icon"
-          onClick={scrollToTop}
+      {/* Reader position shortcuts */}
+      {(showScrollTop || chapterBookmark?.locked) && (
+        <div
           className={cn(
-            "fixed right-6 z-40 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl",
+            "fixed right-6 z-40 flex flex-col gap-2",
             nextChapter || previousChapter
               ? "bottom-24 md:bottom-6"
               : "bottom-6",
           )}
         >
-          <ArrowUp className="h-4 w-4" />
-        </Button>
+          {showScrollTop && (
+            <Button
+              size="icon"
+              onClick={scrollToTop}
+              aria-label="Scroll to top"
+              className="rounded-full shadow-lg transition-all duration-300 hover:shadow-xl"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </Button>
+          )}
+          {chapterBookmark?.locked && (
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleResumeBookmark}
+              aria-label="Go to locked saved place"
+              title="Go to locked saved place"
+              className="border-orange-500/60 bg-background rounded-full shadow-lg transition-all duration-300 hover:border-orange-500 hover:shadow-xl"
+            >
+              <Bookmark className="h-4 w-4 text-orange-500" />
+            </Button>
+          )}
+        </div>
       )}
+
+      <Dialog
+        open={showResumeDialog}
+        onOpenChange={(open) => {
+          setShowResumeDialog(open);
+          if (!open) {
+            autoSaveEnabledRef.current = !chapterBookmark?.locked;
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Continue reading?</DialogTitle>
+            <DialogDescription>
+              We found a saved place in this chapter. Where would you like to
+              begin?
+            </DialogDescription>
+          </DialogHeader>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={rememberResumeChoice}
+              onChange={(event) => setRememberResumeChoice(event.target.checked)}
+              className="accent-primary h-4 w-4"
+            />
+            Remember my choice on this device
+          </label>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => handleResumeChoice("start-top")}
+            >
+              Start at top
+            </Button>
+            <Button onClick={() => handleResumeChoice("resume")}>
+              Resume saved place
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Admin Edit Dialog */}
       {isAdmin && (

@@ -1,11 +1,35 @@
 export interface ChapterBookmark {
   scrollY: number;
+  locked?: boolean;
   savedAt: string;
 }
 
 type ChapterBookmarks = Record<string, ChapterBookmark>;
 
 const CHAPTER_BOOKMARKS_KEY = "chapter-bookmarks:v1";
+const RESUME_PREFERENCE_KEY = "chapter-resume-preference:v1";
+
+export type ResumePreference = "ask" | "resume" | "start-top";
+
+export function getResumePreference(): ResumePreference {
+  if (typeof window === "undefined") return "ask";
+
+  try {
+    const stored = localStorage.getItem(RESUME_PREFERENCE_KEY);
+    return stored === "resume" || stored === "start-top" ? stored : "ask";
+  } catch {
+    return "ask";
+  }
+}
+
+export function saveResumePreference(preference: ResumePreference) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(RESUME_PREFERENCE_KEY, preference);
+  } catch (error) {
+    console.error("Failed to save resume preference:", error);
+  }
+}
 
 function getBookmarkKey(novelSlug: string, chapterId: number) {
   return `${novelSlug}:${chapterId}`;
@@ -52,6 +76,7 @@ export function saveChapterBookmark(
   novelSlug: string,
   chapterId: number,
   scrollY: number,
+  locked = false,
 ): ChapterBookmark {
   if (typeof window === "undefined") {
     throw new Error("Chapter bookmarks require a browser environment");
@@ -63,6 +88,7 @@ export function saveChapterBookmark(
 
   const bookmark = {
     scrollY,
+    locked,
     savedAt: new Date().toISOString(),
   };
   const bookmarks = readBookmarks();
