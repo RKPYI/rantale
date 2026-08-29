@@ -19,7 +19,7 @@ This project powers the public-facing web application for Rantale's reading expe
 
 ## Try it live
 
-- https://rantale.randk.me
+- https://rantale.ranggadk.com
 
 ## Screenshots
 
@@ -85,7 +85,7 @@ Before you begin, make sure you have:
    ```bash
    NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
    NEXT_PUBLIC_APP_URL=http://localhost:3000
-   NEXT_PUBLIC_SITE_URL=https://rantale.randk.me
+   NEXT_PUBLIC_SITE_URL=https://rantale.ranggadk.com
    ```
 
 4. Start the app in development mode:
