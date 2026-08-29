@@ -1,138 +1,203 @@
-<!-- Placeholder logo: replace ./public/logo.png with your project logo -->
 <p align="center">
-  <img src="public/rantale-dark.svg" alt="Rantale / RDKNovel logo" width="160" height="160" />
+  <img src="public/rantale-dark.svg" alt="Rantale logo" width="180" />
 </p>
 
-# Rantale — RDKNovel Frontend
+# Rantale
 
-A modern Next.js 15 frontend for RDKNovel (Rantale): a novel-reading platform built with TypeScript, shadcn/ui, Tailwind CSS (OKLCH tokens), and a service-layered API client. This README explains how to get started, local development workflows, and the project structure.
+Rantale is a modern novel reading platform frontend built with Next.js 15, TypeScript, Tailwind CSS, and shadcn/ui. It provides a polished discovery experience for browsing, filtering, and reading serialized stories, with authentication, author workflows, notifications, and a responsive reading-first interface.
 
-> [!note]
-> If a logo or screenshot is missing, add a file at `public/logo.png` and `public/hero.png` — placeholders are used above and below.
+## Overview
 
-## Quick start
+This project powers the public-facing web application for RDKNovel’s reading experience. It includes:
 
-```bash
-# Install
-npm install
-
-# Copy env and edit
-cp .env.example .env.local
-# Edit .env.local: set NEXT_PUBLIC_API_BASE_URL and NEXT_PUBLIC_APP_URL
-
-# Dev server
-npm run dev
-```
-
-Open http://localhost:3000
+- a discovery-first landing page with featured and trending novels
+- search, browse, and genre-based navigation
+- user authentication and protected account flows
+- reading progress tracking and continue-reading experiences
+- author/admin surfaces for content management workflows
+- a clean, theme-aware UI built on reusable components
 
 ## Screenshots
 
 <p align="center">
-  <img src="public/Hero.png" alt="App screenshot placeholder" width="900" />
+  <img src="public/Hero.png" alt="Rantale landing page preview" width="980" />
+</p>
+
+<p align="center">
+  <img src="public/Novel.png" alt="Rantale novel view page" width="980" />
+</p>
+
+<p align="center">
+  <img src="public/Chapter.png" alt="Rantale chapter view page" width="980" />
 </p>
 
 ## Features
 
-- Modern Next.js 15 App Router with React Server Components
-- TypeScript-first codebase with strict types
-- shadcn/ui components + Radix primitives and Lucide icons
-- Dark/light theming via next-themes and CSS variables (OKLCH)
-- Centralized, type-safe API client and service layer
-- Auth: email/password, Google OAuth, JWT handling, protected routes
-- Utility hooks for data fetching, pagination and optimistic updates
+- Next.js 15 App Router with server and client component patterns
+- TypeScript-first architecture for predictable API and UI contracts
+- shadcn/ui component system with Tailwind CSS and theme variables
+- Dark and light mode support with CSS custom properties
+- JWT-based authentication flow with protected routes and session state
+- Rich reading experience with progress tracking, filtering, and recommendations
+- Search and browse experiences that scale well for a growing catalog
+- Vercel analytics and speed insights integration for production monitoring
+
+## Tech stack
+
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui
+- Radix UI primitives
+- Lucide React icons
+- next-themes
+- Vercel Analytics / Speed Insights
 
 ## Prerequisites
 
-- Node.js 18+ (recommended)
-- npm (or pnpm/yarn)
-- A running backend API (Laravel/Sanctum or compatible)
+Before you begin, make sure you have:
 
-## Environment
+- Node.js 18+
+- npm, pnpm, or yarn
+- a running backend API that matches the frontend contract
 
-Create `.env.local` from `.env.example` and configure:
+## Quick start
 
-- NEXT_PUBLIC_API_BASE_URL — e.g. `http://localhost:8000/api/v1`
-- NEXT_PUBLIC_APP_URL — e.g. `http://localhost:3000`
+1. Install dependencies:
 
-> [!warning]
-> Do not commit secrets. Use `.env.local` for local development only.
+   ```bash
+   npm install
+   ```
 
-## Scripts
+2. Copy the environment template:
 
-- npm run dev — Development (Turbopack)
-- npm run build — Production build
-- npm run start — Start production server
-- npm run lint — Run ESLint
+   ```bash
+   cp .env.example .env.local
+   ```
 
-## Project layout
+3. Update the environment variables in `.env.local`:
 
+   ```bash
+   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   NEXT_PUBLIC_SITE_URL=https://rantale.randk.me
+   ```
+
+4. Start the app in development mode:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open the app in your browser:
+
+   ```text
+   http://localhost:3000
+   ```
+
+> [!important]
+> The frontend expects a compatible backend API. Update `NEXT_PUBLIC_API_BASE_URL` to the correct backend URL before running the app in a local or staging environment.
+
+## Environment variables
+
+The project uses environment variables for API connectivity and APP URL.
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
-src/
-├─ app/              # Next.js App Router (layouts, pages, routes)
-│  ├─ auth/          # login, register, oauth callbacks
-│  ├─ layout.tsx     # Theme provider, global layout
-│  └─ page.tsx       # Home
-├─ components/       # UI components
-│  └─ ui/            # shadcn/ui primitives and variants
-├─ hooks/            # useAuth, useApi, useNovels, etc.
-├─ lib/              # api-client, env validation, utils
-├─ services/         # auth, novels, reading domain services
-└─ types/            # shared TypeScript types
+
+See `.env.example` for the full template.
+
+## Available scripts
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run format
 ```
 
-## API contract
+## Project structure
 
-The frontend expects a REST API with (typical) endpoints:
+```text
+frontend/
+├─ .env.example
+├─ .env.local
+├─ components.json
+├─ next.config.ts
+├─ package.json
+├─ public/
+│  ├─ Hero.png
+│  ├─ favicon.png
+│  ├─ logo-dark.svg
+│  ├─ logo-light.svg
+│  ├─ rantale-dark.svg
+│  └─ rantale-light.svg
+├─ src/
+│  ├─ app/
+│  │  ├─ (auth)
+│  │  ├─ (public)
+│  │  ├─ api/
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ loading.tsx
+│  │  └─ not-found.tsx
+│  ├─ components/
+│  ├─ contexts/
+│  ├─ hooks/
+│  ├─ lib/
+│  ├─ services/
+│  └─ types/
+├─ eslint.config.mjs
+├─ postcss.config.mjs
+├─ tsconfig.json
+└─ README.md
+```
 
-- POST /auth/register
-- POST /auth/login
-- GET /auth/me
-- POST /auth/logout
-- GET /auth/google
-- GET /auth/google/callback
-- CRUD endpoints under /novels, /chapters, /reading-progress
+## Authentication and API layer
 
-Adjust `NEXT_PUBLIC_API_BASE_URL` to point to your backend.
+The frontend includes a centralized API client and typed service layer. Common flows include:
 
-## Development notes
-
-- Use `npx shadcn@latest add <component>` to scaffold UI components — they auto-configure with the project's components.json.
-- Centralize domain logic in `src/services/*` and expose hooks from `src/hooks/*`.
-- Use `cn()` helper from `src/lib/utils` for class merging and `cva` for component variants.
-
-## Testing & linting
-
-- ESLint is configured — run `npm run lint`.
-- Add unit and integration tests as needed; no test runner configured by default.
+- registration and login
+- session-based auth state
+- JWT token handling and protected routes
+- profile retrieval and account updates
+- notification and reading-related API integrations
 
 ## Deployment
 
-Recommended: Vercel. Connect the repository and set environment variables in the Vercel dashboard.
+This app is designed for deployment on Vercel, but it can be hosted on any platform that supports Next.js.
 
-Manual deploy (example):
+### Vercel
+
+1. Connect the repository to Vercel.
+2. Set the environment variables from `.env.example`.
+3. Deploy the app.
+
+### Production build
 
 ```bash
 npm run build
 npm run start
 ```
 
-## Replacing images / logo
+> [!tip]
+> For production, make sure `NEXT_PUBLIC_SITE_URL`, API base URLs, and all auth-related configuration are set to the correct live values.
 
-- Logo: replace `public/logo.png` (160×160 recommended)
-- Hero / screenshots: replace `public/hero.png` (900×auto recommended)
+## Development notes
 
-## Where to look next
+- Use `src/services/*` for domain APIs and business logic.
+- Keep UI composition in `src/components/*` and shared primitives in `src/components/ui/*`.
+- Prefer `cn()` from `src/lib/utils` for class merging when composing component variants.
+- Keep environment-specific settings out of source control by using `.env.local`.
 
-- Environment and validation: `src/lib/env.ts`
-- API client: `src/lib/api-client.ts`
-- Authentication flow and services: `src/services/auth.ts`, `src/hooks/use-auth.ts`
-- UI primitives and components: `src/components/ui/`
+## Contributing
+
+This repository is intended for front-end development of the Rantale product. Contributions should follow the existing project structure and keep the user experience consistent with the current design system.
 
 ## Acknowledgements
 
-Built with shadcn/ui, Tailwind CSS, Radix primitives, and Next.js.
-
----
-
-If anything needs adjusting (more examples, diagrams, or a different tone), say which sections to expand and a logo/screenshot will be included. 
+Built with modern web tooling and open-source libraries, including Next.js, React, Tailwind CSS, shadcn/ui, and Radix UI.
