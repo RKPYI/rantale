@@ -1,166 +1,138 @@
-This is a [Next.js](https://nextjs.org) project for Rantale, a novel reading
-platform built with modern React patterns and shadcn/ui components.
+<!-- Placeholder logo: replace ./public/logo.png with your project logo -->
+<p align="center">
+  <img src="public/rantale-dark.svg" alt="Rantale / RDKNovel logo" width="160" height="160" />
+</p>
 
-## 🚀 Getting Started
+# Rantale — RDKNovel Frontend
 
-### Prerequisites
+A modern Next.js 15 frontend for RDKNovel (Rantale): a novel-reading platform built with TypeScript, shadcn/ui, Tailwind CSS (OKLCH tokens), and a service-layered API client. This README explains how to get started, local development workflows, and the project structure.
 
-- Node.js 18+
-- npm, yarn, pnpm, or bun
-- A running Laravel backend API
+> [!note]
+> If a logo or screenshot is missing, add a file at `public/logo.png` and `public/hero.png` — placeholders are used above and below.
 
-### Installation
+## Quick start
 
-1. **Clone and install dependencies:**
+```bash
+# Install
+npm install
 
-   ```bash
-   npm install
-   ```
+# Copy env and edit
+cp .env.example .env.local
+# Edit .env.local: set NEXT_PUBLIC_API_BASE_URL and NEXT_PUBLIC_APP_URL
 
-2. **Environment setup:**
+# Dev server
+npm run dev
+```
 
-   ```bash
-   cp .env.example .env.local
-   ```
+Open http://localhost:3000
 
-   Edit `.env.local` with your backend API URL:
+## Screenshots
 
-   ```bash
-   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api/v1
-   NEXT_PUBLIC_APP_URL=http://localhost:3000
-   ```
+<p align="center">
+  <img src="public/Hero.png" alt="App screenshot placeholder" width="900" />
+</p>
 
-3. **Run the development server:**
+## Features
 
-   ```bash
-   npm run dev
-   ```
+- Modern Next.js 15 App Router with React Server Components
+- TypeScript-first codebase with strict types
+- shadcn/ui components + Radix primitives and Lucide icons
+- Dark/light theming via next-themes and CSS variables (OKLCH)
+- Centralized, type-safe API client and service layer
+- Auth: email/password, Google OAuth, JWT handling, protected routes
+- Utility hooks for data fetching, pagination and optimistic updates
 
-   Open [http://localhost:3000](http://localhost:3000) with your browser.
+## Prerequisites
 
-## ✨ Features
+- Node.js 18+ (recommended)
+- npm (or pnpm/yarn)
+- A running backend API (Laravel/Sanctum or compatible)
 
-- **🔐 Complete Authentication System**
-  - Email/password registration and login
-  - Google OAuth integration
-  - Email verification
-  - JWT token management
-  - Protected routes
+## Environment
 
-- **🎨 Modern UI Components**
-  - shadcn/ui component library
-  - Dark/light theme support
-  - Responsive design
-  - OKLCH color system
+Create `.env.local` from `.env.example` and configure:
 
-- **📡 API Integration**
-  - Type-safe API client
-  - React hooks for data fetching
-  - Error handling
-  - Loading states
-  - Pagination support
+- NEXT_PUBLIC_API_BASE_URL — e.g. `http://localhost:8000/api/v1`
+- NEXT_PUBLIC_APP_URL — e.g. `http://localhost:3000`
 
-## 📁 Project Structure
+> [!warning]
+> Do not commit secrets. Use `.env.local` for local development only.
+
+## Scripts
+
+- npm run dev — Development (Turbopack)
+- npm run build — Production build
+- npm run start — Start production server
+- npm run lint — Run ESLint
+
+## Project layout
 
 ```
 src/
-├── app/                    # Next.js 15 App Router
-│   ├── auth/              # Authentication pages
-│   │   ├── login/         # Login page
-│   │   ├── register/      # Registration page
-│   │   └── google/callback/ # OAuth callback
-│   ├── layout.tsx         # Root layout with theme provider
-│   └── page.tsx           # Home page
-├── components/            # React components
-│   ├── ui/                # shadcn/ui components
-│   └── navbar.tsx         # Navigation with auth integration
-├── hooks/                 # Custom React hooks
-│   ├── use-auth.ts        # Authentication state management
-│   ├── use-api.ts         # Generic API hooks
-│   └── use-novels.ts      # Novel-specific data hooks
-├── lib/                   # Utilities
-│   ├── api-client.ts      # Centralized API client
-│   ├── env.ts             # Environment validation
-│   └── utils.ts           # Utility functions
-├── services/              # API service layers
-│   ├── auth.ts            # Authentication services
-│   ├── novels.ts          # Novel services
-│   └── reading.ts         # Reading progress services
-└── types/                 # TypeScript interfaces
-    └── api.ts             # API response types
+├─ app/              # Next.js App Router (layouts, pages, routes)
+│  ├─ auth/          # login, register, oauth callbacks
+│  ├─ layout.tsx     # Theme provider, global layout
+│  └─ page.tsx       # Home
+├─ components/       # UI components
+│  └─ ui/            # shadcn/ui primitives and variants
+├─ hooks/            # useAuth, useApi, useNovels, etc.
+├─ lib/              # api-client, env validation, utils
+├─ services/         # auth, novels, reading domain services
+└─ types/            # shared TypeScript types
 ```
 
-## 🛠️ Development
+## API contract
 
-### Available Scripts
+The frontend expects a REST API with (typical) endpoints:
 
-- `npm run dev` - Development server with Turbopack
-- `npm run build` - Production build with Turbopack
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- POST /auth/register
+- POST /auth/login
+- GET /auth/me
+- POST /auth/logout
+- GET /auth/google
+- GET /auth/google/callback
+- CRUD endpoints under /novels, /chapters, /reading-progress
 
-### Adding Components
+Adjust `NEXT_PUBLIC_API_BASE_URL` to point to your backend.
 
-Add shadcn/ui components:
+## Development notes
 
-```bash
-npx shadcn@latest add [component-name]
-```
+- Use `npx shadcn@latest add <component>` to scaffold UI components — they auto-configure with the project's components.json.
+- Centralize domain logic in `src/services/*` and expose hooks from `src/hooks/*`.
+- Use `cn()` helper from `src/lib/utils` for class merging and `cva` for component variants.
 
-Components auto-configure with New York style and CSS variables.
+## Testing & linting
 
-### Authentication Flow
+- ESLint is configured — run `npm run lint`.
+- Add unit and integration tests as needed; no test runner configured by default.
 
-1. **User Registration/Login** → JWT token stored
-2. **Protected API Calls** → Token automatically included
-3. **Profile Management** → Real-time sync with backend
-4. **Email Verification** → Handled via backend routes
+## Deployment
 
-## 📚 Documentation
+Recommended: Vercel. Connect the repository and set environment variables in the Vercel dashboard.
 
-- **[API Integration Guide](./API.md)** - Complete API setup and usage
-- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding
-  assistant guidelines
-
-## 🔗 Backend Integration
-
-This frontend connects to a Laravel backend with Sanctum authentication.
-Required API routes:
-
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `GET /auth/me` - Get user profile
-- `POST /auth/logout` - User logout
-- `GET /auth/google` - Google OAuth
-- `GET /auth/google/callback` - OAuth callback
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-```bash
-# Connect your repo to Vercel
-# Add environment variables in dashboard
-# Deploy automatically on push
-```
-
-### Manual Deployment
+Manual deploy (example):
 
 ```bash
 npm run build
 npm run start
 ```
 
-## 🧪 Tech Stack
+## Replacing images / logo
 
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type safety
-- **Tailwind CSS v4** - Styling with OKLCH colors
-- **shadcn/ui** - Component library
-- **Radix UI** - Headless components
-- **Lucide React** - Icons
-- **next-themes** - Theme management
+- Logo: replace `public/logo.png` (160×160 recommended)
+- Hero / screenshots: replace `public/hero.png` (900×auto recommended)
 
-## 📄 License
+## Where to look next
 
-This project is private and proprietary.
+- Environment and validation: `src/lib/env.ts`
+- API client: `src/lib/api-client.ts`
+- Authentication flow and services: `src/services/auth.ts`, `src/hooks/use-auth.ts`
+- UI primitives and components: `src/components/ui/`
+
+## Acknowledgements
+
+Built with shadcn/ui, Tailwind CSS, Radix primitives, and Next.js.
+
+---
+
+If anything needs adjusting (more examples, diagrams, or a different tone), say which sections to expand and a logo/screenshot will be included. 
