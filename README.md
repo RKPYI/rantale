@@ -21,6 +21,12 @@ This project powers the public-facing web application for Rantale's reading expe
 
 - https://rantale.ranggadk.com
 
+## Backend
+
+This frontend connects to the Rantale backend service. View the API/backend repository here:
+
+- https://github.com/RKPYI/novel-api
+
 ## Screenshots
 
 <p align="center">
