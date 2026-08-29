@@ -8,7 +8,7 @@ Rantale is a modern novel reading platform frontend built with Next.js 15, TypeS
 
 ## Overview
 
-This project powers the public-facing web application for RDKNovel’s reading experience. It includes:
+This project powers the public-facing web application for Rantale's reading experience. It includes:
 
 - a discovery-first landing page with featured and trending novels
 - search, browse, and genre-based navigation
@@ -16,6 +16,10 @@ This project powers the public-facing web application for RDKNovel’s reading e
 - reading progress tracking and continue-reading experiences
 - author/admin surfaces for content management workflows
 - a clean, theme-aware UI built on reusable components
+
+## Try it live
+
+- https://rantale.randk.me
 
 ## Screenshots
 
