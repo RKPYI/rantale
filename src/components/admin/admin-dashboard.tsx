@@ -11,6 +11,7 @@ import { OverviewTab } from "./overview-tab";
 import { AuthorApplicationsTab } from "./author-applications-tab";
 import { SystemHealthTab } from "./system-health-tab";
 import { ContactsTab } from "./contacts-tab";
+import { GlossaryTab } from "./glossary-tab";
 // import { ActivityTab } from "./activity-tab"; // Not production-ready yet
 
 export function AdminDashboard() {
@@ -65,6 +66,9 @@ export function AdminDashboard() {
             <TabsTrigger value="contacts" className="flex-shrink-0">
               Contacts
             </TabsTrigger>
+            <TabsTrigger value="glossary" className="flex-shrink-0">
+              Glossary
+            </TabsTrigger>
             {/* Activity Tab - Not production-ready yet */}
             {/* <TabsTrigger value="activity" className="flex-shrink-0">
               Activity
@@ -102,6 +106,10 @@ export function AdminDashboard() {
         {/* Contacts Tab */}
         <TabsContent value="contacts" className="mt-6">
           <ContactsTab />
+        </TabsContent>
+
+        <TabsContent value="glossary" className="mt-6">
+          <GlossaryTab />
         </TabsContent>
 
         {/* Activity Tab - Not production-ready yet */}

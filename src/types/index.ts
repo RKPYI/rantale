@@ -96,3 +96,4 @@ export type {
 export * from "./author";
 export * from "./library";
 export * from "./notification";
+export * from "./glossary";

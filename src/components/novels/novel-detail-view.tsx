@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   LayoutList,
   MessageSquare,
+  BookMarked,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +69,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { novelService } from "@/services/novels";
 import { toast } from "sonner";
+import { StoryGuide } from "@/components/glossary";
 
 interface NovelDetailViewProps {
   novel: NovelWithChapters;
@@ -152,7 +154,7 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
     const hash = window.location.hash.slice(1);
     if (
       hash &&
-      ["overview", "chapters", "reviews", "comments"].includes(hash)
+      ["overview", "chapters", "guide", "reviews", "comments"].includes(hash)
     ) {
       setActiveTab(hash);
       setTimeout(() => {
@@ -576,6 +578,11 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                         : (novel.total_chapters ?? sortedChapters.length),
                     },
                     {
+                      value: "guide",
+                      label: "Story guide",
+                      icon: BookMarked,
+                    },
+                    {
                       value: "reviews",
                       label: "Reviews",
                       icon: Star,
@@ -610,6 +617,15 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
                     >
                       <Icon className="hidden size-3.5 sm:block group-data-[state=active]:text-primary" />
                       <span>{tab.label}</span>
+                      {tab.value === "guide" && (
+                        <Badge
+                          variant="outline"
+                          className="border-primary/30 px-1.5 py-0 text-[9px] font-semibold uppercase tracking-wide text-primary"
+                          title="This is the first working version and will be revised in later updates."
+                        >
+                          Beta
+                        </Badge>
+                      )}
                       {count != null && (
                         <span
                           className={cn(
@@ -809,6 +825,15 @@ export function NovelDetailView({ novel }: NovelDetailViewProps) {
             ) : (
               <EmptyChapters />
             )}
+          </TabsContent>
+
+          <TabsContent value="guide" className="pb-8">
+            <div className="mb-5">
+              <p className="text-muted-foreground text-sm">
+                A progress-aware field guide to the people, places, items, and systems you have encountered.
+              </p>
+            </div>
+            <StoryGuide slug={novel.slug} />
           </TabsContent>
 
           <TabsContent value="reviews" className="pb-8">

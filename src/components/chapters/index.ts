@@ -3,3 +3,4 @@ export { ChapterNavigator } from "./chapter-navigator";
 export { MarkdownEditor } from "./markdown-editor";
 export { MarkdownRenderer } from "./markdown-renderer";
 export { ChapterClientWrapper } from "./chapter-client-wrapper";
+export { StoryCompanionDrawer } from "./story-companion-drawer";

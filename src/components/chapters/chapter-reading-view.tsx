@@ -24,6 +24,7 @@ import {
   Lock,
   Unlock,
   Bookmark,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,6 +71,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { StoryCompanionDrawer } from "@/components/chapters/story-companion-drawer";
 
 const MOBILE_NAV_HIDE_THRESHOLD = 8;
 const MOBILE_NAV_BREAKPOINT = 768;
@@ -167,6 +169,7 @@ export function ChapterReadingView({
   const [chapterBookmark, setChapterBookmark] =
     useState<ChapterBookmark | null>(null);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [showCompanion, setShowCompanion] = useState(false);
   const [resumePreference, setResumePreference] =
     useState<ResumePreference>("ask");
   const [rememberResumeChoice, setRememberResumeChoice] = useState(false);
@@ -520,6 +523,17 @@ export function ChapterReadingView({
 
               <Button
                 variant="ghost"
+                size="icon"
+                onClick={() => setShowCompanion(true)}
+                title="Ask about this story"
+                aria-label="Ask about this story"
+                className="h-9 w-9"
+              >
+                <Bot className="h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={handleToggleBookmarkLock}
                 title={
@@ -587,6 +601,7 @@ export function ChapterReadingView({
                           A+
                         </Button>
                       </div>
+
                     </div>
                     <Collapsible
                       open={fontOptionsOpen}
@@ -1164,6 +1179,12 @@ export function ChapterReadingView({
           onSuccess={handleEditSuccess}
         />
       )}
+
+      <StoryCompanionDrawer
+        slug={novel.slug}
+        open={showCompanion}
+        onOpenChange={setShowCompanion}
+      />
     </div>
   );
 }
