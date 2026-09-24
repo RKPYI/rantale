@@ -237,9 +237,19 @@ export function GlossaryTab() {
                       <span className="text-muted-foreground text-xs">{Math.round(proposal.confidence * 100)}% confidence</span>
                     </div>
                     <p className="mt-2 text-sm">{proposal.reason ?? "The manager found a possible conflict."}</p>
+                    {proposal.classification && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+                        <Badge variant="secondary" className="uppercase tracking-wide">
+                          {proposal.classification.replace(/_/g, " ")}
+                        </Badge>
+                        {proposal.ai_recommendation && (
+                          <span className="text-muted-foreground">AI: {proposal.ai_recommendation}</span>
+                        )}
+                      </div>
+                    )}
                     {proposal.ai_explanation && (
                       <p className="text-muted-foreground mt-2 text-xs">
-                        AI check: <span className="font-medium">{proposal.ai_recommendation ?? "needs_review"}</span> — {proposal.ai_explanation}
+                        {proposal.ai_explanation}
                       </p>
                     )}
                     {proposal.before_data?.value !== undefined && <p className="text-muted-foreground mt-2 text-xs">Current: {String(proposal.before_data.value)}</p>}

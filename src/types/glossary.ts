@@ -104,12 +104,19 @@ export interface GlossaryBulkReviewResponse {
   skipped_ids: number[];
 }
 
+export type GlossaryProposalClassification =
+  | "true_conflict"
+  | "chapter_scoped_correction"
+  | "new_fact_slot"
+  | "non_conflict";
+
 export interface GlossaryProposal {
   id: number;
   operation: string;
   status: "pending" | "approved" | "rejected" | "auto_applied" | "superseded";
   ai_recommendation?: "approve" | "reject" | "needs_review" | null;
   ai_explanation?: string | null;
+  classification?: GlossaryProposalClassification | null;
   confidence: number;
   before_data: Record<string, unknown> | null;
   after_data: Record<string, unknown> | null;
